@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core-api/com.knock.knock-backend.core.core-api.main.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core-api/com.knock.knock-backend.core.core-api.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core-api/com.knock.knock-backend.core.core-api.test.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core-api/com.knock.knock-backend.core.core-api.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core-enum/com.knock.knock-backend.core.core-enum.main.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core-enum/com.knock.knock-backend.core.core-enum.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/infra/s3/com.knock.knock-backend.infra.s3.main.iml" filepath="$PROJECT_DIR$/.idea/modules/infra/s3/com.knock.knock-backend.infra.s3.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/storage/db-core/com.knock.knock-backend.storage.db-core.main.iml" filepath="$PROJECT_DIR$/.idea/modules/storage/db-core/com.knock.knock-backend.storage.db-core.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/storage/memory/com.knock.knock-backend.storage.memory.main.iml" filepath="$PROJECT_DIR$/.idea/modules/storage/memory/com.knock.knock-backend.storage.memory.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/knock.iml" filepath="$PROJECT_DIR$/knock.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core-api/knock-backend.core.core-api.main.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core-api/knock-backend.core.core-api.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core-api/knock-backend.core.core-api.test.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core-api/knock-backend.core.core-api.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core-auth/knock-backend.core.core-auth.main.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core-auth/knock-backend.core.core-auth.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core-enum/knock-backend.core.core-enum.main.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core-enum/knock-backend.core.core-enum.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/infra/s3/knock-backend.infra.s3.main.iml" filepath="$PROJECT_DIR$/.idea/modules/infra/s3/knock-backend.infra.s3.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/storage/db-core/knock-backend.storage.db-core.main.iml" filepath="$PROJECT_DIR$/.idea/modules/storage/db-core/knock-backend.storage.db-core.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/storage/memory/knock-backend.storage.memory.main.iml" filepath="$PROJECT_DIR$/.idea/modules/storage/memory/knock-backend.storage.memory.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/support/logging/knock-backend.support.logging.main.iml" filepath="$PROJECT_DIR$/.idea/modules/support/logging/knock-backend.support.logging.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/support/monitoring/knock-backend.support.monitoring.main.iml" filepath="$PROJECT_DIR$/.idea/modules/support/monitoring/knock-backend.support.monitoring.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tests/api-docs/knock-backend.tests.api-docs.main.iml" filepath="$PROJECT_DIR$/.idea/modules/tests/api-docs/knock-backend.tests.api-docs.main.iml" />
+    </modules>
+  </component>
+</project>

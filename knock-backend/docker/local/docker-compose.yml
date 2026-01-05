@@ -1,0 +1,26 @@
+services:
+  redis: # Redis (Session & Cache)
+    image: redis:alpine
+    container_name: knock-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data/redis:/data
+    command: redis-server --appendonly yes
+    restart: always
+  # mysql: # MySQL (Local DB) - 필요시 주석 해제하여 사용
+  #   image: mysql:8.0
+  #   container_name: knock-db
+  #   ports:
+  #     - "3306:3306"
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root
+  #     MYSQL_DATABASE: my_daangn
+  #     MYSQL_USER: user
+  #     MYSQL_PASSWORD: password
+  #   volumes:
+  #     - ./data/mysql:/var/lib/mysql
+  #   command:
+  #     - --character-set-server=utf8mb4
+  #     - --collation-server=utf8mb4_unicode_ci
+  #   restart: always

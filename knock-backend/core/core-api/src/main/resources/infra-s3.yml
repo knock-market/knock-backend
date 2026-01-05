@@ -1,0 +1,6 @@
+aws:
+  s3:
+    access-key: ${AWS_ACCESS_KEY:test-key}
+    secret-key: ${AWS_SECRET_KEY:test-secret}
+    region: ${AWS_REGION:ap-northeast-2}
+    bucket-name: ${AWS_BUCKET_NAME:knock-bucket}

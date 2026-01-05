@@ -1,0 +1,76 @@
+# Common Settings
+storage:
+  redis:
+    timeout: 3000
+    encryption-key: 1234567890123456
+
+---
+spring.config.activate.on-profile: local
+
+storage:
+  redis:
+    host: localhost
+    port: 6379
+    password:
+    ssl: false
+
+---
+spring.config.activate.on-profile: local-dev
+
+storage:
+  redis:
+    host: localhost
+    port: 6379
+    password:
+    ssl: false
+    pool:
+      max-active: 8
+      max-idle: 8
+      min-idle: 0
+
+---
+spring.config.activate.on-profile: dev
+
+storage:
+  redis:
+    host: ${storage.redis.host}
+    port: ${storage.redis.port:6379}
+    password: ${storage.redis.password}
+    ssl: false
+    pool:
+      max-active: 10
+      max-idle: 10
+      min-idle: 2
+      max-wait: 1000
+
+---
+spring.config.activate.on-profile: staging
+
+storage:
+  redis:
+    host: ${storage.redis.host}
+    port: ${storage.redis.port:6379}
+    password: ${storage.redis.password}
+    ssl: true
+    timeout: 5000
+    pool:
+      max-active: 20
+      max-idle: 10
+      min-idle: 5
+      max-wait: 2000
+
+---
+spring.config.activate.on-profile: live
+
+storage:
+  redis:
+    host: ${storage.redis.host}
+    port: ${storage.redis.port:6379}
+    password: ${storage.redis.password}
+    ssl: true
+    timeout: 5000
+    pool:
+      max-active: 50
+      max-idle: 20
+      min-idle: 10
+      max-wait: 3000
