@@ -1,6 +1,7 @@
 package com.knock.core.api.controller.v1;
 
 import com.knock.auth.AuthService;
+import com.knock.auth.SessionAuthService;
 import com.knock.core.api.controller.v1.request.AuthLoginRequestDto;
 import com.knock.core.support.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +20,7 @@ public class AuthController {
 	@PostMapping("/api/v1/auth/login")
 	public ApiResponse<?> login(@RequestBody AuthLoginRequestDto request, HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse) {
-		authService.login(request.email(), request.password(), httpRequest, httpResponse);
+		authService.login(new SessionAuthService.LoginRequestData(request.email(), request.password()), httpRequest, httpResponse);
 		return ApiResponse.success();
 	}
 

@@ -4,6 +4,7 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+.DS_Store
 
 ### STS ###
 .apt_generated
@@ -37,5 +38,6 @@ out/
 .vscode/
 
 ### gradle wrapper ###
-/my-daangn-backend/gradle/wrapper/gradle-wrapper.properties
-/my-daangn-backend/gradle/wrapper/gradle-wrapper.jar
+/knock-backend/gradle/wrapper/gradle-wrapper.properties
+/knock-backend/gradle/wrapper/gradle-wrapper.jar
+/knock-backend/docker/local/data/*

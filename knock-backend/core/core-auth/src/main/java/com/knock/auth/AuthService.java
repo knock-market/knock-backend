@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public interface AuthService {
 
-	void login(String email, String rawPassword, HttpServletRequest request, HttpServletResponse response);
+	void login(SessionAuthService.LoginRequestData data, HttpServletRequest request, HttpServletResponse response);
 
 	void logout(HttpServletRequest request);
 

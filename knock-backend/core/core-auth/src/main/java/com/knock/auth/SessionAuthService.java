@@ -1,6 +1,7 @@
 package com.knock.auth;
 
 import com.knock.auth.exception.AuthUserPasswordMismatchException;
+import com.knock.auth.exception.MemberNameNotFoundException;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,10 +34,10 @@ public class SessionAuthService implements AuthService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public void login(String email, String rawPassword, HttpServletRequest request, HttpServletResponse response) {
-		Member member = memberRepository.findByEmail(email).orElseThrow(User::new);
+	public void login(LoginRequestData data, HttpServletRequest request, HttpServletResponse response) {
+		Member member = memberRepository.findByEmail(data.email).orElseThrow(MemberNameNotFoundException::new);
 
-		if (!passwordEncoder.matches(rawPassword, member.getPassword())) {
+		if (!passwordEncoder.matches(data.rawPassword, member.getPassword())) {
 			throw new AuthUserPasswordMismatchException();
 		}
 
@@ -60,4 +61,6 @@ public class SessionAuthService implements AuthService {
 		SecurityContextHolder.clearContext();
 	}
 
+	public record LoginRequestData(String email, String rawPassword) {
+	}
 }
