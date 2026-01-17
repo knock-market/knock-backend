@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f18c27",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#221910",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: "Plus Jakarta Sans", sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full max-w-[430px] mx-auto flex-col bg-background-light dark:bg-background-dark overflow-x-hidden pb-10">
+<!-- TopAppBar -->
+<div class="flex items-center bg-transparent p-4 pb-2 justify-between">
+<div class="text-primary flex size-12 shrink-0 items-center">
+<span class="material-symbols-outlined text-3xl">check_circle</span>
+</div>
+<h2 class="text-[#181411] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Reservation Confirmed</h2>
+<div class="flex w-12 items-center justify-end">
+<button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 w-10 bg-white/50 dark:bg-white/10 text-[#181411] dark:text-white gap-2 text-base font-bold leading-normal tracking-[0.015em] min-w-0 p-0">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+</div>
+<!-- HeadlineText -->
+<div class="flex flex-col items-center">
+<h1 class="text-[#181411] dark:text-white tracking-light text-[32px] font-bold leading-tight px-4 text-center pb-2 pt-6">Reservation Confirmed!</h1>
+<!-- MetaText -->
+<p class="text-[#8a7560] dark:text-[#c4b5a6] text-sm font-normal leading-normal pb-6 pt-1 px-8 text-center">You can now reach out to the seller to coordinate the exchange.</p>
+</div>
+<!-- Item Summary Card -->
+<div class="px-4">
+<div class="flex items-stretch justify-between gap-4 rounded-xl bg-white dark:bg-[#2d241b] p-4 shadow-sm border border-[#edebe9] dark:border-[#3d3329]">
+<div class="flex flex-col justify-center gap-1 flex-[2_2_0px]">
+<p class="text-[#8a7560] dark:text-[#c4b5a6] text-xs font-medium uppercase tracking-wider">Item Summary</p>
+<p class="text-[#181411] dark:text-white text-base font-bold leading-tight">Vintage Film Camera</p>
+<p class="text-primary text-sm font-bold">$45.00</p>
+</div>
+<div class="w-24 h-20 bg-center bg-no-repeat bg-cover rounded-lg flex-shrink-0" data-alt="Vintage silver and black film camera on a wooden table" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBOVm43TMqqSgLzW4K0IXp7smj9wJbiJa0wEFW5C9r604hrSSuOeoIlU_46T-vIvTRu49qqjpiDGDubXldj3yoTp5PfCmolVJvOLWRwmVgs8jLCKKsPgAxdWf0OaNOeGFH-CnGe7CQkKDyTQNKfSLPuBQoRBTKWIlJf5tW1PrqePWNI_DKdIrJ2HEbSXTsstx49XISxaN7f9lg-tXXh6xiDUL6Id94RUt6N5sQZHgfA-1p3ZMhOvd6djIyGyMU0hJ5xxYTGr7EdY0Q");'></div>
+</div>
+</div>
+<!-- SectionHeader -->
+<div class="px-4 pb-2 pt-8 flex items-center justify-between">
+<h3 class="text-[#181411] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Seller Contact Info</h3>
+<span class="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Verified User</span>
+</div>
+<!-- Contact Details Card -->
+<div class="px-4 space-y-3">
+<div class="bg-white dark:bg-[#2d241b] rounded-xl p-5 border border-[#edebe9] dark:border-[#3d3329] shadow-sm">
+<!-- Phone Number -->
+<div class="flex flex-col mb-5">
+<span class="text-[#8a7560] dark:text-[#c4b5a6] text-xs font-medium mb-2">Phone Number</span>
+<div class="flex items-center justify-between">
+<span class="text-[#181411] dark:text-white text-lg font-bold font-mono tracking-widest">+1 (555) 012-3456</span>
+<button class="bg-primary text-white p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">content_copy</span>
+</button>
+</div>
+</div>
+<!-- KakaoTalk -->
+<div class="flex flex-col mb-5">
+<span class="text-[#8a7560] dark:text-[#c4b5a6] text-xs font-medium mb-2">KakaoTalk ID</span>
+<div class="flex items-center justify-between">
+<span class="text-[#181411] dark:text-white text-lg font-bold">alex_k_88</span>
+<button class="bg-[#FEE500] text-[#3c1e1e] p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">chat_bubble</span>
+</button>
+</div>
+</div>
+<!-- Custom Message -->
+<div class="flex flex-col border-t border-[#edebe9] dark:border-[#3d3329] pt-4">
+<span class="text-[#8a7560] dark:text-[#c4b5a6] text-xs font-medium mb-2">Seller's Note</span>
+<div class="bg-background-light dark:bg-[#3d3329] rounded-lg p-3">
+<p class="text-[#181411] dark:text-white text-sm leading-relaxed italic">
+                            "I will leave it at the departmental office on the 3rd floor. Please pick it up anytime before 6 PM!"
+                        </p>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="grid grid-cols-2 gap-3 pt-2">
+<button class="bg-primary text-white font-bold py-4 rounded-full flex items-center justify-center gap-2 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">call</span>
+<span>Call Seller</span>
+</button>
+<button class="bg-white dark:bg-[#2d241b] text-[#181411] dark:text-white border border-[#edebe9] dark:border-[#3d3329] font-bold py-4 rounded-full flex items-center justify-center gap-2 shadow-sm">
+<span class="material-symbols-outlined">sms</span>
+<span>Text Message</span>
+</button>
+</div>
+</div>
+<!-- Meeting Guide Section -->
+<div class="px-4 mt-8">
+<div class="bg-primary/5 dark:bg-primary/10 rounded-xl p-5 border border-primary/20">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-primary">security</span>
+<h4 class="text-primary font-bold">Meeting Guide</h4>
+</div>
+<ul class="space-y-3">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span>
+<p class="text-sm text-[#5d4d3d] dark:text-[#c4b5a6]">Meet in a public area of the campus or office during daylight hours.</p>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span>
+<p class="text-sm text-[#5d4d3d] dark:text-[#c4b5a6]">Inspect the item thoroughly before making the final payment.</p>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-sm mt-1">check_circle</span>
+<p class="text-sm text-[#5d4d3d] dark:text-[#c4b5a6]">Use the group's preferred secure payment method for records.</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- Bottom Spacing -->
+<div class="h-10"></div>
+</div>
+</body></html>

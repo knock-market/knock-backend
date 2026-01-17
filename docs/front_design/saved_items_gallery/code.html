@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Saved Items Gallery</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#19f097",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#10221b",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: max(884px, 100dvh);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .segmented-control {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        .dark .segmented-control {
+            background: rgba(255, 255, 255, 0.05);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display">
+<main class="flex-grow pb-24 overflow-y-auto">
+<div class="px-5 pt-12 pb-4 sticky top-0 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md z-10">
+<h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-4">Saved</h1>
+<div class="segmented-control p-1 rounded-xl flex items-center relative">
+<button class="flex-1 py-1.5 text-[13px] font-semibold rounded-lg bg-white dark:bg-slate-800 shadow-sm text-slate-900 dark:text-white transition-all">
+                Likes
+            </button>
+<button class="flex-1 py-1.5 text-[13px] font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all">
+                Reservations
+            </button>
+<button class="flex-1 py-1.5 text-[13px] font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all">
+                History
+            </button>
+</div>
+</div>
+<div id="likes-view">
+<div class="px-5 mb-2">
+<p class="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">Your Bookmarks</p>
+</div>
+<div class="grid grid-cols-2 gap-4 p-4">
+<div class="flex flex-col gap-2">
+<div class="relative aspect-[4/5] rounded-xl overflow-hidden group">
+<div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCi5GhVtPJk_nPQFtHOfyLoJE7H1mlLct1GkQi9JgJJB_lCob48WFhXCSpjyaBdkTlbqOcbyyuT9jaTBusOLoNfEC9-PVpwhnMZipCW7yLwhVwidBcwOT7C8ABCxRvjcafL0-UReqNQI6VPfi4MJV4rMGf2-r7MN6Uod4K3Ev6_4FER6Tsh8fihikaImy6_La1h9hCOthM6oc9mGXxsM4r8htEj8mcN9PKEPCxPZ4Kpg0b62RmJCGrSXt--SlXYhY1AwZNqlGbJm54');"></div>
+<button class="absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-white/90 dark:bg-slate-800/90 rounded-full shadow-sm">
+<span class="material-symbols-outlined material-symbols-fill text-primary text-[20px]">favorite</span>
+</button>
+<button class="absolute bottom-3 right-3 px-3 py-1.5 bg-white/95 dark:bg-slate-900/95 text-slate-900 dark:text-white text-[10px] font-bold rounded-lg shadow-lg border border-slate-100 dark:border-slate-800 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">bookmark_add</span>
+                        RESERVE
+                    </button>
+<div class="absolute bottom-3 left-3 bg-primary text-slate-900 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full">
+                        Free
+                    </div>
+</div>
+<div class="px-1">
+<h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">Ergonomic Chair</h3>
+<p class="text-[11px] text-slate-500 dark:text-slate-400">Design Dept Group</p>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="relative aspect-[4/5] rounded-xl overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCNV4ZdNQs8dt0VyBzBPGirnz76cMy0NYlfNjOECCBmGIDuETw6M1kJeVrOQf5WC6D60yP_KdRUFG33DWv-sIrY7vbXCSxktDjxdk8ZcR8h0kydFXroajHNvN1HfXIVsW1gOL17WeZQ4hLpJjp6vTcGJ6y38pfS6CyJVSAMay6mYmNCGEU6l3yd90JnJgp_3gePxRjJss8tGWnMFUU6n7Nf5PWOsqz1ClVZLpE6nTohwSKihrBe9Q2gr-pezU5jcu0def-9ZTYSpQk');"></div>
+<button class="absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-white/90 dark:bg-slate-800/90 rounded-full shadow-sm">
+<span class="material-symbols-outlined material-symbols-fill text-primary text-[20px]">favorite</span>
+</button>
+<button class="absolute bottom-3 right-3 px-3 py-1.5 bg-white/95 dark:bg-slate-900/95 text-slate-900 dark:text-white text-[10px] font-bold rounded-lg shadow-lg border border-slate-100 dark:border-slate-800 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">bookmark_add</span>
+                        RESERVE
+                    </button>
+<div class="absolute bottom-3 left-3 bg-white/90 dark:bg-slate-900/90 text-slate-900 dark:text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full border border-slate-100 dark:border-slate-800">
+                        $45.00
+                    </div>
+</div>
+<div class="px-1">
+<h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">Vintage Camera</h3>
+<p class="text-[11px] text-slate-500 dark:text-slate-400">Media Arts Circle</p>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="relative aspect-[4/5] rounded-xl overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBOhk4UCxCoDnW0TtKneaCzVcHfPwBpstjqX2k1nsR130k_exn8abBgwX0mPhxS2RSNIgSwauRgi97uALpiJTz-OfTxLxEn6lsJdO0Nk-SuOWVgDYReW2B6BZYI7eZYMYgT9HnZHZ6wCFx5kFiJhOHQm8nHurEroJAJB2Hchd7_dcyYSxFBqP2Kku-8h18ppXsfp0zgEUwpccwuPWMHdGHXVNAruJQ1PB1fldM6FONBnJ850L5yU05PG4fYyTkWJsMntLnyoMR_wgA');"></div>
+<button class="absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-white/90 dark:bg-slate-800/90 rounded-full shadow-sm">
+<span class="material-symbols-outlined material-symbols-fill text-primary text-[20px]">favorite</span>
+</button>
+<button class="absolute bottom-3 right-3 px-3 py-1.5 bg-white/95 dark:bg-slate-900/95 text-slate-900 dark:text-white text-[10px] font-bold rounded-lg shadow-lg border border-slate-100 dark:border-slate-800 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">bookmark_add</span>
+                        RESERVE
+                    </button>
+<div class="absolute bottom-3 left-3 bg-primary text-slate-900 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full">
+                        $20.00
+                    </div>
+</div>
+<div class="px-1">
+<h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">Mountain Bike</h3>
+<p class="text-[11px] text-slate-500 dark:text-slate-400">Class of '24</p>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="relative aspect-[4/5] rounded-xl overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBiccH-KVIS6OOtILUI-HC68FfS_NUuCM0deBDm8GEdoXmQ6FNuUGsD0zH61f2DQ_GZlK2MChVr6yt29VwT101NLaBkRac-jFM9o1TvJ6QquVPo3ueVNStGI5OWMfK_XGAO2gCoD10fN0crK6xc7wy4tQlc_eead3GMTTw8bpF8oJAjm-sYQWRk1zhygQkLshyhXtmta6c6JA9x8EjaOgw-6k4bvPpO-xImQHarA-7bydTrLrn-2IeL4L_QsneuVDGRfBYijPkotIM');"></div>
+<button class="absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-white/90 dark:bg-slate-800/90 rounded-full shadow-sm">
+<span class="material-symbols-outlined material-symbols-fill text-primary text-[20px]">favorite</span>
+</button>
+<button class="absolute bottom-3 right-3 px-3 py-1.5 bg-white/95 dark:bg-slate-900/95 text-slate-900 dark:text-white text-[10px] font-bold rounded-lg shadow-lg border border-slate-100 dark:border-slate-800 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">bookmark_add</span>
+                        RESERVE
+                    </button>
+<div class="absolute bottom-3 left-3 bg-primary text-slate-900 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full">
+                        Free
+                    </div>
+</div>
+<div class="px-1">
+<h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">Calculus Book</h3>
+<p class="text-[11px] text-slate-500 dark:text-slate-400">STEM Society</p>
+</div>
+</div>
+</div>
+</div>
+<div class="hidden" id="history-view">
+<div class="px-5 mb-2">
+<p class="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">Past Acquisitions</p>
+</div>
+<div class="flex flex-col gap-4 p-4">
+<div class="bg-white dark:bg-slate-800/50 p-3 rounded-2xl flex gap-4 border border-slate-100 dark:border-slate-800">
+<div class="w-20 h-20 rounded-xl bg-cover bg-center flex-shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAGUTSYshiwBPr27dBIcLgXJlRGIpMeDvVwzc8xPBnokJJEl_CY3TVlSPaAGPQWKq5uAp8QrAIQ8a_IDligY1d5R8YuvMyao3y3hKs-kItdahVGFTB8LDCZq8Nk0NcOSOa601tkGteNzeONJdbBK_EXJ6EOPGdIyZSEcnO9VKSDoSFMnxWgiSru1vzzsa5zTEfjGojLkrce2FMdJkRe2Jr5OIdeL0DdsQzdX-IEpmFsyMOi2XVz1ffZp4P6I_noC57Imh6VOazY54E');"></div>
+<div class="flex-grow flex flex-col justify-between py-0.5">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="text-sm font-bold text-slate-900 dark:text-white">MacBook Sleeve</h3>
+<span class="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-full uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">check_circle</span>
+                                Completed
+                            </span>
+</div>
+<p class="text-[11px] text-slate-500 dark:text-slate-400">Marketing Team</p>
+</div>
+<div class="flex justify-between items-end">
+<p class="text-xs font-semibold text-slate-900 dark:text-white">$25.00</p>
+<span class="text-[10px] text-slate-400">Oct 12, 2023</span>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-800/50 p-3 rounded-2xl flex gap-4 border border-slate-100 dark:border-slate-800">
+<div class="w-20 h-20 rounded-xl bg-cover bg-center flex-shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBfPXrlVLikKH6bIMh_O2irE_JMWRrR8lneJtSLWWW0tgnVR_qvbWqpGSEOkkpvki0holumwEk_GECc5IM3kYiMK2Yn0PWbGrSw9MLcb4feDQ-ualSs4TNTH6nSjr9E_1gnT5d0RYH6Ta2-v4Ca83mkYmFH_jo1EvaCnbI5MGTYhX2irkvHa7ed_DHfb72DjTwIwxSDWjytS5gpyZlniuQBlJcuJhYdjFm02aJnICgt-2gdflCDIQNvfobjBXBigHHbL9HuG86r-KQ');"></div>
+<div class="flex-grow flex flex-col justify-between py-0.5">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="text-sm font-bold text-slate-900 dark:text-white">Dumbbell Set</h3>
+<span class="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-full uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">check_circle</span>
+                                Completed
+                            </span>
+</div>
+<p class="text-[11px] text-slate-500 dark:text-slate-400">Fitness Friends</p>
+</div>
+<div class="flex justify-between items-end">
+<p class="text-xs font-semibold text-slate-900 dark:text-white">$120.00</p>
+<span class="text-[10px] text-slate-400">Sep 28, 2023</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<nav class="fixed bottom-0 w-full bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-t border-slate-200/50 dark:border-slate-800/50 px-4 pb-8 pt-3 z-20">
+<div class="flex justify-between items-center max-w-md mx-auto">
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500 group-hover:text-primary transition-colors">home</span>
+<span class="text-[10px] font-medium text-slate-400 dark:text-slate-500 group-hover:text-primary">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500 group-hover:text-primary transition-colors">groups</span>
+<span class="text-[10px] font-medium text-slate-400 dark:text-slate-500 group-hover:text-primary">Groups</span>
+</a>
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500 group-hover:text-primary transition-colors">sell</span>
+<span class="text-[10px] font-medium text-slate-400 dark:text-slate-500 group-hover:text-primary">Selling</span>
+</a>
+<a class="flex flex-col items-center gap-1" href="#">
+<div class="relative flex flex-col items-center gap-1">
+<span class="material-symbols-outlined material-symbols-fill text-primary">favorite</span>
+<span class="text-[10px] font-bold text-slate-900 dark:text-white">Saved</span>
+<div class="absolute -bottom-1.5 w-1 h-1 bg-primary rounded-full"></div>
+</div>
+</a>
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500 group-hover:text-primary transition-colors">menu</span>
+<span class="text-[10px] font-medium text-slate-400 dark:text-slate-500 group-hover:text-primary">Menu</span>
+</a>
+</div>
+</nav>
+
+</body></html>

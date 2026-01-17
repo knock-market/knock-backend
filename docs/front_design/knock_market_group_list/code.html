@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Knock Market - Home Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#19f097",
+                        "warm-accent": "#FF9F64",
+                        "background-light": "#fdfcfb",
+                        "background-dark": "#10221b",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #fdfcfb;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-[#111815] transition-colors duration-300">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden max-w-[480px] mx-auto bg-white dark:bg-[#10221b] shadow-2xl pb-24">
+<div class="px-4 pt-8 pb-2">
+<h2 class="text-[#111815] dark:text-white tracking-tight text-3xl font-extrabold leading-tight">Welcome back, Alex! 👋</h2>
+<p class="text-[#111815]/60 dark:text-white/60 text-sm font-medium mt-1">See what's happening in your circles today.</p>
+</div>
+<div class="mt-8">
+<div class="flex items-center justify-between px-4 mb-3">
+<h3 class="text-[#111815] dark:text-white text-lg font-extrabold tracking-tight">Your Selling Items</h3>
+<button class="text-primary text-xs font-bold px-3 py-1 bg-primary/10 rounded-full">Manage All</button>
+</div>
+<div class="flex overflow-x-auto no-scrollbar gap-4 px-4 pb-2">
+<div class="flex-none w-40">
+<div class="relative aspect-square rounded-2xl bg-cover bg-center overflow-hidden shadow-sm" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCjSsnv2N38iJtVVEI5FtIAzaeCGkaM2NgWIjFzfnCOJuECYShNYLQX2Uu4ZImQH1q151tcAHSbFVnsE8bHNNUClIeEjHo27kwUeGNUag2W1dsto2v0E4rcydLeBnS2MVZrTDQHlUO2_uvVZNX8Zy910lB7ErOG_yZDCnf6-JiM0l3GVabc2QVl_YPhuoPPOPmgYUyb7dR4WrV3p1n_HZUtzkic5hSodL8NgoTOaN48-P3Lfi-9agSuhVMjZ4NtcFQRwhIEd4pUDBM');">
+<div class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-lg text-[10px] font-bold shadow-sm">Active</div>
+</div>
+<div class="mt-2">
+<p class="text-sm font-bold truncate">Wireless Headphones</p>
+<p class="text-xs text-primary font-extrabold">$85.00</p>
+</div>
+</div>
+<div class="flex-none w-40">
+<div class="relative aspect-square rounded-2xl bg-cover bg-center overflow-hidden shadow-sm" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB7CYJ_CeU4mb1A1LriaAN_Me3Zp9ft3z4lDHCLiIgJ2a9LcTfoPxAzGoRU1L_C0cYbHgFRBirwl6jQoe0mgB9UrKDpQwES_8k0ieejR50m60GHIdsOqv40hjs5E8GO1u8l2hrZRTLTdK1MhxKONaZxxUcsh6IEOSf9fcnIXyu8X_renso7gnVNLhvsuy71XN7imoJpajlvXAJg1XNr9gBi1Q3wYUO8qEZNUfcsz0VAJX_t7ZCmgrgINtcu0jm8WYIpVji3RPJb9hA');">
+<div class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-lg text-[10px] font-bold shadow-sm">Pending</div>
+</div>
+<div class="mt-2">
+<p class="text-sm font-bold truncate">Ergonomic Chair</p>
+<p class="text-xs text-primary font-extrabold">$120.00</p>
+</div>
+</div>
+<div class="flex-none w-40">
+<div class="aspect-square rounded-2xl bg-background-light dark:bg-white/5 border-2 border-dashed border-black/10 dark:border-white/10 flex flex-col items-center justify-center gap-2 group cursor-pointer hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl">add_circle</span>
+<span class="text-xs font-bold text-[#111815]/40 dark:text-white/40">Post Item</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8">
+<div class="flex items-center justify-between px-4 mb-3">
+<h3 class="text-[#111815] dark:text-white text-lg font-extrabold tracking-tight">My Groups</h3>
+<button class="text-primary text-xs font-bold px-3 py-1 bg-primary/10 rounded-full">Browse</button>
+</div>
+<div class="flex overflow-x-auto no-scrollbar gap-4 px-4 pb-2">
+<div class="flex-none w-28 text-center relative">
+<div class="relative">
+<div class="aspect-square rounded-3xl bg-cover bg-center shadow-lg border-2 border-white dark:border-[#10221b]" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCjSsnv2N38iJtVVEI5FtIAzaeCGkaM2NgWIjFzfnCOJuECYShNYLQX2Uu4ZImQH1q151tcAHSbFVnsE8bHNNUClIeEjHo27kwUeGNUag2W1dsto2v0E4rcydLeBnS2MVZrTDQHlUO2_uvVZNX8Zy910lB7ErOG_yZDCnf6-JiM0l3GVabc2QVl_YPhuoPPOPmgYUyb7dR4WrV3p1n_HZUtzkic5hSodL8NgoTOaN48-P3Lfi-9agSuhVMjZ4NtcFQRwhIEd4pUDBM');"></div>
+<div class="absolute -top-1 -right-1 size-5 bg-red-500 rounded-full border-2 border-white dark:border-[#10221b] flex items-center justify-center text-[10px] text-white font-bold">3</div>
+</div>
+<p class="mt-2 text-xs font-bold leading-tight line-clamp-2">Incheon Univ. IT Dept</p>
+</div>
+<div class="flex-none w-28 text-center">
+<div class="relative">
+<div class="aspect-square rounded-3xl bg-cover bg-center shadow-lg border-2 border-white dark:border-[#10221b]" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB7CYJ_CeU4mb1A1LriaAN_Me3Zp9ft3z4lDHCLiIgJ2a9LcTfoPxAzGoRU1L_C0cYbHgFRBirwl6jQoe0mgB9UrKDpQwES_8k0ieejR50m60GHIdsOqv40hjs5E8GO1u8l2hrZRTLTdK1MhxKONaZxxUcsh6IEOSf9fcnIXyu8X_renso7gnVNLhvsuy71XN7imoJpajlvXAJg1XNr9gBi1Q3wYUO8qEZNUfcsz0VAJX_t7ZCmgrgINtcu0jm8WYIpVji3RPJb9hA');"></div>
+<div class="absolute -top-1 -right-1 size-3 bg-primary rounded-full border-2 border-white dark:border-[#10221b]"></div>
+</div>
+<p class="mt-2 text-xs font-bold leading-tight line-clamp-2">CodIN Team</p>
+</div>
+<div class="flex-none w-28 text-center">
+<div class="relative">
+<div class="aspect-square rounded-3xl bg-cover bg-center shadow-lg border-2 border-white dark:border-[#10221b]" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCWdDB-Xqti4BLFD0datg1LYMOUuUchrnVAp-oCKj3h77jn7MIsvnTE9pu_2xnExZnZP7zSPWkK2yjwYYqbQNSWZ5YzyWOloI06o26bBbw8SFI38_wd3KkfyvVthvgNgI56c-pHBnYOHxo_brABazJ7SnwAKpE_K0OykBzuvmsNBloY6xV0rPQDDVnSTE0l7uK__15-Blrth0nM66X5Qw8UZ0LhtV-eK4bVt_OpcXkA9kQ4wR-gsXmesSd8xMTHKRLBUH43lfueNmg');"></div>
+</div>
+<p class="mt-2 text-xs font-bold leading-tight line-clamp-2">Greenwood Neighbors</p>
+</div>
+<div class="flex-none w-28 text-center">
+<div class="aspect-square rounded-3xl bg-background-light dark:bg-white/5 border-2 border-dashed border-black/10 dark:border-white/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-[#111815]/20 dark:text-white/20">add</span>
+</div>
+<p class="mt-2 text-xs font-bold text-[#111815]/40 dark:text-white/40">New Circle</p>
+</div>
+</div>
+</div>
+<div class="mt-8 mb-8">
+<div class="flex items-center justify-between px-4 mb-3">
+<h3 class="text-[#111815] dark:text-white text-lg font-extrabold tracking-tight">Saved Items</h3>
+<button class="text-primary text-xs font-bold">View More</button>
+</div>
+<div class="flex overflow-x-auto no-scrollbar gap-4 px-4 pb-2">
+<div class="flex-none w-36">
+<div class="relative aspect-[3/4] rounded-2xl bg-cover bg-center overflow-hidden shadow-sm" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCWdDB-Xqti4BLFD0datg1LYMOUuUchrnVAp-oCKj3h77jn7MIsvnTE9pu_2xnExZnZP7zSPWkK2yjwYYqbQNSWZ5YzyWOloI06o26bBbw8SFI38_wd3KkfyvVthvgNgI56c-pHBnYOHxo_brABazJ7SnwAKpE_K0OykBzuvmsNBloY6xV0rPQDDVnSTE0l7uK__15-Blrth0nM66X5Qw8UZ0LhtV-eK4bVt_OpcXkA9kQ4wR-gsXmesSd8xMTHKRLBUH43lfueNmg');">
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<button class="absolute top-2 right-2 size-8 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+<div class="absolute bottom-2 left-2 right-2">
+<p class="text-white text-xs font-bold truncate">Mechanical Keyboard</p>
+<p class="text-primary text-[10px] font-black">$45.00</p>
+</div>
+</div>
+</div>
+<div class="flex-none w-36">
+<div class="relative aspect-[3/4] rounded-2xl bg-cover bg-center overflow-hidden shadow-sm" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCjSsnv2N38iJtVVEI5FtIAzaeCGkaM2NgWIjFzfnCOJuECYShNYLQX2Uu4ZImQH1q151tcAHSbFVnsE8bHNNUClIeEjHo27kwUeGNUag2W1dsto2v0E4rcydLeBnS2MVZrTDQHlUO2_uvVZNX8Zy910lB7ErOG_yZDCnf6-JiM0l3GVabc2QVl_YPhuoPPOPmgYUyb7dR4WrV3p1n_HZUtzkic5hSodL8NgoTOaN48-P3Lfi-9agSuhVMjZ4NtcFQRwhIEd4pUDBM');">
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<button class="absolute top-2 right-2 size-8 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+<div class="absolute bottom-2 left-2 right-2">
+<p class="text-white text-xs font-bold truncate">Monitor Arm</p>
+<p class="text-primary text-[10px] font-black">$28.00</p>
+</div>
+</div>
+</div>
+<div class="flex-none w-36">
+<div class="relative aspect-[3/4] rounded-2xl bg-cover bg-center overflow-hidden shadow-sm" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB7CYJ_CeU4mb1A1LriaAN_Me3Zp9ft3z4lDHCLiIgJ2a9LcTfoPxAzGoRU1L_C0cYbHgFRBirwl6jQoe0mgB9UrKDpQwES_8k0ieejR50m60GHIdsOqv40hjs5E8GO1u8l2hrZRTLTdK1MhxKONaZxxUcsh6IEOSf9fcnIXyu8X_renso7gnVNLhvsuy71XN7imoJpajlvXAJg1XNr9gBi1Q3wYUO8qEZNUfcsz0VAJX_t7ZCmgrgINtcu0jm8WYIpVji3RPJb9hA');">
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<button class="absolute top-2 right-2 size-8 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+<div class="absolute bottom-2 left-2 right-2">
+<p class="text-white text-xs font-bold truncate">Dimmable Lamp</p>
+<p class="text-primary text-[10px] font-black">$15.00</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-white/95 dark:bg-[#10221b]/95 backdrop-blur-xl border-t border-black/5 dark:border-white/10 px-4 py-3 flex justify-between items-center z-50 rounded-t-3xl shadow-2xl">
+<button class="flex flex-col items-center gap-1 text-primary w-16">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-[10px] font-bold">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-[#111815]/40 dark:text-white/40 w-16">
+<span class="material-symbols-outlined">groups</span>
+<span class="text-[10px] font-bold">Groups</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-[#111815]/40 dark:text-white/40 w-16">
+<span class="material-symbols-outlined">sell</span>
+<span class="text-[10px] font-bold">Selling</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-[#111815]/40 dark:text-white/40 w-16">
+<span class="material-symbols-outlined">favorite</span>
+<span class="text-[10px] font-bold">Saved</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-[#111815]/40 dark:text-white/40 w-16">
+<span class="material-symbols-outlined">apps</span>
+<span class="text-[10px] font-bold">Menu</span>
+</button>
+</div>
+</div>
+
+</body></html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Community Item Feed</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#19f097",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#10221b",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: max(884px, 100dvh);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-[#111815] dark:text-white transition-colors duration-300">
+<div class="relative flex min-h-screen w-full flex-col max-w-md mx-auto bg-white dark:bg-background-dark overflow-x-hidden pb-24">
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-4 py-4 flex items-center justify-between">
+<div class="flex items-center gap-1">
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+<span class="material-symbols-outlined text-[#111815] dark:text-white">arrow_back_ios_new</span>
+</button>
+</div>
+<div class="flex-1 text-center">
+<h1 class="text-[#111815] dark:text-white text-lg font-bold leading-tight">Incheon Univ. IT Dept</h1>
+<p class="text-xs text-gray-500 dark:text-gray-400 font-medium">842 Members</p>
+</div>
+<div class="flex items-center justify-end">
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+<span class="material-symbols-outlined text-[#111815] dark:text-white">info</span>
+</button>
+</div>
+</header>
+<div class="px-4 py-2">
+<label class="flex flex-col w-full">
+<div class="flex w-full items-center rounded-xl bg-gray-100 dark:bg-gray-800 h-12 transition-all border border-transparent focus-within:border-primary/30">
+<div class="flex items-center justify-center pl-4 pr-2">
+<span class="material-symbols-outlined text-gray-500 dark:text-gray-400">search</span>
+</div>
+<input class="form-input flex-1 bg-transparent border-none focus:ring-0 text-base placeholder:text-gray-500 dark:placeholder:text-gray-400" placeholder="Search items in IT Dept"/>
+<button class="pr-4 flex items-center">
+<span class="material-symbols-outlined text-gray-400 text-sm">tune</span>
+</button>
+</div>
+</label>
+</div>
+<div class="flex gap-2 p-4 overflow-x-auto hide-scrollbar">
+<div class="flex h-9 shrink-0 items-center justify-center px-5 rounded-full bg-primary text-[#111815] font-semibold text-sm">
+            All
+        </div>
+<div class="flex h-9 shrink-0 items-center justify-center px-5 rounded-full bg-gray-100 dark:bg-gray-800 text-[#111815] dark:text-gray-300 font-medium text-sm">
+            Appliances
+        </div>
+<div class="flex h-9 shrink-0 items-center justify-center px-5 rounded-full bg-gray-100 dark:bg-gray-800 text-[#111815] dark:text-gray-300 font-medium text-sm">
+            Living
+        </div>
+<div class="flex h-9 shrink-0 items-center justify-center px-5 rounded-full bg-gray-100 dark:bg-gray-800 text-[#111815] dark:text-gray-300 font-medium text-sm">
+            Books
+        </div>
+<div class="flex h-9 shrink-0 items-center justify-center px-5 rounded-full bg-gray-100 dark:bg-gray-800 text-[#111815] dark:text-gray-300 font-medium text-sm">
+            Clothes
+        </div>
+</div>
+<div class="grid grid-cols-2 gap-4 px-4 py-2">
+<div class="flex flex-col gap-2 group">
+<div class="relative w-full aspect-square bg-center bg-no-repeat bg-cover rounded-xl overflow-hidden shadow-sm" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCLXOwlxwo8j-yjf0fzdjti2Yl-E-FlLzY8QoRF0Q0UbwcKqjZYW6jLdU35LiejB2kFO-4WGCQTPE9kPpUmIavFaWl5HOzSicFQmGZCq-OHS9Y9flwdy5-RLZ_GY8geZ9CdzpR_Q63Ts4Y1InVSP4Qpdm1Kaj0H-mytQyFHrdxdupnmCtUNTCrAwo_rxrZSUUIObo1mRkDZC6SKs2uMwVh0Q95LHEv4hxNHUIFk-D1TkvA28tY0a1u24rim6RrZlpM4DVFsKWmxfJA");'>
+<div class="absolute top-2 left-2 px-2 py-0.5 bg-white/90 dark:bg-black/70 backdrop-blur rounded-full text-[10px] font-bold uppercase tracking-wider text-[#111815] dark:text-white">Sale</div>
+</div>
+<div class="px-1">
+<h3 class="text-[#111815] dark:text-white text-sm font-semibold truncate">Mechanical Keyboard</h3>
+<div class="flex items-center justify-between mt-0.5">
+<p class="text-primary text-xs font-bold">$45</p>
+<span class="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 font-medium">Available</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2 group">
+<div class="relative w-full aspect-square bg-center bg-no-repeat bg-cover rounded-xl overflow-hidden shadow-sm" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCP37AkyjahfDJ7SkIJCMz72IVN0ji-8sdweBFkqOEt7iGFI3drsfsFb_FMDKzehd3x8hqt1_vAIw4NCyvsI7375vyi0-tLcRY2LN5No6LURn8DQjBoLIYw1d-NEEsIYXpTonHx5vYWliKsUZGTamcU8fReHZp5EdiDHvkKjwRM1DCS6Hrqe9GW3p-eFArL3DvkS12S8C6SMqA_SqDA3bkYUKtmgWvEGOrgv32fH801A6Vpggdy4yHpr5X2rhnPR7HhyAFjFRtiWag");'>
+<div class="absolute top-2 left-2 px-2 py-0.5 bg-primary backdrop-blur rounded-full text-[10px] font-bold uppercase tracking-wider text-[#111815]">Free</div>
+</div>
+<div class="px-1">
+<h3 class="text-[#111815] dark:text-white text-sm font-semibold truncate">Psychology 101 Book</h3>
+<div class="flex items-center justify-between mt-0.5">
+<p class="text-gray-500 dark:text-gray-400 text-xs font-bold">Free</p>
+<span class="text-[10px] px-1.5 py-0.5 rounded bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 font-medium">Reserved</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2 group">
+<div class="relative w-full aspect-square bg-center bg-no-repeat bg-cover rounded-xl overflow-hidden shadow-sm" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuClj6uerz5jStqdONCkoYUpLNMrMGEtTg2lc5EiGaqFPGRT7Yg9ernS3QsUQ1NH21-_f7htoGrCoRbjXXIBBVW1KAsCE8phAsE_IhRYLQN-1k2BBx7lxhm0OX2vNkx9sIqMLOk0bAgnNx0hJFLYmN2NXvQ1sIqDCTEmm9aqsuo4fne2lV0fLXvbh02E2scovU8-vYe3lGop_fxm1FdcdyvmiFnfLLqBitF_3uTr8zJhi_CNv5v7QVmJBfxRBltk6fwD9--Se1AuhEE");'>
+<div class="absolute top-2 left-2 px-2 py-0.5 bg-blue-500 text-white backdrop-blur rounded-full text-[10px] font-bold uppercase tracking-wider">Rent</div>
+</div>
+<div class="px-1">
+<h3 class="text-[#111815] dark:text-white text-sm font-semibold truncate">Modern Desk Lamp</h3>
+<div class="flex items-center justify-between mt-0.5">
+<p class="text-primary text-xs font-bold">$5/day</p>
+<span class="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 font-medium">Available</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2 group">
+<div class="relative w-full aspect-square bg-center bg-no-repeat bg-cover rounded-xl overflow-hidden shadow-sm" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAnJOc5wdYAm5LRXsIpqwxDbwQZI8mCDp_GxvcMaCj9XBPgTZBBS8A7h3Qe-sLZR8qnbs9mwIf_hyvDbiTBBzMQ7lrv6aaOvbhk66Qykj-y-NoEi89s4aoEZAQqDl0-G_zRRHIJDWDgjPIn8cdEbI44qnBBr0HjfvVGgXhl3ptyxQs4UY2MK-ubHIxghb8Khs7o9wDhwVPM8Fp39L8BhJOvYwiLA97WDloOAAOVWp71M0ZwCFXI5vTJ-hrocvQHeOhDE1kdAiGu994");'>
+<div class="absolute top-2 left-2 px-2 py-0.5 bg-white/90 dark:bg-black/70 backdrop-blur rounded-full text-[10px] font-bold uppercase tracking-wider text-[#111815] dark:text-white">Sale</div>
+</div>
+<div class="px-1">
+<h3 class="text-[#111815] dark:text-white text-sm font-semibold truncate">Coffee Maker</h3>
+<div class="flex items-center justify-between mt-0.5">
+<p class="text-primary text-xs font-bold">$20</p>
+<span class="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 font-medium">Available</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2 group">
+<div class="relative w-full aspect-square bg-center bg-no-repeat bg-cover rounded-xl overflow-hidden shadow-sm" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD5KHwLISONc8eqWJ7ftKXjsEx_yezwOkXExjKdLbu412s8MX-uf6pZYk8lBHl5FYWOwxd6sAR2nStAqd_XkFvdgdfjQ8PE13Idn5cruZ78b2yAM9ZAaARUVRbsAemFdOo2HyDMOFISZd3dsKpRmrKMSuoWhSxLc0F065nxaq_mgQ5YXSvsFCaxK-uYcVCMb8xIy6WFiFECO9fvThW58v6LOqX5PZw3qLRiqbOzgWZRZuNYtPQua2Q9LF8xqmrB3SjStrtV6ocbXwY");'>
+<div class="absolute top-2 left-2 px-2 py-0.5 bg-white/90 dark:bg-black/70 backdrop-blur rounded-full text-[10px] font-bold uppercase tracking-wider text-[#111815] dark:text-white">Sale</div>
+</div>
+<div class="px-1">
+<h3 class="text-[#111815] dark:text-white text-sm font-semibold truncate">Oversized Hoodie</h3>
+<div class="flex items-center justify-between mt-0.5">
+<p class="text-primary text-xs font-bold">$12</p>
+<span class="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 font-medium">Available</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2 group">
+<div class="relative w-full aspect-square bg-center bg-no-repeat bg-cover rounded-xl overflow-hidden shadow-sm" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAe0w6MURTexxgpKsXLXB2vmkAcnLTFTzDdlQRQJKRdajFVYWNglZrTQq9tjFNL9vGmIrP0pL8poxzfpg0WXp9-dLAQPnES7GTl5EOjjXc3uue-L0PNmclojjcC2L12HkdPPVjAS9apv7xkAhHx3qm_FWqZb1Qbse-woEn1o6eSDzso2s_eLl-Q-8NEH7WI4r2hU9Gn3Iti08z88bU3c0XArv11DzSyrU_YFMTQkDeDwZg2j2jLch8bpagwwQ5qfDPYl8gdjbTex3M");'>
+<div class="absolute top-2 left-2 px-2 py-0.5 bg-primary backdrop-blur rounded-full text-[10px] font-bold uppercase tracking-wider text-[#111815]">Free</div>
+</div>
+<div class="px-1">
+<h3 class="text-[#111815] dark:text-white text-sm font-semibold truncate">Ceramic Mugs (3)</h3>
+<div class="flex items-center justify-between mt-0.5">
+<p class="text-gray-500 dark:text-gray-400 text-xs font-bold">Free</p>
+<span class="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 font-medium">Available</span>
+</div>
+</div>
+</div>
+</div>
+<div class="fixed bottom-24 right-6 z-40">
+<button class="flex items-center justify-center size-14 rounded-full bg-primary text-[#111815] shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-transform">
+<span class="material-symbols-outlined font-bold text-2xl">add</span>
+</button>
+</div>
+<nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto h-20 bg-white/95 dark:bg-background-dark/95 backdrop-blur-xl border-t border-gray-100 dark:border-gray-800 flex items-start justify-between pt-3 px-4 z-50">
+<div class="flex flex-col items-center gap-1 w-1/5 text-gray-400">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</div>
+<div class="flex flex-col items-center gap-1 w-1/5 text-primary">
+<span class="material-symbols-outlined fill-[1]">groups</span>
+<span class="text-[10px] font-bold">Groups</span>
+</div>
+<div class="flex flex-col items-center gap-1 w-1/5 text-gray-400">
+<span class="material-symbols-outlined">sell</span>
+<span class="text-[10px] font-medium">Selling</span>
+</div>
+<div class="flex flex-col items-center gap-1 w-1/5 text-gray-400">
+<span class="material-symbols-outlined">favorite</span>
+<span class="text-[10px] font-medium">Saved</span>
+</div>
+<div class="flex flex-col items-center gap-1 w-1/5 text-gray-400">
+<span class="material-symbols-outlined">menu</span>
+<span class="text-[10px] font-medium">Menu</span>
+</div>
+</nav>
+</div>
+
+</body></html>

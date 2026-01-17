@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Manage Selling Item Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#19f097",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#10221b",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: max(884px, 100dvh);
+        }
+        .ios-safe-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fill-1 {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<main class="relative flex flex-col min-h-screen max-w-md mx-auto bg-white dark:bg-background-dark shadow-xl overflow-hidden">
+<header class="flex items-center px-4 pt-12 pb-4">
+<button class="size-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-gray-900 dark:text-white">arrow_back_ios_new</span>
+</button>
+<h1 class="flex-1 text-center mr-10 text-lg font-bold text-gray-900 dark:text-white">Manage Item</h1>
+</header>
+<div class="flex-1 overflow-y-auto px-6 pb-12">
+<div class="flex items-center gap-4 bg-gray-50 dark:bg-gray-900/50 p-4 rounded-2xl mb-8 border border-gray-100 dark:border-gray-800">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-xl size-20 shrink-0" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAcV_TQi1T55zJ70FSU-jWMrEcPVJiVE5yT2BZv3rYyAhVk-4wc_gd-gxwlW02ZkouNouBkoR6lxuaJXD2BXvE3Mf06OTRVud3Op50gX0p0Os-HqM825I4sv9MA9MshDFSZ8TVvQ0hV5u3GGGj-hpHvVVLLcxXVol_E5Wn-TKmrU-TdQjQY09jZA5lhyEyYmhXUU9xnNAhDdQ8V3TumkdmI_Zb3k-Mch5xclShpA0VifjPdo3y9j5DeG6SEk4J0Yxob34fBm-8gYHk");'></div>
+<div class="flex flex-col flex-1">
+<p class="text-gray-900 dark:text-white text-lg font-bold leading-tight">Vintage Film Camera</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-gray-500 dark:text-gray-400 text-sm font-medium">$45.00</span>
+<span class="w-1 h-1 rounded-full bg-gray-300"></span>
+<span class="text-primary text-xs font-bold uppercase tracking-wider">Sale</span>
+</div>
+<div class="inline-flex mt-2">
+<span class="bg-primary/20 text-primary-dark dark:text-primary text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Active</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 gap-3 mb-10">
+<button class="flex items-center gap-4 w-full p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+<div class="size-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+<span class="material-symbols-outlined text-xl">edit</span>
+</div>
+<span class="text-gray-900 dark:text-white font-semibold">Edit Listing</span>
+<span class="material-symbols-outlined ml-auto text-gray-400">chevron_right</span>
+</button>
+<button class="flex items-center gap-4 w-full p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+<div class="size-10 rounded-full bg-primary/20 flex items-center justify-center text-green-600 dark:text-primary">
+<span class="material-symbols-outlined text-xl">check_circle</span>
+</div>
+<span class="text-gray-900 dark:text-white font-semibold">Mark as Completed</span>
+<span class="material-symbols-outlined ml-auto text-gray-400">chevron_right</span>
+</button>
+<button class="flex items-center gap-4 w-full p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+<div class="size-10 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400">
+<span class="material-symbols-outlined text-xl text-red-600">delete</span>
+</div>
+<span class="text-red-600 font-semibold">Delete Post</span>
+<span class="material-symbols-outlined ml-auto text-gray-400">chevron_right</span>
+</button>
+</div>
+<div>
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-lg font-bold text-gray-900 dark:text-white">Reservation List</h2>
+<span class="text-sm font-medium text-gray-500">3 people</span>
+</div>
+<div class="space-y-3">
+<div class="flex items-center gap-3 bg-white dark:bg-gray-900 p-3 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+<div class="size-12 rounded-full overflow-hidden bg-gray-100 border-2 border-primary/30">
+<img alt="Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNoOSjXd5sBC4qlJlhqlVf1D1dR__GN8cLVBH1Se0KGJcnoVhwL-YvvvvQZfE9NMuLISrtG5V70_JQoMg0Bltkx-SSkEwASxLErdZtIoMzgwApV8bANQ_UlaTVgOxLc4bt5qmdunqTmQHfRyWOjBRqRRqYREoq5_z0KSTVFkFX-BT3W9PYo8UVS1KKNozni2SweI28L7JjbAIG_qtgKB3AA48XxebZkTN32fGoQOz6L-GhVd4Gix1b0gtxuNzY7OKra3oiRo5aiDY"/>
+</div>
+<div class="flex-1">
+<h3 class="text-sm font-bold text-gray-900 dark:text-white">Alex Johnson</h3>
+<p class="text-[11px] text-gray-500">2 hours ago</p>
+</div>
+<button class="px-4 py-2 bg-primary text-background-dark text-xs font-bold rounded-full hover:shadow-md active:scale-95 transition-all">
+                            Confirm
+                        </button>
+</div>
+<div class="flex items-center gap-3 bg-white dark:bg-gray-900 p-3 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+<div class="size-12 rounded-full overflow-hidden bg-gray-100">
+<img alt="Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkh2Y_Z21khCSRu6d-c2ZCo7mIZwJwe9LvrliBaw7fSLoAIXqFDvolmaLKkJiBcJ766k0yMpbGQaj7zUdxYut3vUohL3w0LS-6QVzdVHmHyXpQv3fdNxpuUNC-5kfQdqJqlSxo0RBe0JdotNTCl_a97g8R1bSlubx8xvX3Tim1sG2vq8zCtlon7yikiGd4l5mz-SuA0GIO3VpTTxtMpR-uKHhU2IyZ3ZDjbkHRwxTsUVR9VPmJ_XtFIbCGbEmqjKGIuCRqzF9cmMo"/>
+</div>
+<div class="flex-1">
+<h3 class="text-sm font-bold text-gray-900 dark:text-white">Sarah Miller</h3>
+<p class="text-[11px] text-gray-500">4 hours ago</p>
+</div>
+<button class="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-bold rounded-full hover:bg-gray-200 transition-colors">
+                            Confirm
+                        </button>
+</div>
+<div class="flex items-center gap-3 bg-white dark:bg-gray-900 p-3 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+<div class="size-12 rounded-full overflow-hidden bg-gray-100">
+<img alt="Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3RRQ3VNnBIoAuzolGyCd3i8aXnrcMnKF1CuBed2pSzqT9tDh0uPjkwTtlyWmhgDxRuSfk8JL2PG3vIGIR_ZDWnQ0z7kaD_6xSCDxtLdWnBqR8brurXZQak0kx7ReFPlPOr2rnpQIHGMY4eb9w5Wy_lcQSbQuBiXG11mzuqF0Jlj4WhlpURIPk9TWacU4P0O8520GGaXw5gAPPGJN8JiGkFKIC5cL7XvmlozQEv8Mphjm8Fr4uiGPk4c7Nx6pMNcHn-scKEb1S6P8"/>
+</div>
+<div class="flex-1">
+<h3 class="text-sm font-bold text-gray-900 dark:text-white">Mike Wilson</h3>
+<p class="text-[11px] text-gray-500">Yesterday</p>
+</div>
+<button class="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-bold rounded-full hover:bg-gray-200 transition-colors">
+                            Confirm
+                        </button>
+</div>
+</div>
+</div>
+</div>
+<div class="ios-safe-bottom"></div>
+</main>
+
+</body></html>

@@ -5,8 +5,7 @@ import org.springframework.http.HttpStatus;
 
 public enum ErrorType {
 
-	DEFAULT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.E500, "An unexpected error has occurred.",
-			LogLevel.ERROR),
+	DEFAULT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, ErrorCode.E500, "An unexpected error has occurred.", LogLevel.ERROR),
 	VALIDATION_ERROR(HttpStatus.BAD_REQUEST, ErrorCode.E400, "Invalid input value.", LogLevel.WARN),
 	PASSWORD_MISMATCH(HttpStatus.UNAUTHORIZED, ErrorCode.A002, "비밀번호가 일치하지 않습니다.", LogLevel.DEBUG),
 	DUPLICATE_EMAIL(HttpStatus.CONFLICT, ErrorCode.M001, "이미 존재하는 이메일입니다.", LogLevel.WARN),

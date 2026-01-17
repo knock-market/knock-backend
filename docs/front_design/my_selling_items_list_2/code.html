@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My Selling Items Grid View</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#19f097",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#10221b",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply font-display bg-background-light dark:bg-background-dark;
+                min-height: max(884px, 100dvh);
+            }
+        }
+        .ios-tab-bar {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fill-1 {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body>
+<main class="relative flex flex-col min-h-screen max-w-md mx-auto bg-white dark:bg-background-dark shadow-xl overflow-hidden">
+<div class="px-6 pt-12 pb-4">
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white">My Items</h1>
+<p class="text-sm text-gray-500 dark:text-gray-400">Manage your listings in trusted groups</p>
+</div>
+<div class="flex gap-2 px-6 mb-4 overflow-x-auto no-scrollbar">
+<span class="px-4 py-1.5 bg-primary text-background-dark text-sm font-semibold rounded-full shrink-0">All (8)</span>
+<span class="px-4 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm font-medium rounded-full shrink-0">Active</span>
+<span class="px-4 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm font-medium rounded-full shrink-0">Reserved</span>
+</div>
+<div class="flex-1 overflow-y-auto px-4 pb-32">
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col gap-2">
+<div class="relative group">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-2xl w-full" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAcV_TQi1T55zJ70FSU-jWMrEcPVJiVE5yT2BZv3rYyAhVk-4wc_gd-gxwlW02ZkouNouBkoR6lxuaJXD2BXvE3Mf06OTRVud3Op50gX0p0Os-HqM825I4sv9MA9MshDFSZ8TVvQ0hV5u3GGGj-hpHvVVLLcxXVol_E5Wn-TKmrU-TdQjQY09jZA5lhyEyYmhXUU9xnNAhDdQ8V3TumkdmI_Zb3k-Mch5xclShpA0VifjPdo3y9j5DeG6SEk4J0Yxob34fBm-8gYHk");'></div>
+<div class="absolute top-2 left-2 bg-primary text-[10px] font-bold px-2 py-0.5 rounded-full text-background-dark uppercase shadow-sm">Active</div>
+<button class="absolute top-2 right-2 bg-white/80 backdrop-blur-sm rounded-full p-1 text-gray-700 shadow-sm">
+<span class="material-symbols-outlined text-sm">more_horiz</span>
+</button>
+</div>
+<div class="px-1">
+<p class="text-gray-900 dark:text-white text-sm font-bold leading-tight line-clamp-1">Vintage Film Camera</p>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="text-primary text-[10px] font-bold uppercase tracking-wider">Sale</span>
+<span class="text-gray-400 text-[10px] font-medium">•</span>
+<span class="text-gray-500 dark:text-gray-400 text-[10px] font-semibold">$45.00</span>
+</div>
+<div class="flex items-center gap-1 mt-1 text-gray-400">
+<span class="material-symbols-outlined text-xs">group</span>
+<span class="text-[10px] font-medium">3 reservations</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="relative group">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-2xl w-full" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB2K5UWyYz9JbE9L3b1YvgN4MmIB1XhrY2YpiLFv9Lzg0aaRJwnMtkEUhAz9gQbsUCsmuTv62PMPjjkCNUjqHUpTvSiJJWzJYX8x5dCp9FwolGusavCGM_QumarTEsp7FuCyA-odJAaB4UbIrYkT_3NFhISNZrNSQ6np837AphLugoG4jC3WUjNqBqjOj-93WxPP3_mN7C4suEU3dUo3TiQaRJihNZbWtl5DiXYE5IeCEpiYv9we9CknCQ8oZn5hP_nVDfdZ3lPCTg");'></div>
+<div class="absolute top-2 left-2 bg-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-full text-white uppercase shadow-sm">Reserved</div>
+<button class="absolute top-2 right-2 bg-white/80 backdrop-blur-sm rounded-full p-1 text-gray-700 shadow-sm">
+<span class="material-symbols-outlined text-sm">more_horiz</span>
+</button>
+</div>
+<div class="px-1">
+<p class="text-gray-900 dark:text-white text-sm font-bold leading-tight line-clamp-1">Chemistry Textbook</p>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="text-primary text-[10px] font-bold uppercase tracking-wider">Free</span>
+<span class="text-gray-400 text-[10px] font-medium">•</span>
+<span class="text-gray-500 dark:text-gray-400 text-[10px] font-semibold">Gift</span>
+</div>
+<div class="flex items-center gap-1 mt-1 text-amber-500">
+<span class="material-symbols-outlined text-xs">pending_actions</span>
+<span class="text-[10px] font-medium">Pending pickup</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="relative group">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-2xl w-full" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB8cRo5DjuHVtEIzACA8apFg6rYnS3K-xcfdUOl-C6PvyyWXl1SM_rqmX1l9lFEOjfPl_n8MQzISLENhBjZoWfnZyUugnkLnF0Y_PCtTSnGL6mTyZCUjsyX44hBY91tVP9oWs77V-7aF-vQEOIxDQobq2mOUxhnaeiLhBGm4ZfUjLGigzmwRsHCd1TJg3I5g5V4H9i3p2LGvXGRFc89esVvk14uJ878uUZe72Gsn6ZWwUZGoVDFNgA1YcZ7MccaCS8vEMBba-mRwhw");'></div>
+<div class="absolute top-2 left-2 bg-primary text-[10px] font-bold px-2 py-0.5 rounded-full text-background-dark uppercase shadow-sm">Active</div>
+<button class="absolute top-2 right-2 bg-white/80 backdrop-blur-sm rounded-full p-1 text-gray-700 shadow-sm">
+<span class="material-symbols-outlined text-sm">more_horiz</span>
+</button>
+</div>
+<div class="px-1">
+<p class="text-gray-900 dark:text-white text-sm font-bold leading-tight line-clamp-1">Electric Kettle</p>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="text-primary text-[10px] font-bold uppercase tracking-wider">Sale</span>
+<span class="text-gray-400 text-[10px] font-medium">•</span>
+<span class="text-gray-500 dark:text-gray-400 text-[10px] font-semibold">$12.00</span>
+</div>
+<div class="flex items-center gap-1 mt-1 text-gray-400">
+<span class="material-symbols-outlined text-xs">group</span>
+<span class="text-[10px] font-medium">0 reservations</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2 opacity-70">
+<div class="relative group grayscale">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-2xl w-full" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCQE9TMa7_bfOgZ7qLoynyBldkZf8NNRVsSyOROAfilJ-ZxEXOagUFyc5fAW4EMANoQO9og0Ml-b30-jmGVgceQ1Y2vzVFix6ZuZ3LbaC1VG0OyvcqwR4Wrj6VS2lHh4S3afxJTeZZG-gbNVnNVm1RPM8RKMF93LUyM-X1BHW4xm1hdnrcC897YtnW4PE_irqAOcNNLE80qudBpzReTeX7J2xXRGQB2SjsmP2-EyufIHo-9qJg4zL6p6OOeeXB4unwEr7FpZ4MSS0s");'></div>
+<div class="absolute top-2 left-2 bg-gray-500 text-[10px] font-bold px-2 py-0.5 rounded-full text-white uppercase shadow-sm">Completed</div>
+</div>
+<div class="px-1">
+<p class="text-gray-500 dark:text-gray-400 text-sm font-bold leading-tight line-clamp-1">Modern Desk Lamp</p>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Sale</span>
+<span class="text-gray-400 text-[10px] font-medium">•</span>
+<span class="text-gray-400 text-[10px] font-semibold">Sold</span>
+</div>
+<div class="flex items-center gap-1 mt-1 text-gray-400">
+<span class="material-symbols-outlined text-xs">check_circle</span>
+<span class="text-[10px] font-medium">Transaction finished</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<button class="fixed bottom-24 right-6 size-14 bg-primary text-background-dark rounded-full shadow-xl flex items-center justify-center hover:scale-105 transition-transform active:scale-95 z-50">
+<span class="material-symbols-outlined text-3xl font-bold">add</span>
+</button>
+<nav class="absolute bottom-0 left-0 right-0 bg-white/90 dark:bg-background-dark/90 backdrop-blur-xl border-t border-gray-100 dark:border-gray-800 ios-tab-bar z-40">
+<div class="flex justify-around items-center h-16">
+<a class="flex flex-col items-center gap-0.5 text-gray-400 hover:text-gray-600 transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</a>
+<a class="flex flex-col items-center gap-0.5 text-gray-400 hover:text-gray-600 transition-colors" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="text-[10px] font-medium">Groups</span>
+</a>
+<a class="flex flex-col items-center gap-0.5 text-primary" href="#">
+<span class="material-symbols-outlined fill-1">storefront</span>
+<span class="text-[10px] font-bold">Selling</span>
+</a>
+<a class="flex flex-col items-center gap-0.5 text-gray-400 hover:text-gray-600 transition-colors" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="text-[10px] font-medium">Saved</span>
+</a>
+<a class="flex flex-col items-center gap-0.5 text-gray-400 hover:text-gray-600 transition-colors" href="#">
+<span class="material-symbols-outlined">menu</span>
+<span class="text-[10px] font-medium">Menu</span>
+</a>
+</div>
+<div class="h-6 w-full"></div>
+</nav>
+</main>
+
+</body></html>

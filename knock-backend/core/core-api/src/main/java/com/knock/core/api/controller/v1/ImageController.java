@@ -22,7 +22,8 @@ public class ImageController {
 	}
 
 	@DeleteMapping("/api/v1/images")
-	public ApiResponse<Void> deleteImage(@AuthenticationPrincipal MemberPrincipal principal,
+	public ApiResponse<Void> deleteImage(
+			@AuthenticationPrincipal MemberPrincipal principal,
 			@RequestParam("imageUrl") String imageUrl) {
 		imageService.deleteImage(imageUrl);
 		return ApiResponse.success(null);

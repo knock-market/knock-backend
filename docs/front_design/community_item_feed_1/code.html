@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Group Information &amp; Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#19f097",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#10221b",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100dvh;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-[#111815] dark:text-white transition-colors duration-300">
+<div class="relative flex min-h-screen w-full flex-col max-w-md mx-auto bg-white dark:bg-background-dark overflow-x-hidden">
+<header class="absolute top-0 left-0 right-0 z-50 px-4 py-4 flex items-center justify-between pointer-events-none">
+<button class="flex items-center justify-center p-2 rounded-full bg-black/20 backdrop-blur-md pointer-events-auto">
+<span class="material-symbols-outlined text-white">arrow_back_ios_new</span>
+</button>
+<button class="flex items-center justify-center p-2 rounded-full bg-black/20 backdrop-blur-md pointer-events-auto">
+<span class="material-symbols-outlined text-white">more_horiz</span>
+</button>
+</header>
+<div class="relative w-full h-64">
+<img alt="Group Cover" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLXOwlxwo8j-yjf0fzdjti2Yl-E-FlLzY8QoRF0Q0UbwcKqjZYW6jLdU35LiejB2kFO-4WGCQTPE9kPpUmIavFaWl5HOzSicFQmGZCq-OHS9Y9flwdy5-RLZ_GY8geZ9CdzpR_Q63Ts4Y1InVSP4Qpdm1Kaj0H-mytQyFHrdxdupnmCtUNTCrAwo_rxrZSUUIObo1mRkDZC6SKs2uMwVh0Q95LHEv4hxNHUIFk-D1TkvA28tY0a1u24rim6RrZlpM4DVFsKWmxfJA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+<div class="absolute bottom-6 left-6 right-6">
+<h1 class="text-white text-2xl font-bold leading-tight">Incheon Univ. IT Dept</h1>
+<div class="flex items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-white/80 text-sm">groups</span>
+<p class="text-white/80 text-sm font-medium">842 Members</p>
+</div>
+</div>
+</div>
+<div class="px-6 py-6 space-y-8">
+<section>
+<p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                    The official marketplace for Incheon University IT Department students. Trade textbooks, tech gear, and study snacks within our trusted circle. Keep it friendly!
+                </p>
+</section>
+<section>
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-[#111815] dark:text-white font-bold text-lg">Members</h2>
+<button class="text-primary text-sm font-bold">View All</button>
+</div>
+<div class="flex items-center gap-[-12px]">
+<div class="size-10 rounded-full border-2 border-white dark:border-background-dark overflow-hidden z-[5]">
+<img alt="Member" class="w-full h-full bg-gray-100" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNI6Ra_qPuVzppoYUVCe-ElhGm7XE58uf5gmL3lTwE7ifKlI9HSarICcKckAkiic0Sx9799t1VLQnUoB6MyfRCKgJA4EeyE7Vey13UCBlomm2RKN13LpcPiYGWkw4_r2Mx9tHnQsjKxsvmHhUxSZnsD10_-DoSU2Fld9z0nhI9sbXYuPvcVcoo4N4x7G-xYMdkfZ63ojjXfjVchVwpaXaHVZOQLbbt_dAr6ht0JXodY8V_v-Y9ho-GLV8UpzC6nnw-47ejCPg9kvY"/>
+</div>
+<div class="size-10 -ml-3 rounded-full border-2 border-white dark:border-background-dark overflow-hidden z-[4]">
+<img alt="Member" class="w-full h-full bg-gray-100" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmCcpvh7nv9CE9bBIB--zFBd7GteyI16SvTuQSfeDl1kKM0zSIceCDrii1uIx2q-oTQfPR4ZuY1T7tsieZYg4AfpG54eft7CrFOxC9WX3ekD-DFpbakcy4XBIEVdYLjKI1bC5-PgaerOGd6GdOAwAnrC0qs5mHp1-pSTqg9QtSAYOOGZe-r6ftxtYoqRD3xrIgwFF6AjmFIl1P9SBRHdETMJ4DD3uMIZ5pIz0zUXM7uUMxgsh3Yivy1aSFQ4-ZaXT1DaX5P1TIhtA"/>
+</div>
+<div class="size-10 -ml-3 rounded-full border-2 border-white dark:border-background-dark overflow-hidden z-[3]">
+<img alt="Member" class="w-full h-full bg-gray-100" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpw-5-IRSGOlMWDv42UJ7Lp-tahM_4WSrbV-M_qDpjffbMMvKOCG4_oDySA2aAmw-3kNOgKSpiCt5fKE6yObHwz1KJ_hrT0yM9UJRqkprEi07gDfP_2RQM73BCTPuXhRFMEukafFlL0J2WMeWefwqttg32U4qw_N33Myt2J-OHGv5W3dVvfoZHUmBM-_37b8ranZ536N0-o2-PMuc2t_LXcODVyfemXocxCBdvukIJ3O_h9WZHazC04OBxVcQnMIgg8wlZ0rdkugs"/>
+</div>
+<div class="size-10 -ml-3 rounded-full border-2 border-white dark:border-background-dark overflow-hidden z-[2]">
+<img alt="Member" class="w-full h-full bg-gray-100" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_WnF8zt_8qH6bG84riVXxj_jQW03lxgZPjesd0MGZbo15gDm9gZ3gWmlnu10iCRI-r5KRPRnB879HhYuJZ0sumC8Lo_EIEKyw-v_JPH_ZQ6I4SlmPp88Z-oNqqaNsznZAxiSqg3gy-Hqa-9IDqnUJq7aNvC7c8Od_g--nwPFoVjwM210T8qLtPpAz4-FctAUTjZqFU3yyaetq6aQB9QcRTJ1eVSuVmBX6llPaYbncFLMxjs6IttBku_eBOw0N5-tnkB_JcrFl7UQ"/>
+</div>
+<div class="size-10 -ml-3 rounded-full border-2 border-white dark:border-background-dark bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-[10px] font-bold text-gray-500 z-[1]">
+                        +838
+                    </div>
+</div>
+</section>
+<section>
+<h2 class="text-[#111815] dark:text-white font-bold text-lg mb-4">Group Rules</h2>
+<ul class="space-y-4">
+<li class="flex gap-3">
+<div class="mt-1.5 size-1.5 rounded-full bg-primary shrink-0"></div>
+<p class="text-sm text-gray-600 dark:text-gray-400">Transactions must be made in person on campus during daylight hours.</p>
+</li>
+<li class="flex gap-3">
+<div class="mt-1.5 size-1.5 rounded-full bg-primary shrink-0"></div>
+<p class="text-sm text-gray-600 dark:text-gray-400">Be honest about the condition of your items. No hidden defects.</p>
+</li>
+<li class="flex gap-3">
+<div class="mt-1.5 size-1.5 rounded-full bg-primary shrink-0"></div>
+<p class="text-sm text-gray-600 dark:text-gray-400">Price gouging is discouraged. Keep it student-friendly!</p>
+</li>
+<li class="flex gap-3">
+<div class="mt-1.5 size-1.5 rounded-full bg-primary shrink-0"></div>
+<p class="text-sm text-gray-600 dark:text-gray-400">Report any suspicious behavior or scams to the admin immediately.</p>
+</li>
+</ul>
+</section>
+<section class="flex flex-col gap-3 pb-12">
+<button class="w-full h-14 bg-primary text-[#111815] font-bold rounded-xl flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined">person_add</span>
+                    Invite Friends
+                </button>
+<button class="w-full h-14 bg-gray-100 dark:bg-gray-800 text-red-500 font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
+<span class="material-symbols-outlined">logout</span>
+                    Leave Group
+                </button>
+</section>
+</div>
+</div>
+
+</body></html>

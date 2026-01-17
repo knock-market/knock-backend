@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Register New Item</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#19f097",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#10221b",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body {
+            font-family: "Plus Jakarta Sans", sans-serif;
+            min-height: max(884px, 100dvh);
+        }
+        .segmented-control-item:checked + label {
+            background-color: #19f097;
+            color: #111815;
+            font-weight: 600;
+        }
+        .custom-select {
+            appearance: none;
+            background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuD5eWC-FQX2f2REPSa2unP6Mq2LUBPL6yQ-o7NaNjOLNabhTZh3PXV306eWNr5hL924lNHWtq2r8uLreY6VBnDazKdmDZSIt37GtCVxKm7asvQNIEnYifKGbJRz6YZcnB8PABQyr5M2_AA3hlNMOSC8QM6NkWvbxUNxCQ-EF3VZTXRS4g72mWMGehVB3e7N9B6yekke4q9tKc4Ba_SMRVyifu7GAr7vIUmuBzL28NWLqT_K1JSdw-HovCyZhXnbbfaDyDxc4_QoTp8);
+            background-position: right 1rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#111815] dark:text-white transition-colors duration-200">
+<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 py-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-800">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</button>
+<h1 class="text-lg font-bold">Register Item</h1>
+<div class="w-10"></div>
+</header>
+<main class="max-w-md mx-auto pb-32">
+<section class="p-4">
+<p class="text-base font-medium mb-3">Photos (0/5)</p>
+<div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+<button class="flex-shrink-0 w-28 h-28 bg-white dark:bg-gray-800 border-2 border-dashed border-primary/40 rounded-xl flex flex-col items-center justify-center text-primary group active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-3xl">add_a_photo</span>
+<span class="text-xs font-semibold mt-1">Add</span>
+</button>
+<div class="flex-shrink-0 w-28 h-28 bg-gray-200 dark:bg-gray-800 rounded-xl bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBL2B6cPj3fJ2akoDuYbE3OnShwjKqHkQD6_bsl6TXXwh5m_opPMJ6vQITIRLTwygw53C6UHbcjtmm0eYUPLRaHmDwyxgtxQGBBct3-YHFTsZ1AfE0ktv0n1k_APajmld1a9sFPyTaiMbKKPYFwPr7i9XXH8fle-u7vHtE4HmeMR7ASwlqer-MC3WTSpXCM03rrXVvq7i29m9YO9b4jtaoKyiWSS9EvtWTuP56syWIbc_vqge3L97uaa90jAnWLsjmiYj23syMl8Jk');"></div>
+<div class="flex-shrink-0 w-28 h-28 bg-gray-200 dark:bg-gray-800 rounded-xl bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBL9mBX9N4aY9cVO2Rnd2M9grv7xXQapptHKSwRsGkt9PGURXBI-XGvDcHKU2RKkjNbgAkcrgXk70Bh_V3BAVNBOTzgdMR6tDcUBb6rsf1VtmDfsUIx2nwEOHfDn1b2TonxSpYL1C0ng6ENzoFtFFt2QxOfTjaHPTelUZmXhMmbgh98jBuBoswQabGJSNNclNAxkJk-WXokSfXq93tUgDguj5Utzi86JsQ0P9YVRjcU6JQ96zni9sc6v_rOTY0y3fFqYeGqg9SGUqk');"></div>
+</div>
+</section>
+<div class="px-4 space-y-6">
+<div>
+<label class="block text-base font-medium mb-2">Select Group</label>
+<select class="custom-select w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+<option value="incheon">Incheon Univ.</option>
+<option value="office">HQ Design Team</option>
+<option value="friends">Hiking Circle</option>
+</select>
+</div>
+<div>
+<label class="block text-base font-medium mb-2">Item Name</label>
+<input class="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-primary focus:border-transparent outline-none placeholder:text-gray-400" placeholder="What are you selling?" type="text"/>
+</div>
+<div>
+<label class="block text-base font-medium mb-2">Description</label>
+<textarea class="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-primary focus:border-transparent outline-none placeholder:text-gray-400 resize-none" placeholder="Describe the item's features, any defects, or pickup instructions." rows="4"></textarea>
+</div>
+<div>
+<label class="block text-base font-medium mb-2">Transaction Type</label>
+<div class="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-full">
+<input checked="" class="hidden segmented-control-item" id="free" name="type" type="radio"/>
+<label class="flex-1 py-3 text-center rounded-full text-base cursor-pointer transition-all" for="free">Free</label>
+<input class="hidden segmented-control-item" id="sale" name="type" type="radio"/>
+<label class="flex-1 py-3 text-center rounded-full text-base cursor-pointer transition-all" for="sale">Sale</label>
+</div>
+</div>
+<div>
+<label class="block text-base font-medium mb-2">Item Condition</label>
+<div class="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-full">
+<input checked="" class="hidden segmented-control-item" id="new" name="condition" type="radio"/>
+<label class="flex-1 py-2 text-center rounded-full text-sm cursor-pointer transition-all" for="new">New</label>
+<input class="hidden segmented-control-item" id="used" name="condition" type="radio"/>
+<label class="flex-1 py-2 text-center rounded-full text-sm cursor-pointer transition-all" for="used">Used</label>
+<input class="hidden segmented-control-item" id="parts" name="condition" type="radio"/>
+<label class="flex-1 py-2 text-center rounded-full text-sm cursor-pointer transition-all" for="parts">Parts</label>
+</div>
+</div>
+<div class="flex items-center justify-between py-4 border-t border-gray-100 dark:border-gray-800">
+<div>
+<p class="text-base font-medium">Reservation Rule</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">First-come-first-served</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="p-4 bg-primary/10 rounded-xl border border-primary/20">
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-primary">info</span>
+<p class="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
+                        The first person to request will be automatically reserved. Switch off to manually select your preferred buyer.
+                    </p>
+</div>
+</div>
+</div>
+</main>
+<div class="fixed bottom-0 left-0 right-0 p-4 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 max-w-md mx-auto z-50">
+<button class="w-full bg-primary hover:bg-primary/90 text-[#111815] font-bold py-4 rounded-xl shadow-lg shadow-primary/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">send</span>
+            Post Item
+        </button>
+<div class="h-4"></div>
+</div>
+
+</body></html>

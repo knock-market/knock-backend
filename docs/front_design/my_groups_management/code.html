@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My Groups Management Final Nav</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#19f097",
+                "background-light": "#f6f8f7",
+                "background-dark": "#10221b",
+              },
+              fontFamily: {
+                "display": ["Plus Jakarta Sans", "sans-serif"]
+              },
+              borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#111815] dark:text-white min-h-screen">
+<div class="max-w-[480px] mx-auto bg-white dark:bg-[#10221b] min-h-screen flex flex-col relative pb-24">
+<div class="px-4 pt-12 pb-6">
+<div class="flex gap-3">
+<button class="flex-1 flex flex-col items-center justify-center gap-2 bg-primary text-[#111815] font-bold py-6 rounded-2xl shadow-sm hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-3xl">add_circle</span>
+<span class="text-sm">Create Group</span>
+</button>
+<button class="flex-1 flex flex-col items-center justify-center gap-2 bg-[#f0f5f3] dark:bg-[#1c352a] text-[#111815] dark:text-white font-bold py-6 rounded-2xl shadow-sm hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-3xl">key</span>
+<span class="text-sm">Join via Code</span>
+</button>
+</div>
+</div>
+<div class="px-4 pb-3">
+<h2 class="text-xs font-bold uppercase tracking-[0.15em] text-[#608a79] dark:text-[#a0c4b5]">Joined Communities</h2>
+</div>
+<div class="flex flex-col px-4 gap-3">
+<div class="flex items-center gap-4 bg-[#f8faf9] dark:bg-[#152e25] p-3 rounded-2xl border border-transparent hover:border-primary/30 transition-all cursor-pointer">
+<div class="relative">
+<div class="size-16 rounded-xl bg-center bg-cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCwhUb2eR5szXFDq7NB7u6OQVcRgWzx6hmGTmYioz7sTQnYVWiqB70CCY_XA5yCyWUIoyaWJDCLycftrG8YuVTM363TZyZvEIB9jzhiRwXvh9YYR-zdEEoMOys4kGyf5whV3MGwroaAnyTYlIaOTwYZq7vqJxKO3IT_EtvoKW3DDN5h3Fks4JGO7-AO3_LW6nTOdE7cNFpJX3EsKW06dbYaBwUZGILEuhfpe_HujCuq4i77Q-04rubxEEFodGGBYBOtDc_AU_H8ups");'></div>
+<div class="absolute -top-1 -right-1 size-4 bg-primary border-2 border-white dark:border-[#152e25] rounded-full"></div>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-bold text-base truncate">Incheon Univ. IT Dept</h3>
+<p class="text-[#608a79] dark:text-[#a0c4b5] text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">group</span>
+                        124 members
+                    </p>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="text-[10px] font-bold text-primary">Active now</span>
+<span class="material-symbols-outlined text-gray-400">chevron_right</span>
+</div>
+</div>
+<div class="flex items-center gap-4 bg-[#f8faf9] dark:bg-[#152e25] p-3 rounded-2xl border border-transparent hover:border-primary/30 transition-all cursor-pointer">
+<div class="relative">
+<div class="size-16 rounded-xl bg-center bg-cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAFyZQxSVaI6_X_-S75at3CtaLk3UNHTy0jDdoy8qbg1D8cw8gbOPN9WopPzxn1Lo7zYaAMiw06icxyUlg9fscNK27fZu_004UD69dwzBmtSF7Auq5CxDpfKecwU013iF8RMwiDdlx7CBE5xAY82FHOX6MLbprmKRpPIb6ebyktG7t9q3Pv307kWJKb1wCySuJOtWU1aAKeWkFLbQwMqxwVX8Wyd5pDvOn64Bst33LKALjYpXpwallq7A0MPvNC4yTEFv7hpMeHk7E");'></div>
+<div class="absolute -top-1 -right-1 size-5 bg-red-500 border-2 border-white dark:border-[#152e25] rounded-full flex items-center justify-center text-[10px] text-white font-bold">3</div>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-bold text-base truncate">Design Studio</h3>
+<p class="text-[#608a79] dark:text-[#a0c4b5] text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">group</span>
+                        18 members
+                    </p>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="text-[10px] font-bold text-[#608a79]">2h ago</span>
+<span class="material-symbols-outlined text-gray-400">chevron_right</span>
+</div>
+</div>
+<div class="flex items-center gap-4 bg-[#f8faf9] dark:bg-[#152e25] p-3 rounded-2xl border border-transparent hover:border-primary/30 transition-all cursor-pointer">
+<div class="relative">
+<div class="size-16 rounded-xl bg-center bg-cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuASn--Y4jEfKIreaOqbXznHC1kIBNUzyKRsa-d_TiNWbp6Mv4whJ8CPE4k71bSY_3aOwuBM1e2EJqPhDSsONmkrH3BUxl5bjtmHoimKE1XB0du_5Xro-ufK6L1iRCcRiGxnBm5CVqSYrZJWosh3OHksVHM2X2S2bHEMWJMgN3ThyBx6-szHKXY9xAJ8Q1IUkSgJvcWKwMknvQbsgo3MrDVuztCQeWM3cRO1Y3gxLbd65ItPfD8pN4deK3xVSxRbttV35hKqA3q_2_M");'></div>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-bold text-base truncate">Greenwood Apartments</h3>
+<p class="text-[#608a79] dark:text-[#a0c4b5] text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">group</span>
+                        85 members
+                    </p>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="text-[10px] font-bold text-[#608a79]">Yesterday</span>
+<span class="material-symbols-outlined text-gray-400">chevron_right</span>
+</div>
+</div>
+<div class="flex items-center gap-4 bg-[#f8faf9] dark:bg-[#152e25] p-3 rounded-2xl border border-transparent hover:border-primary/30 transition-all cursor-pointer">
+<div class="relative">
+<div class="size-16 rounded-xl bg-center bg-cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBe7UgWO7oq0SG_M-ELiZvSXK-AsrUKRVO-jz0O3rAqNZd-nHGmMOLueKBP32ueCZW6SngKcmqMaYAO_J34RgzrL9SoJtwz79Zrb5VynzFhJOZiQ58B-cyR8XFi12X2Wz0KyGhiIDpu0BFkuhhtzHRblKlWGmUNJn_jcQNWkpudeC6fxWYyXA3KO7irYmnY0BPsizY2YCniKEFcgp5iDIJOkLiAM4zVxqhiifHUpOUvfRKBViO8i8aMuAb5EsY2Vpgx_iTwZRE0nwc");'></div>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-bold text-base truncate">Sunday Brunch Crew</h3>
+<p class="text-[#608a79] dark:text-[#a0c4b5] text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">group</span>
+                        12 members
+                    </p>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="text-[10px] font-bold text-[#608a79]">Mon</span>
+<span class="material-symbols-outlined text-gray-400">chevron_right</span>
+</div>
+</div>
+</div>
+<div class="mt-8 px-4 pb-12">
+<div class="bg-primary/10 dark:bg-primary/5 rounded-2xl p-6 text-center border border-primary/20">
+<h4 class="font-bold mb-2">Can't find your group?</h4>
+<p class="text-sm text-[#608a79] dark:text-[#a0c4b5] mb-4">Start your own community for your office or school circle today.</p>
+<button class="text-primary font-bold text-sm underline">Learn how it works</button>
+</div>
+</div>
+<div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-white/95 dark:bg-[#10221b]/95 backdrop-blur-lg border-t border-[#f0f5f3] dark:border-[#1c352a] flex justify-around items-center px-2 py-3 z-30">
+<button class="flex flex-col items-center gap-1 text-[#608a79] hover:text-primary transition-colors flex-1">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary flex-1">
+<span class="material-symbols-outlined font-bold" style="font-variation-settings: 'FILL' 1">group</span>
+<span class="text-[10px] font-bold">Groups</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-[#608a79] hover:text-primary transition-colors flex-1">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="text-[10px] font-medium">Selling</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-[#608a79] hover:text-primary transition-colors flex-1">
+<span class="material-symbols-outlined">favorite</span>
+<span class="text-[10px] font-medium">Saved</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-[#608a79] hover:text-primary transition-colors flex-1">
+<span class="material-symbols-outlined">menu</span>
+<span class="text-[10px] font-medium">Menu</span>
+</button>
+</div>
+</div>
+
+</body></html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Notification Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#19f097",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#10221b",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-tab .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-[#111815] dark:text-white transition-colors duration-200">
+<div class="mx-auto max-w-md min-h-screen bg-white dark:bg-[#0c1813] shadow-xl overflow-x-hidden relative">
+<div class="sticky top-0 z-20 bg-white/80 dark:bg-[#0c1813]/80 backdrop-blur-md">
+<div class="flex items-center p-4 pb-2 justify-between">
+<div class="text-[#111815] dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</div>
+<h2 class="text-[#111815] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-2">Notifications</h2>
+<div class="flex items-center justify-end">
+<button class="text-primary text-sm font-bold leading-normal tracking-[0.015em] shrink-0 whitespace-nowrap px-2">Mark all as read</button>
+</div>
+</div>
+<div class="mt-2">
+<div class="flex border-b border-gray-100 dark:border-gray-800 px-4 gap-8">
+<a class="flex flex-col items-center justify-center border-b-[3px] border-primary text-[#111815] dark:text-white pb-[13px] pt-2" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">All</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-[3px] border-transparent text-gray-400 pb-[13px] pt-2" href="#">
+<div class="flex items-center gap-1.5">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Unread</p>
+<span class="size-2 bg-primary rounded-full"></span>
+</div>
+</a>
+</div>
+</div>
+</div>
+<div class="flex flex-col pb-24">
+<div class="flex items-start gap-4 bg-white dark:bg-[#0c1813] px-4 py-4 border-b border-gray-50 dark:border-gray-900 group active:bg-gray-50 dark:active:bg-gray-800 transition-colors">
+<div class="relative">
+<div class="text-primary flex items-center justify-center rounded-full bg-primary/10 shrink-0 size-12">
+<span class="material-symbols-outlined">sell</span>
+</div>
+<div class="absolute -top-0.5 -right-0.5 size-3 bg-primary border-2 border-white dark:border-[#0c1813] rounded-full"></div>
+</div>
+<div class="flex flex-col flex-1 gap-1">
+<div class="flex justify-between items-start">
+<p class="text-[#111815] dark:text-white text-base font-semibold leading-tight line-clamp-1">Someone reserved your Vintage Lamp</p>
+<p class="text-gray-400 text-xs font-normal whitespace-nowrap ml-2">2m ago</p>
+</div>
+<p class="text-gray-500 dark:text-gray-400 text-sm font-normal leading-snug">Sarah from 'Design Team' wants to pick it up. Tap to coordinate.</p>
+<div class="flex gap-2 mt-2">
+<button class="px-4 py-1.5 bg-primary text-[#111815] text-xs font-bold rounded-full">Coordinate</button>
+<button class="px-4 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-bold rounded-full">Decline</button>
+</div>
+</div>
+</div>
+<div class="flex items-start gap-4 bg-white dark:bg-[#0c1813] px-4 py-4 border-b border-gray-50 dark:border-gray-900 active:bg-gray-50 dark:active:bg-gray-800 transition-colors">
+<div class="text-blue-500 flex items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/20 shrink-0 size-12">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<div class="flex flex-col flex-1 gap-1">
+<div class="flex justify-between items-start">
+<p class="text-[#111815] dark:text-white text-base font-semibold leading-tight line-clamp-1">Reservation confirmed!</p>
+<p class="text-gray-400 text-xs font-normal whitespace-nowrap ml-2">1h ago</p>
+</div>
+<p class="text-gray-500 dark:text-gray-400 text-sm font-normal leading-snug">Your request for the Ergonomic Chair in 'Office Circle' was accepted by Mike.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 bg-white dark:bg-[#0c1813] px-4 py-4 border-b border-gray-50 dark:border-gray-900 active:bg-gray-50 dark:active:bg-gray-800 transition-colors">
+<div class="relative">
+<div class="text-orange-500 flex items-center justify-center rounded-full bg-orange-50 dark:bg-orange-900/20 shrink-0 size-12">
+<span class="material-symbols-outlined">schedule</span>
+</div>
+<div class="absolute -top-0.5 -right-0.5 size-3 bg-primary border-2 border-white dark:border-[#0c1813] rounded-full"></div>
+</div>
+<div class="flex flex-col flex-1 gap-1">
+<div class="flex justify-between items-start">
+<p class="text-[#111815] dark:text-white text-base font-semibold leading-tight line-clamp-1">Return Reminder</p>
+<p class="text-gray-400 text-xs font-normal whitespace-nowrap ml-2">3h ago</p>
+</div>
+<p class="text-gray-500 dark:text-gray-400 text-sm font-normal leading-snug">The 'Fujifilm X-T4' is due back to Alex tomorrow by 5:00 PM.</p>
+<div class="mt-2">
+<button class="px-4 py-1.5 border border-gray-200 dark:border-gray-700 text-[#111815] dark:text-white text-xs font-bold rounded-full">View Item</button>
+</div>
+</div>
+</div>
+<div class="flex items-start gap-4 bg-white dark:bg-[#0c1813] px-4 py-4 border-b border-gray-50 dark:border-gray-900 active:bg-gray-50 dark:active:bg-gray-800 transition-colors">
+<div class="text-purple-500 flex items-center justify-center rounded-full bg-purple-50 dark:bg-purple-900/20 shrink-0 size-12">
+<span class="material-symbols-outlined">add_circle</span>
+</div>
+<div class="flex flex-col flex-1 gap-1">
+<div class="flex justify-between items-start">
+<p class="text-[#111815] dark:text-white text-base font-semibold leading-tight line-clamp-1">New in 'Campus Hub'</p>
+<p class="text-gray-400 text-xs font-normal whitespace-nowrap ml-2">5h ago</p>
+</div>
+<p class="text-gray-500 dark:text-gray-400 text-sm font-normal leading-snug">Leo just posted: <b>MacBook Pro Stand</b> - Free for pickup!</p>
+<div class="mt-3 overflow-hidden rounded-xl border border-gray-100 dark:border-gray-800">
+<img alt="Silver laptop stand on a desk" class="w-full h-32 object-cover" data-alt="Modern laptop stand on a wooden desk" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFQvMahUlLrq4bmVAfS-Kr0NF28cDutZesnRIzGpXuz-zGnw2dRSnn0EtIY8iEh2qyjm6hniXx4TR8YhU4s2TS2Clspt_4zp1qkBQwXpDZcnU78VsOSCZVVR-D-V6pSMP2P5oNbk6B6_Nvney2etpjp0Sx7OdnNV6sOQQiTI-CJFEaZhHTT2sH95eW_N5m43k-m-0M3k99J0hp2lsBKKRUjQwHrRhiREGoofrmYXxXQydYe8nmUArd_UVqAZez7Xy4swSXZmdD1K0"/>
+</div>
+</div>
+</div>
+<div class="flex items-start gap-4 bg-white dark:bg-[#0c1813] px-4 py-4 border-b border-gray-50 dark:border-gray-900 active:bg-gray-50 dark:active:bg-gray-800 transition-colors">
+<div class="text-emerald-500 flex items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-900/20 shrink-0 size-12">
+<span class="material-symbols-outlined">group</span>
+</div>
+<div class="flex flex-col flex-1 gap-1">
+<div class="flex justify-between items-start">
+<p class="text-[#111815] dark:text-white text-base font-semibold leading-tight line-clamp-1">Welcome to 'Alumni Circle'</p>
+<p class="text-gray-400 text-xs font-normal whitespace-nowrap ml-2">Yesterday</p>
+</div>
+<p class="text-gray-500 dark:text-gray-400 text-sm font-normal leading-snug">You've been added to the private alumni group. Start sharing items with your trusted peers!</p>
+</div>
+</div>
+</div>
+<div class="fixed bottom-0 left-0 right-0 mx-auto max-w-md bg-white/90 dark:bg-[#0c1813]/90 backdrop-blur-xl border-t border-gray-100 dark:border-gray-800 flex justify-around items-center pt-2 pb-6 px-2 z-30">
+<button class="flex flex-col items-center gap-1 text-gray-400 flex-1">
+<span class="material-symbols-outlined text-[24px]">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-gray-400 flex-1">
+<span class="material-symbols-outlined text-[24px]">groups</span>
+<span class="text-[10px] font-medium">Groups</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-gray-400 flex-1">
+<span class="material-symbols-outlined text-[24px]">storefront</span>
+<span class="text-[10px] font-medium">Selling</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-gray-400 flex-1">
+<span class="material-symbols-outlined text-[24px]">bookmark</span>
+<span class="text-[10px] font-medium">Saved</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-gray-400 flex-1">
+<span class="material-symbols-outlined text-[24px]">menu</span>
+<span class="text-[10px] font-medium">Menu</span>
+</button>
+</div>
+<div class="fixed bottom-1 left-0 right-0 mx-auto max-w-md flex justify-center pointer-events-none z-40">
+<div class="w-32 h-1 bg-gray-200 dark:bg-gray-700 rounded-full mb-1"></div>
+</div>
+</div>
+
+</body></html>

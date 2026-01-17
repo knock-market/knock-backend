@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#19f097",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#10221b",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<title>My Trust Badges &amp; Reviews</title>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#111815] dark:text-white min-h-screen pb-24">
+<!-- Top Navigation Bar -->
+<div class="sticky top-0 z-50 flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md p-4 justify-between border-b border-gray-200 dark:border-gray-800">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-2xl">arrow_back_ios</span>
+<h1 class="text-lg font-bold leading-tight tracking-tight">Trust Profile</h1>
+</div>
+<div class="flex items-center gap-2 bg-primary/20 px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-primary text-sm font-bold">verified</span>
+<span class="text-xs font-bold text-[#07882c] dark:text-primary">Verified User</span>
+</div>
+</div>
+<!-- Summary Stats Section -->
+<div class="p-4 pt-6">
+<div class="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-sm flex flex-col items-center text-center">
+<div class="relative flex items-center justify-center mb-4">
+<!-- Simple circular progress representation -->
+<svg class="w-32 h-32 transform -rotate-90">
+<circle class="text-gray-100 dark:text-gray-800" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-primary" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" stroke-dasharray="364.4" stroke-dashoffset="36.4" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="absolute flex flex-col items-center">
+<span class="text-3xl font-bold">98</span>
+<span class="text-[10px] uppercase tracking-wider font-bold text-gray-500">Manners Score</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<p class="text-xl font-bold">Top 1% in your circle</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">You're one of our most trusted community members!</p>
+</div>
+<div class="mt-6 flex gap-4 w-full">
+<div class="flex-1 bg-background-light dark:bg-gray-800 p-3 rounded-lg">
+<p class="text-xs text-gray-500 mb-1">Total Trades</p>
+<p class="text-lg font-bold">48</p>
+</div>
+<div class="flex-1 bg-background-light dark:bg-gray-800 p-3 rounded-lg">
+<p class="text-xs text-gray-500 mb-1">Community Rank</p>
+<p class="text-lg font-bold">#4</p>
+</div>
+</div>
+</div>
+</div>
+<!-- My Trust Badges Header -->
+<div class="flex items-center justify-between px-4 pt-4">
+<h2 class="text-xl font-bold tracking-tight">My Trust Badges</h2>
+<span class="text-primary text-sm font-bold">See All</span>
+</div>
+<!-- Badges Grid -->
+<div class="grid grid-cols-2 gap-3 p-4">
+<!-- Badge 1 -->
+<div class="bg-white dark:bg-gray-900 rounded-xl p-4 flex flex-col items-center text-center shadow-sm border border-transparent hover:border-primary/30 transition-colors">
+<div class="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mb-3">
+<span class="material-symbols-outlined text-orange-500 text-3xl">schedule</span>
+</div>
+<p class="text-sm font-bold">Punctual x15</p>
+<p class="text-[11px] text-gray-500 mt-1 leading-tight">Always shows up on time for swaps</p>
+</div>
+<!-- Badge 2 -->
+<div class="bg-white dark:bg-gray-900 rounded-xl p-4 flex flex-col items-center text-center shadow-sm border border-transparent hover:border-primary/30 transition-colors">
+<div class="w-16 h-16 rounded-full bg-pink-100 flex items-center justify-center mb-3">
+<span class="material-symbols-outlined text-pink-500 text-3xl">favorite</span>
+</div>
+<p class="text-sm font-bold">Kind &amp; Friendly x22</p>
+<p class="text-[11px] text-gray-500 mt-1 leading-tight">Great attitude and communication</p>
+</div>
+<!-- Badge 3 -->
+<div class="bg-white dark:bg-gray-900 rounded-xl p-4 flex flex-col items-center text-center shadow-sm border border-transparent hover:border-primary/30 transition-colors">
+<div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mb-3">
+<span class="material-symbols-outlined text-blue-500 text-3xl">task_alt</span>
+</div>
+<p class="text-sm font-bold">Accurate x8</p>
+<p class="text-[11px] text-gray-500 mt-1 leading-tight">Items are exactly as described</p>
+</div>
+<!-- Badge 4 -->
+<div class="bg-white dark:bg-gray-900 rounded-xl p-4 flex flex-col items-center text-center shadow-sm border border-transparent hover:border-primary/30 transition-colors">
+<div class="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mb-3">
+<span class="material-symbols-outlined text-purple-500 text-3xl">chat_bubble</span>
+</div>
+<p class="text-sm font-bold">Fast Responder x31</p>
+<p class="text-[11px] text-gray-500 mt-1 leading-tight">Usually replies within 10 minutes</p>
+</div>
+</div>
+<!-- Recent Reviews Section -->
+<div class="px-4 pt-6">
+<h2 class="text-xl font-bold tracking-tight mb-4">Recent Reviews</h2>
+<div class="flex flex-col gap-3">
+<!-- Review 1 -->
+<div class="bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-full bg-gray-200 shrink-0" data-alt="Anonymous profile silhouette" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCu1NGpGBfWKNwx0Ah5pOYSGG4ISzbOXcu_qi0dT1iNrq_4MlUczyEhCJnSi0chizg8_o4_Jg2LvD5vtFTuyn2QyTMWbTRS7jzk2OThwcFqez7-fa1GDZRHOWR_8KEsbn_IHBeyMCTbsU1BlI0pGq64XgYMp94a4gD3gld0zJMUVbHyrSk7HODbma9IhOUlu3EgkUWl6rZ3W_pIZbcqMHrdfcY2KshNhEmXVhjSpqiTFCXygbFbj1z0L7f9yNYBTvW8-Et4LOsZLDI'); background-size: cover;"></div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold">Anonymous Member</span>
+<span class="text-[10px] text-gray-400">2 days ago</span>
+</div>
+<p class="text-sm text-gray-700 dark:text-gray-300 italic">"Super easy to trade with! The sweater was in even better condition than the photos showed. Thank you!"</p>
+</div>
+</div>
+</div>
+<!-- Review 2 -->
+<div class="bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-full bg-gray-200 shrink-0" data-alt="Anonymous profile silhouette" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD8fk3384MsvATS8HYBKcQL8ApAjwzXEB5g3jHnnW7ZSDqLfPP24LaRwleWxadNrNAhUnGTVhUvKWk09asWWAJAmWlg2tT_QuIZg4VJyNidFQhowSOVTGJe04gCnars5ekiZN84etu1LbGrs6kVc_dplLnzA-xFSTl0aUUM3URb7LQmabaix6k4JVvrFvc3agVzX3CaFpIrLLkacRWfCQWHuYYPclmFvJbJJFutx0nnw2GZ_ST6ZhYkjWwCbHHtwFRa_3utqJdYTxM'); background-size: cover;"></div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold">Friend from Class B</span>
+<span class="text-[10px] text-gray-400">1 week ago</span>
+</div>
+<p class="text-sm text-gray-700 dark:text-gray-300 italic">"Always a pleasure. Very punctual and polite. Highly recommended for any circle swaps!"</p>
+</div>
+</div>
+</div>
+<!-- Review 3 -->
+<div class="bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-full bg-gray-200 shrink-0" data-alt="Anonymous profile silhouette" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAwtkH4wLPyYb9Q0hiQjj9TerrBuMuMg5SQ4ESe55o_ansgHznbr_GAUTs0efu0cBLGuPMKu5inS0DWt79r6N-0brVxr6pfX5TsGv2riCvU52-KHoNawgYZi58brHsz3Usu3VJ5xzhj3X7weWEwNWJ-jxC6Q4jG1pCp7llqTuk6fv9VRRR7YNa9NUcxzcbyArV11xt_MY4ZR5BTKcxfWhtTrQBqfPvYTXO3i4haE0aQabGaJxw3PnPUgb27lTJOpgPKVRAHVDUZxvI'); background-size: cover;"></div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold">Design Studio Peer</span>
+<span class="text-[10px] text-gray-400">2 weeks ago</span>
+</div>
+<p class="text-sm text-gray-700 dark:text-gray-300 italic">"Fastest response I've had on the app. We met up within an hour! 10/10."</p>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 py-4 bg-primary text-background-dark font-bold rounded-xl shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform">
+            How to earn more badges
+        </button>
+</div>
+<!-- Bottom Navigation Bar -->
+<div class="fixed bottom-0 left-0 right-0 h-20 bg-white/90 dark:bg-background-dark/90 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 px-6 flex items-center justify-between pb-4">
+<div class="flex flex-col items-center gap-1 text-gray-400">
+<span class="material-symbols-outlined text-2xl">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-gray-400">
+<span class="material-symbols-outlined text-2xl">search</span>
+<span class="text-[10px] font-medium">Search</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-gray-400">
+<span class="material-symbols-outlined text-2xl">add_circle</span>
+<span class="text-[10px] font-medium">Sell</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-gray-400">
+<span class="material-symbols-outlined text-2xl">chat</span>
+<span class="text-[10px] font-medium">Chat</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1">person</span>
+<span class="text-[10px] font-bold">My Page</span>
+</div>
+</div>
+</body></html>
