@@ -31,9 +31,7 @@ public class GroupMember extends BaseEntity {
 	private GroupRole role; // ADMIN, MEMBER
 
 	public enum GroupRole {
-
 		ADMIN, MEMBER
-
 	}
 
 	@Builder
