@@ -36,6 +36,9 @@ public class Group extends BaseEntity {
 	@Column(name = "invite_code_expires_at")
 	private LocalDateTime inviteCodeExpiresAt;
 
+	@Column(name = "cover_image")
+	private String coverImage;
+
 	private Group(String name, String description, String inviteCode, Long ownerId, boolean isPersonal) {
 		this.name = name;
 		this.description = description;
