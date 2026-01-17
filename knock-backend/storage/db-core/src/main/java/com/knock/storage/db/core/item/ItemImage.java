@@ -24,16 +24,16 @@ public class ItemImage extends BaseEntity {
 	private String imageUrl;
 
 	@Column(name = "order_seq")
-	private int orderSeq;
+	private int orderSequence;
 
-	public ItemImage(Item item, String imageUrl, int orderSeq) {
+	public ItemImage(Item item, String imageUrl, int orderSequence) {
 		this.item = item;
 		this.imageUrl = imageUrl;
-		this.orderSeq = orderSeq;
+		this.orderSequence = orderSequence;
 	}
 
-	public static ItemImage create(Item item, String imageUrl, int orderSeq) {
-		return new ItemImage(item, imageUrl, orderSeq);
+	public static ItemImage create(Item item, String imageUrl, int orderSequence) {
+		return new ItemImage(item, imageUrl, orderSequence);
 	}
 
 }
