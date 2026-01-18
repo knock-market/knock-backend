@@ -13,8 +13,7 @@ public class GroupRepositoryImpl implements GroupRepository {
 
 	private final GroupMemberJpaRepository groupMemberJpaRepository;
 
-	public GroupRepositoryImpl(GroupJpaRepository groupJpaRepository,
-			GroupMemberJpaRepository groupMemberJpaRepository) {
+	public GroupRepositoryImpl(GroupJpaRepository groupJpaRepository, GroupMemberJpaRepository groupMemberJpaRepository) {
 		this.groupJpaRepository = groupJpaRepository;
 		this.groupMemberJpaRepository = groupMemberJpaRepository;
 	}

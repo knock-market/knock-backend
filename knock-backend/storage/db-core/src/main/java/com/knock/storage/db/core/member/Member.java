@@ -35,15 +35,23 @@ public class Member extends BaseEntity {
 	@Column(nullable = false)
 	private String provider; // kakao, google etc.
 
+	@Column(name = "provider_id")
+	private String providerId;
+
+	@Column(name = "manner_temperature")
+	private Double mannerTemperature;
+
 	@Builder
 	public Member(String email, String password, String name, String nickname, String profileImageUrl,
-			String provider) {
+			String provider, String providerId) {
 		this.email = email;
 		this.password = password;
 		this.name = name;
 		this.nickname = nickname;
 		this.profileImageUrl = profileImageUrl;
 		this.provider = provider;
+		this.providerId = providerId;
+		this.mannerTemperature = 36.5;
 	}
 
 	public void updateProfile(String nickname, String profileImageUrl) {

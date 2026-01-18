@@ -2,7 +2,6 @@ package com.knock.core.api.controller.v1;
 
 import com.knock.auth.MemberPrincipal;
 import com.knock.core.api.controller.v1.request.ItemCreateRequestDto;
-import com.knock.core.api.controller.v1.response.ItemCreateResponseDto;
 import com.knock.core.domain.item.ItemService;
 import com.knock.core.domain.item.dto.ItemCreateData;
 import com.knock.core.domain.item.dto.ItemCreateResult;
