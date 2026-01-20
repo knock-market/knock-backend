@@ -30,6 +30,16 @@ public class BookmarkRepositoryImpl implements BookmarkRepository {
     }
 
     @Override
+    public boolean existsByMemberAndItem(Member member, Item item) {
+        return jpaRepository.existsByMemberAndItem(member, item);
+    }
+
+    @Override
+    public Optional<Bookmark> findByMemberAndItemWithDeleted(Long memberId, Long itemId) {
+        return jpaRepository.findByMemberAndItemWithDeleted(memberId, itemId);
+    }
+
+    @Override
     public List<Bookmark> findByMemberId(Long memberId) {
         return jpaRepository.findByMemberId(memberId);
     }

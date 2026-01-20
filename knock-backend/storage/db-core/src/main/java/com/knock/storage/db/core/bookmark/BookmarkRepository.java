@@ -14,6 +14,10 @@ public interface BookmarkRepository {
 
     Optional<Bookmark> findByMemberAndItem(Member member, Item item);
 
+    boolean existsByMemberAndItem(Member member, Item item);
+
+    Optional<Bookmark> findByMemberAndItemWithDeleted(Long memberId, Long itemId);
+
     List<Bookmark> findByMemberId(Long memberId);
 
 }
