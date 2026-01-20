@@ -19,30 +19,25 @@ public class ReservationController {
 	private final ReservationService reservationService;
 
 	@PostMapping("/api/v1/reservations")
-	public ApiResponse<Long> createReservation(@AuthenticationPrincipal MemberPrincipal principal,
-			@RequestBody ReservationCreateRequestDto request) {
-		ReservationCreateData data = new ReservationCreateData(request.itemId(), principal.getMemberId());
-		Long reservationId = reservationService.createReservation(data);
+	public ApiResponse<Long> createReservation(@AuthenticationPrincipal MemberPrincipal principal, @RequestBody ReservationCreateRequestDto request) {
+		Long reservationId = reservationService.createReservation(new ReservationCreateData(request.itemId(), principal.getMemberId()));
 		return ApiResponse.success(reservationId);
 	}
 
 	@PatchMapping("/api/v1/reservations/{id}/approve")
-	public ApiResponse<Void> approveReservation(@AuthenticationPrincipal MemberPrincipal principal,
-			@PathVariable Long id) {
+	public ApiResponse<Void> approveReservation(@AuthenticationPrincipal MemberPrincipal principal, @PathVariable Long id) {
 		reservationService.approveReservation(principal.getMemberId(), id);
 		return ApiResponse.success(null);
 	}
 
 	@PatchMapping("/api/v1/reservations/{id}/complete")
-	public ApiResponse<?> completeReservation(@AuthenticationPrincipal MemberPrincipal principal,
-			@PathVariable Long id) {
+	public ApiResponse<?> completeReservation(@AuthenticationPrincipal MemberPrincipal principal, @PathVariable Long id) {
 		reservationService.completeReservation(principal.getMemberId(), id);
 		return ApiResponse.success();
 	}
 
 	@PatchMapping("/api/v1/reservations/{id}/cancel")
-	public ApiResponse<Void> cancelReservation(@AuthenticationPrincipal MemberPrincipal principal,
-			@PathVariable Long id) {
+	public ApiResponse<Void> cancelReservation(@AuthenticationPrincipal MemberPrincipal principal, @PathVariable Long id) {
 		reservationService.cancelReservation(principal.getMemberId(), id);
 		return ApiResponse.success(null);
 	}

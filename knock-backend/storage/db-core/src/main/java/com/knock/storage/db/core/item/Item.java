@@ -13,6 +13,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "item")
 @Getter
@@ -28,6 +31,9 @@ public class Item extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id", nullable = false)
 	private Member member;
+
+	@OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
+	private List<ItemImage> images = new ArrayList<>();
 
 	@Column(nullable = false)
 	private String title;

@@ -23,7 +23,7 @@ public class ItemImage extends BaseEntity {
 	@Column(name = "image_url", nullable = false)
 	private String imageUrl;
 
-	@Column(name = "order_seq")
+	@Column(name = "order_sequence")
 	private int orderSequence;
 
 	public ItemImage(Item item, String imageUrl, int orderSequence) {

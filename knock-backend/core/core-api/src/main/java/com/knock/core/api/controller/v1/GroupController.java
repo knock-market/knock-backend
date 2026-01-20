@@ -23,8 +23,7 @@ public class GroupController {
 	private final GroupService groupService;
 
 	@PostMapping("/api/v1/groups")
-	public ApiResponse<GroupIdResponseDto> createGroup(@AuthenticationPrincipal MemberPrincipal principal,
-			@RequestBody GroupCreateRequestDto request) {
+	public ApiResponse<GroupIdResponseDto> createGroup(@AuthenticationPrincipal MemberPrincipal principal, @RequestBody GroupCreateRequestDto request) {
 		Long groupId = groupService.createGroup(principal.getMemberId(),
 				new GroupData.Create(request.name(), request.description()));
 		GroupIdResponseDto response = new GroupIdResponseDto(groupId);
@@ -32,15 +31,16 @@ public class GroupController {
 	}
 
 	@PostMapping("/api/v1/groups/{groupId}/invite-codes")
-	public ApiResponse<InviteCodeResponseDto> generateInviteCode(@AuthenticationPrincipal MemberPrincipal principal,
-			@PathVariable Long groupId, @RequestBody InviteCodeRequestDto request) {
+	public ApiResponse<InviteCodeResponseDto> generateInviteCode(
+			@AuthenticationPrincipal MemberPrincipal principal,
+			@PathVariable Long groupId,
+			@RequestBody InviteCodeRequestDto request) {
 		return ApiResponse
 			.success(groupService.generateTimedInviteCode(principal.getMemberId(), groupId, request.duration()));
 	}
 
 	@PostMapping("/api/v1/groups/join")
-	public ApiResponse<Long> joinGroup(@AuthenticationPrincipal MemberPrincipal principal,
-			@RequestBody GroupJoinRequestDto request) {
+	public ApiResponse<Long> joinGroup(@AuthenticationPrincipal MemberPrincipal principal, @RequestBody GroupJoinRequestDto request) {
 		return ApiResponse.success(groupService.joinGroup(principal.getMemberId(), GroupData.Join.of(request)));
 	}
 

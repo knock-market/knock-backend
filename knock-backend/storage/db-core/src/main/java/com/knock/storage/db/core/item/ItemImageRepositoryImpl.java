@@ -32,7 +32,7 @@ public class ItemImageRepositoryImpl implements ItemImageRepository {
 	@Override
 	public List<ItemImage> findByItem(Item item) {
 		return jpaRepository.findAllByItem(item);
-	} // Note: ItemImageJpaRepository might need findAllByItem
+	}
 
 	@Override
 	public void delete(ItemImage itemImage) {

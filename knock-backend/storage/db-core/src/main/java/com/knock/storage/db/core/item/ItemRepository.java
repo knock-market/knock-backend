@@ -11,6 +11,8 @@ public interface ItemRepository {
 
 	List<Item> findByGroupId(Long groupId);
 
+	List<Item> findByMemberId(Long memberId);
+
 	void delete(Item item);
 
 }

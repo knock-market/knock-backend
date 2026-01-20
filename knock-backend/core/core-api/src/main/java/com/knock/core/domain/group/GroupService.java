@@ -1,7 +1,6 @@
 package com.knock.core.domain.group;
 
 import com.knock.core.api.controller.v1.response.InviteCodeResponseDto;
-
 import com.knock.core.domain.group.dto.GroupData;
 import com.knock.core.domain.group.dto.GroupResult;
 import com.knock.core.enums.InviteDuration;
@@ -9,7 +8,6 @@ import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
 import com.knock.storage.db.core.group.Group;
 import com.knock.storage.db.core.group.GroupMember;
-
 import com.knock.storage.db.core.group.GroupRepository;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
@@ -39,11 +37,10 @@ public class GroupService {
 		Group group = Group.create(data.name(), data.description(), inviteCode, ownerId);
 		Group savedGroup = groupRepository.save(group);
 
-		// 그룹장은 자동으로 가입 처리
-		Member owner = memberRepository.findById(ownerId)
-			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
+		Member ownerMember = memberRepository.findById(ownerId)
+				.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 
-		groupRepository.saveMember(savedGroup, owner, GroupMember.GroupRole.ADMIN);
+		groupRepository.saveMember(savedGroup, ownerMember, GroupMember.GroupRole.ADMIN);
 
 		return savedGroup.getId();
 	}
@@ -51,14 +48,14 @@ public class GroupService {
 	@Transactional
 	public void createPersonalGroup(Long memberId, String memberName) {
 		String inviteCode = generateUniqueInviteCode();
-		String groupName = memberName + "의 당근";
+		String groupName = memberName + "의 노크마켓";
 		String description = memberName + "님의 개인 거래 공간입니다.";
 
 		Group group = Group.createPersonal(groupName, description, inviteCode, memberId);
 		Group savedGroup = groupRepository.save(group);
 
 		Member member = memberRepository.findById(memberId)
-			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
+				.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 		groupRepository.saveMember(savedGroup, member, GroupMember.GroupRole.ADMIN);
 
 		log.info("Personal group created for member {}: {}", memberId, savedGroup.getId());
@@ -67,7 +64,7 @@ public class GroupService {
 	@Transactional
 	public InviteCodeResponseDto generateTimedInviteCode(Long memberId, Long groupId, InviteDuration duration) {
 		Group group = groupRepository.findGroupByGroupId(groupId)
-			.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
+				.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
 
 		if (!group.getOwnerId().equals(memberId)) {
 			throw new CoreException(ErrorType.FORBIDDEN);
@@ -86,10 +83,10 @@ public class GroupService {
 	@Transactional
 	public Long joinGroup(Long memberId, GroupData.Join request) {
 		Member member = memberRepository.findById(memberId)
-			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
+				.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 
 		Group group = groupRepository.findByInviteCode(request.inviteCode())
-			.orElseThrow(() -> new CoreException(ErrorType.INVALID_INVITE_CODE));
+				.orElseThrow(() -> new CoreException(ErrorType.INVALID_INVITE_CODE));
 
 		if (group.isInviteCodeExpired()) {
 			throw new CoreException(ErrorType.INVITE_CODE_EXPIRED);
@@ -111,23 +108,23 @@ public class GroupService {
 	@Transactional
 	public void leaveGroup(Long memberId, Long groupId) {
 		GroupMember groupMember = groupRepository.findMember(groupId, memberId)
-			.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
+				.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
 		groupRepository.deleteMember(groupMember);
 	}
 
 	@Transactional(readOnly = true)
 	public List<GroupResult> getMyGroups(Long memberId) {
 		return groupRepository.findGroupMembersByMemberId(memberId)
-			.stream()
-			.map(GroupMember::getGroup)
-			.map(GroupResult::from)
-			.collect(Collectors.toList());
+				.stream()
+				.map(GroupMember::getGroup)
+				.map(GroupResult::from)
+				.collect(Collectors.toList());
 	}
 
 	@Transactional(readOnly = true)
 	public GroupResult getGroupDetail(Long groupId) {
 		Group group = groupRepository.findGroupByGroupId(groupId)
-			.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
+				.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
 		return GroupResult.from(group);
 	}
 

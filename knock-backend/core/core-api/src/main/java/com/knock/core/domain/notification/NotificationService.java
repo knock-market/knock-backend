@@ -21,13 +21,12 @@ import java.util.stream.Collectors;
 public class NotificationService {
 
 	private final NotificationRepository notificationRepository;
-
 	private final MemberRepository memberRepository;
 
 	@Transactional
 	public Long createNotification(NotificationCreateData data) {
 		Member member = memberRepository.findById(data.memberId())
-			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
+				.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 
 		Notification notification = Notification.create(member, data.notificationType(), data.content(),
 				data.relatedUrl());
@@ -44,9 +43,8 @@ public class NotificationService {
 	@Transactional
 	public void markAsRead(Long memberId, Long notificationId) {
 		Notification notification = notificationRepository.findById(notificationId)
-			.orElseThrow(() -> new IllegalArgumentException("Notification not found"));
+				.orElseThrow(() -> new CoreException(ErrorType.NOTIFICATION_NOT_FOUND));
 
-		// 본인의 알림인지 확인
 		if (!notification.getMember().getId().equals(memberId)) {
 			throw new CoreException(ErrorType.FORBIDDEN);
 		}

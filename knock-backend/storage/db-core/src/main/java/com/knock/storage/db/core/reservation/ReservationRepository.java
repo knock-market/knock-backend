@@ -19,10 +19,6 @@ public interface ReservationRepository {
 
 	int countByItemIdAndStatus(Long itemId, ReservationStatus status);
 
-	/**
-	 * 아이템에 승인된 예약이 없을 때만 예약을 생성합니다. (Race Condition 방지)
-	 * @return 생성된 행 수 (0 또는 1)
-	 */
 	int createIfNotApproved(Long itemId, Long memberId);
 
 	void delete(Reservation reservation);
