@@ -29,6 +29,7 @@ public class ImageService {
 	}
 
 	private void validateImageFile(MultipartFile file) {
+		// todo : validator 추가
 		if (file.isEmpty()) {
 			throw new IllegalArgumentException("파일이 비어있습니다.");
 		}
