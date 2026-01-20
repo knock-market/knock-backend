@@ -1,15 +1,20 @@
 package com.knock.storage.db.core.item;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ItemJpaRepository extends JpaRepository<Item, Long> {
 
-	@org.springframework.data.jpa.repository.Query("SELECT DISTINCT i FROM Item i LEFT JOIN FETCH i.images WHERE i.group.id = :groupId")
+	@Query("SELECT i FROM Item i LEFT JOIN FETCH i.images WHERE i.group.id = :groupId")
 	List<Item> findAllByGroup_Id(Long groupId);
 
-	@org.springframework.data.jpa.repository.Query("SELECT DISTINCT i FROM Item i LEFT JOIN FETCH i.images WHERE i.member.id = :memberId")
+	@Query("SELECT i FROM Item i LEFT JOIN FETCH i.images WHERE i.member.id = :memberId")
 	List<Item> findAllByMember_Id(Long memberId);
+
+	@Query("SELECT i FROM Item i LEFT JOIN FETCH i.images WHERE i.id = :itemId")
+	Optional<Item> findByIdWithImages(Long itemId);
 
 }

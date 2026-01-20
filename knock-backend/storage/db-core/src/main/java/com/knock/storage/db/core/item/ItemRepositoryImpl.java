@@ -46,4 +46,9 @@ public class ItemRepositoryImpl implements ItemRepository {
 		itemJpaRepository.delete(item);
 	}
 
+	@Override
+	public Optional<Item> findByIdWithImages(Long itemId) {
+		return itemJpaRepository.findByIdWithImages(itemId);
+	}
+
 }

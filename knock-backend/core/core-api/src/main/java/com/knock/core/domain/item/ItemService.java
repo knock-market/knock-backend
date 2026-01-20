@@ -10,11 +10,11 @@ import com.knock.storage.db.core.group.Group;
 import com.knock.storage.db.core.group.GroupRepository;
 import com.knock.storage.db.core.item.Item;
 import com.knock.storage.db.core.item.ItemImage;
-import com.knock.storage.db.core.item.ItemImageRepository;
 import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,15 +22,13 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ItemService {
 
 	private final ItemRepository itemRepository;
 	private final MemberRepository memberRepository;
 	private final GroupRepository groupRepository;
-	private final ItemImageRepository itemImageRepository;
 
-	private final org.springframework.data.redis.core.RedisTemplate<String, Object> redisTemplate;
+	private final RedisTemplate<String, Object> redisTemplate;
 
 	@Transactional
 	public ItemCreateResult createItem(Long memberId, Long groupId, ItemCreateData data) {
@@ -39,20 +37,21 @@ public class ItemService {
 		Group group = groupRepository.findGroupByGroupId(groupId)
 				.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
 
-		Item item = Item.create(group, member, data.title(), data.description(), data.price(), data.type(),
-				data.category());
+		Item item = Item.create(group, member, data.title(), data.description(), data.price(), data.type(), data.category());
 
 		Item savedItem = itemRepository.save(item, data.imageUrls());
 		return new ItemCreateResult(savedItem.getId());
 	}
 
+	@Transactional(readOnly = true)
 	public ItemReadResult getItem(Long itemId) {
-		Item item = itemRepository.findById(itemId).orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
+		Item item = itemRepository.findByIdWithImages(itemId)
+				.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
 
-		List<ItemImage> images = itemImageRepository.findByItem(item);
-		return ItemReadResult.from(item, images);
+		return ItemReadResult.from(item, item.getImages());
 	}
 
+	@Transactional(readOnly = true)
 	public List<ItemListResult> getItemsByGroup(Long groupId) {
 		List<Item> items = itemRepository.findByGroupId(groupId);
 
@@ -63,16 +62,18 @@ public class ItemService {
 		}).toList();
 	}
 
+	@Transactional(readOnly = true)
 	public List<ItemListResult> getMySellingItems(Long memberId) {
 		List<Item> items = itemRepository.findByMemberId(memberId);
 
 		return items.stream().map(item -> {
 			List<ItemImage> images = item.getImages();
-			String thumbnailUrl = images.isEmpty() ? null : images.get(0).getImageUrl();
+			String thumbnailUrl = images.isEmpty() ? null : images.getFirst().getImageUrl();
 			return ItemListResult.from(item, thumbnailUrl);
 		}).toList();
 	}
 
+	// todo : 로직 완성 필요
 	public void increaseViewCount(Long itemId, Long memberId) {
 		String logKey = "item:view:log:" + itemId + ":" + memberId;
 		String countKey = "item:viewCount:" + itemId;

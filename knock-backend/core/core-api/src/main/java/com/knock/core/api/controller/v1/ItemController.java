@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 public class ItemController {
@@ -20,8 +22,7 @@ public class ItemController {
 
 	@PostMapping("/api/v1/items")
 	public ApiResponse<Long> createItem(@AuthenticationPrincipal MemberPrincipal principal, @RequestBody ItemCreateRequestDto request) {
-		ItemCreateResult result = itemService.createItem(principal.getMemberId(), request.groupId(),
-				ItemCreateData.of(request));
+		ItemCreateResult result = itemService.createItem(principal.getMemberId(), request.groupId(), ItemCreateData.of(request));
 		return ApiResponse.success(result.id());
 	}
 
@@ -32,12 +33,12 @@ public class ItemController {
 	}
 
 	@GetMapping("/api/v1/groups/{groupId}/items")
-	public ApiResponse<java.util.List<ItemListResult>> getItemsByGroup(@PathVariable Long groupId) {
+	public ApiResponse<List<ItemListResult>> getItemsByGroup(@PathVariable Long groupId) {
 		return ApiResponse.success(itemService.getItemsByGroup(groupId));
 	}
 
 	@GetMapping("/api/v1/items/my-selling")
-	public ApiResponse<java.util.List<ItemListResult>> getMySelling(@AuthenticationPrincipal MemberPrincipal principal) {
+	public ApiResponse<List<ItemListResult>> getMySelling(@AuthenticationPrincipal MemberPrincipal principal) {
 		return ApiResponse.success(itemService.getMySellingItems(principal.getMemberId()));
 	}
 

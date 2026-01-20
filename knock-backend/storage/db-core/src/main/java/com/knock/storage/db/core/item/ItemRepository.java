@@ -13,6 +13,8 @@ public interface ItemRepository {
 
 	List<Item> findByMemberId(Long memberId);
 
+	Optional<Item> findByIdWithImages(Long itemId);
+
 	void delete(Item item);
 
 }
