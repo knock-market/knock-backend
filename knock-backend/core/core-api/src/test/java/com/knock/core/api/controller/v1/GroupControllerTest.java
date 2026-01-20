@@ -2,7 +2,8 @@ package com.knock.core.api.controller.v1;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knock.core.domain.group.GroupService;
-import com.knock.core.domain.group.dto.GroupData;
+import com.knock.core.domain.group.dto.GroupCreateData;
+import com.knock.core.domain.group.dto.GroupJoinData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,14 +36,14 @@ class GroupControllerTest {
 	void createGroup() throws Exception {
 		// given
 		Long memberId = 1L;
-		GroupData.Create request = new GroupData.Create("New Group", "Desc");
+		GroupCreateData data = new GroupCreateData("New Group", "Desc");
 		given(groupService.createGroup(eq(memberId), any())).willReturn(10L);
 
 		// when & then
 		mockMvc
 			.perform(post("/api/v1/groups").header("X-User-Id", memberId)
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(request)))
+				.content(objectMapper.writeValueAsString(data)))
 			.andDo(print())
 			.andExpect(status().isOk());
 	}
@@ -52,7 +53,7 @@ class GroupControllerTest {
 	void joinGroup() throws Exception {
 		// given
 		Long memberId = 2L;
-		GroupData.Join request = new GroupData.Join("CODE1234");
+		GroupJoinData request = new GroupJoinData("CODE1234");
 		given(groupService.joinGroup(eq(memberId), any())).willReturn(10L);
 
 		// when & then

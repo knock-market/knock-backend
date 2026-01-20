@@ -1,7 +1,8 @@
 package com.knock.core.domain.group;
 
-import com.knock.core.api.controller.v1.response.InviteCodeResponseDto;
-import com.knock.core.domain.group.dto.GroupData;
+import com.knock.core.domain.group.dto.GroupCreateData;
+import com.knock.core.domain.group.dto.GroupInviteCodeResult;
+import com.knock.core.domain.group.dto.GroupJoinData;
 import com.knock.core.enums.InviteDuration;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
@@ -44,19 +45,19 @@ class GroupServiceTest {
     void createGroup_success() {
         // given
         Long memberId = 1L;
-        GroupData.Create request = new GroupData.Create("My Group", "Description");
+        GroupCreateData data = new GroupCreateData("My Group", "Description");
         Member member = Member.builder().name("User").email("test@test.com").password("pw").nickname("nick")
                 .provider("local").build();
         ReflectionTestUtils.setField(member, "id", memberId);
 
-        Group group = Group.create(request.name(), request.description(), "INVITE", memberId);
+        Group group = Group.create(data.name(), data.description(), "INVITE", memberId);
         ReflectionTestUtils.setField(group, "id", 10L);
 
         given(groupRepository.save(any(Group.class))).willReturn(group);
         given(memberRepository.findById(memberId)).willReturn(Optional.of(member));
 
         // when
-        Long groupId = groupService.createGroup(memberId, request);
+        Long groupId = groupService.createGroup(memberId, data);
 
         // then
         assertThat(groupId).isEqualTo(10L);
@@ -100,13 +101,12 @@ class GroupServiceTest {
         given(groupRepository.findGroupByGroupId(groupId)).willReturn(Optional.of(group));
 
         // when
-        InviteCodeResponseDto response = groupService.generateTimedInviteCode(memberId, groupId,
-                InviteDuration.ONE_HOUR);
+        GroupInviteCodeResult result = groupService.generateTimedInviteCode(memberId, groupId, InviteDuration.ONE_HOUR);
 
         // then
-        assertThat(response.inviteCode()).isNotEqualTo("OLDCODE");
-        assertThat(response.expiresAt()).isAfter(LocalDateTime.now());
-        assertThat(group.getInviteCode()).isEqualTo(response.inviteCode());
+        assertThat(result.inviteCode()).isNotEqualTo("OLDCODE");
+        assertThat(result.expireAt()).isAfter(LocalDateTime.now());
+        assertThat(group.getInviteCode()).isEqualTo(result.inviteCode());
     }
 
     @Test
@@ -115,7 +115,7 @@ class GroupServiceTest {
         // given
         Long memberId = 2L;
         String inviteCode = "EXPIRED";
-        GroupData.Join request = new GroupData.Join(inviteCode);
+        GroupJoinData data = new GroupJoinData(inviteCode);
 
         Member member = Member.builder().name("User2").build();
         Group group = Group.create("Group", "Desc", inviteCode, 1L);
@@ -126,7 +126,7 @@ class GroupServiceTest {
         given(groupRepository.findByInviteCode(inviteCode)).willReturn(Optional.of(group));
 
         // when & then
-        assertThatThrownBy(() -> groupService.joinGroup(memberId, request))
+        assertThatThrownBy(() -> groupService.joinGroup(memberId, data))
                 .isInstanceOf(CoreException.class)
                 .hasFieldOrPropertyWithValue("errorType", ErrorType.INVITE_CODE_EXPIRED);
     }

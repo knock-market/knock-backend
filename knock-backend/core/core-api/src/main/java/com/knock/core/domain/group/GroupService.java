@@ -1,7 +1,8 @@
 package com.knock.core.domain.group;
 
-import com.knock.core.api.controller.v1.response.InviteCodeResponseDto;
-import com.knock.core.domain.group.dto.GroupData;
+import com.knock.core.domain.group.dto.GroupCreateData;
+import com.knock.core.domain.group.dto.GroupJoinData;
+import com.knock.core.domain.group.dto.GroupInviteCodeResult;
 import com.knock.core.domain.group.dto.GroupResult;
 import com.knock.core.enums.InviteDuration;
 import com.knock.core.support.error.CoreException;
@@ -14,6 +15,7 @@ import com.knock.storage.db.core.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -23,21 +25,18 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
-@Transactional(readOnly = true)
 public class GroupService {
 
 	private final GroupRepository groupRepository;
-
 	private final MemberRepository memberRepository;
 
 	@Transactional
-	public Long createGroup(Long ownerId, GroupData.Create data) {
+	public Long createGroup(Long memberId, GroupCreateData data) {
 		String inviteCode = generateUniqueInviteCode();
-		Group group = Group.create(data.name(), data.description(), inviteCode, ownerId);
+		Group group = Group.create(data.name(), data.description(), inviteCode, memberId);
 		Group savedGroup = groupRepository.save(group);
 
-		Member ownerMember = memberRepository.findById(ownerId)
+		Member ownerMember = memberRepository.findById(memberId)
 				.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 
 		groupRepository.saveMember(savedGroup, ownerMember, GroupMember.GroupRole.ADMIN);
@@ -57,12 +56,10 @@ public class GroupService {
 		Member member = memberRepository.findById(memberId)
 				.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 		groupRepository.saveMember(savedGroup, member, GroupMember.GroupRole.ADMIN);
-
-		log.info("Personal group created for member {}: {}", memberId, savedGroup.getId());
 	}
 
 	@Transactional
-	public InviteCodeResponseDto generateTimedInviteCode(Long memberId, Long groupId, InviteDuration duration) {
+	public GroupInviteCodeResult generateTimedInviteCode(Long memberId, Long groupId, InviteDuration duration) {
 		Group group = groupRepository.findGroupByGroupId(groupId)
 				.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
 
@@ -75,17 +72,15 @@ public class GroupService {
 				: null;
 
 		group.updateInviteCode(newInviteCode, expiresAt);
-		// Note: Dirty checking으로 저장됨
-
-		return new InviteCodeResponseDto(newInviteCode, expiresAt);
+		return new GroupInviteCodeResult(newInviteCode, expiresAt);
 	}
 
 	@Transactional
-	public Long joinGroup(Long memberId, GroupData.Join request) {
+	public Long joinGroup(Long memberId, GroupJoinData data) {
 		Member member = memberRepository.findById(memberId)
 				.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 
-		Group group = groupRepository.findByInviteCode(request.inviteCode())
+		Group group = groupRepository.findByInviteCode(data.inviteCode())
 				.orElseThrow(() -> new CoreException(ErrorType.INVALID_INVITE_CODE));
 
 		if (group.isInviteCodeExpired()) {
@@ -99,10 +94,6 @@ public class GroupService {
 		groupRepository.saveMember(group, member, GroupMember.GroupRole.MEMBER);
 
 		return group.getId();
-	}
-
-	private String generateUniqueInviteCode() {
-		return UUID.randomUUID().toString().substring(0, 8);
 	}
 
 	@Transactional
@@ -126,6 +117,10 @@ public class GroupService {
 		Group group = groupRepository.findGroupByGroupId(groupId)
 				.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
 		return GroupResult.from(group);
+	}
+
+	private String generateUniqueInviteCode() {
+		return UUID.randomUUID().toString().substring(0, 8);
 	}
 
 }

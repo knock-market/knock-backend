@@ -5,9 +5,11 @@ import com.knock.core.api.controller.v1.request.GroupCreateRequestDto;
 import com.knock.core.api.controller.v1.request.GroupJoinRequestDto;
 import com.knock.core.api.controller.v1.request.InviteCodeRequestDto;
 import com.knock.core.api.controller.v1.response.GroupResponseDto;
-import com.knock.core.api.controller.v1.response.InviteCodeResponseDto;
+import com.knock.core.api.controller.v1.response.GroupInviteCodeResponseDto;
 import com.knock.core.domain.group.GroupService;
-import com.knock.core.domain.group.dto.GroupData;
+import com.knock.core.domain.group.dto.GroupCreateData;
+import com.knock.core.domain.group.dto.GroupJoinData;
+import com.knock.core.domain.group.dto.GroupInviteCodeResult;
 import com.knock.core.domain.group.dto.GroupResult;
 import com.knock.core.support.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,24 +26,24 @@ public class GroupController {
 
 	@PostMapping("/api/v1/groups")
 	public ApiResponse<GroupIdResponseDto> createGroup(@AuthenticationPrincipal MemberPrincipal principal, @RequestBody GroupCreateRequestDto request) {
-		Long groupId = groupService.createGroup(principal.getMemberId(),
-				new GroupData.Create(request.name(), request.description()));
+		Long groupId = groupService.createGroup(principal.getMemberId(), new GroupCreateData(request.name(), request.description()));
 		GroupIdResponseDto response = new GroupIdResponseDto(groupId);
 		return ApiResponse.success(response);
 	}
 
 	@PostMapping("/api/v1/groups/{groupId}/invite-codes")
-	public ApiResponse<InviteCodeResponseDto> generateInviteCode(
+	public ApiResponse<GroupInviteCodeResponseDto> generateInviteCode(
 			@AuthenticationPrincipal MemberPrincipal principal,
 			@PathVariable Long groupId,
 			@RequestBody InviteCodeRequestDto request) {
-		return ApiResponse
-			.success(groupService.generateTimedInviteCode(principal.getMemberId(), groupId, request.duration()));
+		GroupInviteCodeResult result = groupService.generateTimedInviteCode(principal.getMemberId(), groupId, request.duration());
+		GroupInviteCodeResponseDto response = GroupInviteCodeResponseDto.of(result);
+		return ApiResponse.success(response);
 	}
 
 	@PostMapping("/api/v1/groups/join")
 	public ApiResponse<Long> joinGroup(@AuthenticationPrincipal MemberPrincipal principal, @RequestBody GroupJoinRequestDto request) {
-		return ApiResponse.success(groupService.joinGroup(principal.getMemberId(), GroupData.Join.of(request)));
+		return ApiResponse.success(groupService.joinGroup(principal.getMemberId(), GroupJoinData.of(request)));
 	}
 
 	@PostMapping("/api/v1/groups/{groupId}/leave")
