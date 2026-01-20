@@ -1,8 +1,8 @@
 package com.knock.core.domain.group;
 
 import com.knock.core.domain.group.dto.GroupCreateData;
-import com.knock.core.domain.group.dto.GroupJoinData;
 import com.knock.core.domain.group.dto.GroupInviteCodeResult;
+import com.knock.core.domain.group.dto.GroupJoinData;
 import com.knock.core.domain.group.dto.GroupResult;
 import com.knock.core.enums.InviteDuration;
 import com.knock.core.support.error.CoreException;
@@ -13,9 +13,7 @@ import com.knock.storage.db.core.group.GroupRepository;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;

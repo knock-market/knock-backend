@@ -1,7 +1,6 @@
 package com.knock.client.example;
 
 import com.knock.client.example.model.ExampleClientResult;
-
 import org.springframework.stereotype.Component;
 
 @Component
