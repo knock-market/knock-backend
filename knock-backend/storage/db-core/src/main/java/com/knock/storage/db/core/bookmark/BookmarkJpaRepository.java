@@ -21,4 +21,7 @@ interface BookmarkJpaRepository extends JpaRepository<Bookmark, Long> {
 
     List<Bookmark> findByMemberId(Long memberId);
 
+    @Query("SELECT b FROM Bookmark b JOIN FETCH b.item i LEFT JOIN FETCH i.images WHERE b.member.id = :memberId")
+    List<Bookmark> findAllByMemberIdJoined(Long memberId);
+
 }

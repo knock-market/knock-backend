@@ -20,4 +20,6 @@ public interface BookmarkRepository {
 
     List<Bookmark> findByMemberId(Long memberId);
 
+    List<Bookmark> findAllByMemberIdJoined(Long memberId);
+
 }

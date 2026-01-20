@@ -44,4 +44,9 @@ public class BookmarkRepositoryImpl implements BookmarkRepository {
         return jpaRepository.findByMemberId(memberId);
     }
 
+    @Override
+    public List<Bookmark> findAllByMemberIdJoined(Long memberId) {
+        return jpaRepository.findAllByMemberIdJoined(memberId);
+    }
+
 }

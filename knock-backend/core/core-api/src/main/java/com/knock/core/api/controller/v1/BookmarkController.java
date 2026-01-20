@@ -2,7 +2,9 @@ package com.knock.core.api.controller.v1;
 
 import com.knock.auth.MemberPrincipal;
 import com.knock.core.api.controller.v1.response.BookmarkResponseDto;
+import com.knock.core.api.controller.v1.response.BookmarkToggleResponseDto;
 import com.knock.core.domain.bookmark.BookmarkService;
+import com.knock.core.domain.bookmark.dto.BookmarkToggleData;
 import com.knock.core.support.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,9 +22,10 @@ public class BookmarkController {
     private final BookmarkService bookmarkService;
 
     @PostMapping("/api/v1/items/{itemId}/bookmarks")
-    public ApiResponse<Void> toggleBookmarkItem(@AuthenticationPrincipal MemberPrincipal principal, @PathVariable Long itemId) {
-        bookmarkService.toggleBookmark(principal.getMemberId(), itemId);
-        return ApiResponse.success(null);
+    public ApiResponse<BookmarkToggleResponseDto> toggleBookmarkItem(@AuthenticationPrincipal MemberPrincipal principal, @PathVariable Long itemId) {
+        boolean isToggleOn = bookmarkService.toggleBookmark(principal.getMemberId(), new BookmarkToggleData(itemId));
+        BookmarkToggleResponseDto response = new BookmarkToggleResponseDto(itemId, isToggleOn);
+        return ApiResponse.success(response);
     }
 
     @GetMapping("/api/v1/items/my-bookmarks")

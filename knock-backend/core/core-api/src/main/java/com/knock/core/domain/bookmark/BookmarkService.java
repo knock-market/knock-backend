@@ -1,6 +1,7 @@
 package com.knock.core.domain.bookmark;
 
 import com.knock.core.api.controller.v1.response.BookmarkResponseDto;
+import com.knock.core.domain.bookmark.dto.BookmarkToggleData;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
 import com.knock.storage.db.core.bookmark.Bookmark;
@@ -18,35 +19,40 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class BookmarkService {
 
+    // 리팩토링 필요
     private final BookmarkRepository bookmarkRepository;
     private final MemberRepository memberRepository;
     private final ItemRepository itemRepository;
 
     @Transactional
-    public void toggleBookmark(Long memberId, Long itemId) {
+    public boolean toggleBookmark(Long memberId, BookmarkToggleData data) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
-        Item item = itemRepository.findById(itemId)
+        Item item = itemRepository.findById(data.itemId())
                 .orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
 
-        bookmarkRepository.findByMemberAndItemWithDeleted(memberId, itemId)
-                .ifPresentOrElse(bookmark -> {
-                    if (bookmark.getDeletedAt() != null) {
+        // 현재 북마크 상태 반환
+        return bookmarkRepository.findByMemberAndItemWithDeleted(memberId, data.itemId())
+                .map(bookmark -> { // 기존 북마크 존재
+                    if (bookmark.getDeletedAt() != null) { // 삭제된 북마크 복구
                         bookmark.restore();
-                    } else {
+                        return true;
+                    } else { // 기존 북마크 삭제
                         bookmarkRepository.delete(bookmark);
+                        return false;
                     }
-                }, () -> {
+                }).orElseGet(() -> { // 원래 북마크 없을 때
                     Bookmark bookmark = Bookmark.create(member, item);
                     bookmarkRepository.save(bookmark);
+                    return true;
                 });
     }
 
+    @Transactional(readOnly = true)
     public List<BookmarkResponseDto> getMyBookmarks(Long memberId) {
-        List<Bookmark> bookmarks = bookmarkRepository.findByMemberId(memberId);
+        List<Bookmark> bookmarks = bookmarkRepository.findAllByMemberIdJoined(memberId);
 
         return bookmarks.stream().map(bookmark -> {
             Item item = bookmark.getItem();
