@@ -38,18 +38,15 @@ public class ReservationService {
 			throw new CoreException(ErrorType.RESERVATION_ALREADY_EXISTS);
 		}
 
-		List<Reservation> reservations = reservationRepository.findByItemId(data.itemId());
-		return reservations.stream()
-				.filter(r -> r.getMember().getId().equals(data.memberId()))
-				.filter(r -> r.getStatus() == ReservationStatus.WAITING)
-				.findFirst()
+		return reservationRepository
+				.findByItemIdAndMemberIdAndStatus(data.itemId(), data.memberId(), ReservationStatus.WAITING)
 				.map(Reservation::getId)
 				.orElseThrow(() -> new CoreException(ErrorType.RESERVATION_NOT_FOUND));
 	}
 
 	@Transactional
 	public void approveReservation(Long memberId, Long reservationId) {
-		Reservation reservation = reservationRepository.findById(reservationId)
+		Reservation reservation = reservationRepository.findByIdWithItemAndMember(reservationId)
 				.orElseThrow(() -> new CoreException(ErrorType.RESERVATION_NOT_FOUND));
 
 		if (!reservation.getItem().getMember().getId().equals(memberId)) {
@@ -61,7 +58,7 @@ public class ReservationService {
 
 	@Transactional
 	public void completeReservation(Long memberId, Long reservationId) {
-		Reservation reservation = reservationRepository.findById(reservationId)
+		Reservation reservation = reservationRepository.findByIdWithItemAndMember(reservationId)
 				.orElseThrow(() -> new CoreException(ErrorType.RESERVATION_NOT_FOUND));
 
 		boolean isOwner = reservation.getItem().getMember().getId().equals(memberId);
@@ -76,7 +73,7 @@ public class ReservationService {
 
 	@Transactional
 	public void cancelReservation(Long memberId, Long reservationId) {
-		Reservation reservation = reservationRepository.findById(reservationId)
+		Reservation reservation = reservationRepository.findByIdWithItemAndMember(reservationId)
 				.orElseThrow(() -> new CoreException(ErrorType.RESERVATION_NOT_FOUND));
 
 		boolean isOwner = reservation.getItem().getMember().getId().equals(memberId);

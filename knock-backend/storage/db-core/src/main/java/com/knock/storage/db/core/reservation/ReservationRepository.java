@@ -23,4 +23,8 @@ public interface ReservationRepository {
 
 	void delete(Reservation reservation);
 
+	Optional<Reservation> findByItemIdAndMemberIdAndStatus(Long itemId, Long memberId, ReservationStatus status);
+
+	Optional<Reservation> findByIdWithItemAndMember(Long id);
+
 }
