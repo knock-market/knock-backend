@@ -17,4 +17,5 @@ public interface ItemRepository {
 
 	void delete(Item item);
 
+	void increaseViewCountById(Long itemId);
 }

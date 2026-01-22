@@ -51,4 +51,8 @@ public class ItemRepositoryImpl implements ItemRepository {
 		return itemJpaRepository.findByIdWithImages(itemId);
 	}
 
+	@Override
+	public void increaseViewCountById(Long itemId) {
+		itemJpaRepository.increaseViewCountById(itemId);
+	}
 }

@@ -15,6 +15,7 @@ import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,16 +75,18 @@ public class ItemService {
 	}
 
 	// todo : 로직 완성 필요
+	@Async
 	public void increaseViewCount(Long itemId, Long memberId) {
-		String logKey = "item:view:log:" + itemId + ":" + memberId;
-		String countKey = "item:viewCount:" + itemId;
-
-		Boolean hasViewed = redisTemplate.hasKey(logKey);
-
-		if (!hasViewed) {
-			redisTemplate.opsForValue().increment(countKey);
-			redisTemplate.opsForValue().set(logKey, "1", java.time.Duration.ofMinutes(30));
-		}
+//		String logKey = "item:view:log:" + itemId + ":" + memberId;
+//		String countKey = "item:viewCount:" + itemId;
+//
+//		Boolean hasViewed = redisTemplate.hasKey(logKey);
+//
+//		if (!hasViewed) {
+//			redisTemplate.opsForValue().increment(countKey);
+//			redisTemplate.opsForValue().set(logKey, "1", java.time.Duration.ofMinutes(30));
+//		}
+		itemRepository.increaseViewCountById(itemId);
 	}
 
 }

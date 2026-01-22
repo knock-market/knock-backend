@@ -1,6 +1,7 @@
 package com.knock.storage.db.core.item;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -17,4 +18,7 @@ public interface ItemJpaRepository extends JpaRepository<Item, Long> {
 	@Query("SELECT i FROM Item i LEFT JOIN FETCH i.images WHERE i.id = :itemId")
 	Optional<Item> findByIdWithImages(Long itemId);
 
+	@Modifying
+	@Query("UPDATE FROM Item i SET i.viewCount = i.viewCount + 1 WHERE i.id = :itemId")
+	void increaseViewCountById(Long itemId);
 }
