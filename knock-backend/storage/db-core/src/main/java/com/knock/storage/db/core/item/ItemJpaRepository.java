@@ -18,7 +18,7 @@ public interface ItemJpaRepository extends JpaRepository<Item, Long> {
 	@Query("SELECT DISTINCT i FROM Item i LEFT JOIN FETCH i.images WHERE i.id = :itemId")
 	Optional<Item> findByIdWithImages(Long itemId);
 
-	@Modifying
+	@Modifying(clearAutomatically = true)
 	@Query("UPDATE Item i SET i.viewCount = i.viewCount + 1 WHERE i.id = :itemId")
 	void increaseViewCountById(Long itemId);
 
