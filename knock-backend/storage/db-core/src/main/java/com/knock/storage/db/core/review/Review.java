@@ -19,7 +19,7 @@ import org.hibernate.annotations.SQLRestriction;
 public class Review extends BaseEntity {
 
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "reservation_id", nullable = false)
+	@JoinColumn(name = "reservation_id", nullable = false, unique = true)
 	private Reservation reservation;
 
 	@ManyToOne(fetch = FetchType.LAZY)

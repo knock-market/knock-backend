@@ -79,6 +79,7 @@ public class ItemService {
 
 	// todo : 로직 완성 필요
 	@Async
+	@Transactional
 	public void increaseViewCount(Long itemId, Long memberId) {
 		// String logKey = "item:view:log:" + itemId + ":" + memberId;
 		// String countKey = "item:viewCount:" + itemId;

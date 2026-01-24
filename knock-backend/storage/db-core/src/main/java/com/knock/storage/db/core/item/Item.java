@@ -57,7 +57,7 @@ public class Item extends BaseEntity {
 	private ItemStatus status;
 
 	// todo: 조회 로직에 대해서 고민 e.g. 세션 기반으로 한 사용자당 30분마다 +1
-	@Column(name = "view_count")
+	@Column(name = "view_count", nullable = false, columnDefinition = "bigint default 0")
 	private Long viewCount;
 
 	public Item(Group group, Member member, String title, String description, Long price, ItemType type,

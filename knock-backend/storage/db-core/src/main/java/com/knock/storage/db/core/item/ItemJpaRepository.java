@@ -9,13 +9,13 @@ import java.util.Optional;
 
 public interface ItemJpaRepository extends JpaRepository<Item, Long> {
 
-	@Query("SELECT i FROM Item i LEFT JOIN FETCH i.images WHERE i.group.id = :groupId")
+	@Query("SELECT DISTINCT i FROM Item i LEFT JOIN FETCH i.images WHERE i.group.id = :groupId")
 	List<Item> findAllByGroup_Id(Long groupId);
 
-	@Query("SELECT i FROM Item i LEFT JOIN FETCH i.images WHERE i.member.id = :memberId")
+	@Query("SELECT DISTINCT i FROM Item i LEFT JOIN FETCH i.images WHERE i.member.id = :memberId")
 	List<Item> findAllByMember_Id(Long memberId);
 
-	@Query("SELECT i FROM Item i LEFT JOIN FETCH i.images WHERE i.id = :itemId")
+	@Query("SELECT DISTINCT i FROM Item i LEFT JOIN FETCH i.images WHERE i.id = :itemId")
 	Optional<Item> findByIdWithImages(Long itemId);
 
 	@Modifying
