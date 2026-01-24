@@ -1,5 +1,8 @@
 package com.knock.core.support;
 
+/**
+ * 테스트 상수 모음집
+ */
 public final class TestConstants {
 
     private TestConstants() {

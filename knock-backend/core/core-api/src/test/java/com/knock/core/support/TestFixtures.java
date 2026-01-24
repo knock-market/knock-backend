@@ -12,6 +12,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import static com.knock.core.support.TestConstants.*;
 
+/**
+ * 테스트 객체 공통 생성
+ */
 public final class TestFixtures {
 
     private TestFixtures() {
@@ -53,10 +56,6 @@ public final class TestFixtures {
         Group group = Group.create(TEST_GROUP_NAME, TEST_GROUP_DESCRIPTION, TEST_INVITE_CODE, ownerId);
         ReflectionTestUtils.setField(group, "id", id);
         return group;
-    }
-
-    public static Item createItem() {
-        return createItem(TEST_ITEM_ID, createGroup(), createMember());
     }
 
     public static Item createItem(Long id, Group group, Member member) {
