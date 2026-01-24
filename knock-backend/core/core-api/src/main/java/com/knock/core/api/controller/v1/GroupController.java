@@ -25,7 +25,8 @@ public class GroupController {
 	private final GroupService groupService;
 
 	@PostMapping("/api/v1/groups")
-	public ApiResponse<GroupIdResponseDto> createGroup(@AuthenticationPrincipal MemberPrincipal principal, @RequestBody GroupCreateRequestDto request) {
+	public ApiResponse<GroupIdResponseDto> createGroup(@AuthenticationPrincipal MemberPrincipal principal,
+			@RequestBody GroupCreateRequestDto request) {
 		Long groupId = groupService.createGroup(principal.getMemberId(),
 				new GroupCreateData(request.name(), request.description()));
 		GroupIdResponseDto response = new GroupIdResponseDto(groupId);
@@ -34,8 +35,7 @@ public class GroupController {
 
 	@PostMapping("/api/v1/groups/{groupId}/invite-codes")
 	public ApiResponse<GroupInviteCodeResponseDto> generateInviteCode(
-			@AuthenticationPrincipal MemberPrincipal principal,
-			@PathVariable Long groupId,
+			@AuthenticationPrincipal MemberPrincipal principal, @PathVariable Long groupId,
 			@RequestBody InviteCodeRequestDto request) {
 		GroupInviteCodeResult result = groupService.generateTimedInviteCode(principal.getMemberId(), groupId,
 				request.duration());
@@ -44,7 +44,8 @@ public class GroupController {
 	}
 
 	@PostMapping("/api/v1/groups/join")
-	public ApiResponse<GroupIdResponseDto> joinGroup(@AuthenticationPrincipal MemberPrincipal principal, @RequestBody GroupJoinRequestDto request) {
+	public ApiResponse<GroupIdResponseDto> joinGroup(@AuthenticationPrincipal MemberPrincipal principal,
+			@RequestBody GroupJoinRequestDto request) {
 		Long groupId = groupService.joinGroup(principal.getMemberId(), GroupJoinData.of(request));
 		return ApiResponse.success(new GroupIdResponseDto(groupId));
 	}
@@ -58,9 +59,9 @@ public class GroupController {
 	@GetMapping("/api/v1/groups/my")
 	public ApiResponse<List<GroupResponseDto>> getMyGroups(@AuthenticationPrincipal MemberPrincipal principal) {
 		List<GroupResponseDto> groups = groupService.getMyGroups(principal.getMemberId())
-				.stream()
-				.map(GroupResponseDto::from)
-				.toList();
+			.stream()
+			.map(GroupResponseDto::from)
+			.toList();
 		return ApiResponse.success(groups);
 	}
 

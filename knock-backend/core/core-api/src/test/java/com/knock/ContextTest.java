@@ -13,4 +13,5 @@ import org.springframework.test.context.TestConstructor;
 @Import(TestMockRedisConfig.class)
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 public abstract class ContextTest {
+
 }

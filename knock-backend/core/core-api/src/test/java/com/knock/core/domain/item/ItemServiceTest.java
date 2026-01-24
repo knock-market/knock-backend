@@ -37,158 +37,159 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class ItemServiceTest {
 
-    @InjectMocks
-    private ItemService itemService;
+	@InjectMocks
+	private ItemService itemService;
 
-    @Mock
-    private ItemRepository itemRepository;
+	@Mock
+	private ItemRepository itemRepository;
 
-    @Mock
-    private MemberRepository memberRepository;
+	@Mock
+	private MemberRepository memberRepository;
 
-    @Mock
-    private GroupRepository groupRepository;
+	@Mock
+	private GroupRepository groupRepository;
 
-    @Mock
-    private RedisTemplate<String, Object> redisTemplate;
+	@Mock
+	private RedisTemplate<String, Object> redisTemplate;
 
-    @Nested
-    @DisplayName("상품 등록")
-    class CreateItem {
+	@Nested
+	@DisplayName("상품 등록")
+	class CreateItem {
 
-        @Test
-        @DisplayName("성공")
-        void success() {
-            // given
-            Member member = createMember(TEST_MEMBER_ID);
-            Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
-            Item item = createItem(TEST_ITEM_ID, group, member);
-            ItemCreateData data = new ItemCreateData(
-                    TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE,
-                    ItemType.SELL, ItemCategory.DIGITAL_DEVICE, List.of(TEST_IMAGE_URL));
+		@Test
+		@DisplayName("성공")
+		void success() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, group, member);
+			ItemCreateData data = new ItemCreateData(TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE,
+					ItemType.SELL, ItemCategory.DIGITAL_DEVICE, List.of(TEST_IMAGE_URL));
 
-            given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
-            given(groupRepository.findGroupByGroupId(TEST_GROUP_ID)).willReturn(Optional.of(group));
-            given(itemRepository.save(any(Item.class), anyList())).willReturn(item);
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
+			given(groupRepository.findGroupByGroupId(TEST_GROUP_ID)).willReturn(Optional.of(group));
+			given(itemRepository.save(any(Item.class), anyList())).willReturn(item);
 
-            // when
-            ItemCreateResult result = itemService.createItem(TEST_MEMBER_ID, TEST_GROUP_ID, data);
+			// when
+			ItemCreateResult result = itemService.createItem(TEST_MEMBER_ID, TEST_GROUP_ID, data);
 
-            // then
-            assertThat(result.id()).isEqualTo(TEST_ITEM_ID);
-        }
+			// then
+			assertThat(result.id()).isEqualTo(TEST_ITEM_ID);
+		}
 
-        @Test
-        @DisplayName("실패 - 회원 없음")
-        void fail_memberNotFound() {
-            // given
-            ItemCreateData data = new ItemCreateData(
-                    TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE,
-                    ItemType.SELL, ItemCategory.DIGITAL_DEVICE, List.of());
-            given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.empty());
+		@Test
+		@DisplayName("실패 - 회원 없음")
+		void fail_memberNotFound() {
+			// given
+			ItemCreateData data = new ItemCreateData(TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE,
+					ItemType.SELL, ItemCategory.DIGITAL_DEVICE, List.of());
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.empty());
 
-            // when & then
-            assertThatThrownBy(() -> itemService.createItem(TEST_MEMBER_ID, TEST_GROUP_ID, data))
-                    .isInstanceOf(CoreException.class)
-                    .hasFieldOrPropertyWithValue("errorType", ErrorType.MEMBER_NOT_FOUND);
-        }
+			// when & then
+			assertThatThrownBy(() -> itemService.createItem(TEST_MEMBER_ID, TEST_GROUP_ID, data))
+				.isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.MEMBER_NOT_FOUND);
+		}
 
-        @Test
-        @DisplayName("실패 - 그룹 없음")
-        void fail_groupNotFound() {
-            // given
-            Member member = createMember(TEST_MEMBER_ID);
-            ItemCreateData data = new ItemCreateData(
-                    TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE,
-                    ItemType.SELL, ItemCategory.DIGITAL_DEVICE, List.of());
-            given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
-            given(groupRepository.findGroupByGroupId(TEST_GROUP_ID)).willReturn(Optional.empty());
+		@Test
+		@DisplayName("실패 - 그룹 없음")
+		void fail_groupNotFound() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			ItemCreateData data = new ItemCreateData(TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE,
+					ItemType.SELL, ItemCategory.DIGITAL_DEVICE, List.of());
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
+			given(groupRepository.findGroupByGroupId(TEST_GROUP_ID)).willReturn(Optional.empty());
 
-            // when & then
-            assertThatThrownBy(() -> itemService.createItem(TEST_MEMBER_ID, TEST_GROUP_ID, data))
-                    .isInstanceOf(CoreException.class)
-                    .hasFieldOrPropertyWithValue("errorType", ErrorType.GROUP_NOT_FOUND);
-        }
-    }
+			// when & then
+			assertThatThrownBy(() -> itemService.createItem(TEST_MEMBER_ID, TEST_GROUP_ID, data))
+				.isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.GROUP_NOT_FOUND);
+		}
 
-    @Nested
-    @DisplayName("상품 조회")
-    class GetItem {
+	}
 
-        @Test
-        @DisplayName("성공")
-        void success() {
-            // given
-            Member member = createMember(TEST_MEMBER_ID);
-            Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
-            Item item = createItem(TEST_ITEM_ID, group, member);
+	@Nested
+	@DisplayName("상품 조회")
+	class GetItem {
 
-            given(itemRepository.findByIdWithImages(TEST_ITEM_ID)).willReturn(Optional.of(item));
+		@Test
+		@DisplayName("성공")
+		void success() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, group, member);
 
-            // when
-            ItemReadResult result = itemService.getItem(TEST_ITEM_ID);
+			given(itemRepository.findByIdWithImages(TEST_ITEM_ID)).willReturn(Optional.of(item));
 
-            // then
-            assertThat(result.id()).isEqualTo(TEST_ITEM_ID);
-            assertThat(result.title()).isEqualTo(TEST_ITEM_TITLE);
-        }
+			// when
+			ItemReadResult result = itemService.getItem(TEST_ITEM_ID);
 
-        @Test
-        @DisplayName("실패 - 상품 없음")
-        void fail_itemNotFound() {
-            // given
-            given(itemRepository.findByIdWithImages(TEST_ITEM_ID)).willReturn(Optional.empty());
+			// then
+			assertThat(result.id()).isEqualTo(TEST_ITEM_ID);
+			assertThat(result.title()).isEqualTo(TEST_ITEM_TITLE);
+		}
 
-            // when & then
-            assertThatThrownBy(() -> itemService.getItem(TEST_ITEM_ID))
-                    .isInstanceOf(CoreException.class)
-                    .hasFieldOrPropertyWithValue("errorType", ErrorType.ITEM_NOT_FOUND);
-        }
-    }
+		@Test
+		@DisplayName("실패 - 상품 없음")
+		void fail_itemNotFound() {
+			// given
+			given(itemRepository.findByIdWithImages(TEST_ITEM_ID)).willReturn(Optional.empty());
 
-    @Nested
-    @DisplayName("그룹별 상품 목록 조회")
-    class GetItemsByGroup {
+			// when & then
+			assertThatThrownBy(() -> itemService.getItem(TEST_ITEM_ID)).isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.ITEM_NOT_FOUND);
+		}
 
-        @Test
-        @DisplayName("성공")
-        void success() {
-            // given
-            Member member = createMember(TEST_MEMBER_ID);
-            Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
-            Item item = createItem(TEST_ITEM_ID, group, member);
+	}
 
-            given(itemRepository.findByGroupId(TEST_GROUP_ID)).willReturn(List.of(item));
+	@Nested
+	@DisplayName("그룹별 상품 목록 조회")
+	class GetItemsByGroup {
 
-            // when
-            List<ItemListResult> results = itemService.getItemsByGroup(TEST_GROUP_ID);
+		@Test
+		@DisplayName("성공")
+		void success() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, group, member);
 
-            // then
-            assertThat(results).hasSize(1);
-            assertThat(results.get(0).id()).isEqualTo(TEST_ITEM_ID);
-        }
-    }
+			given(itemRepository.findByGroupId(TEST_GROUP_ID)).willReturn(List.of(item));
 
-    @Nested
-    @DisplayName("내 판매 상품 조회")
-    class GetMySellingItems {
+			// when
+			List<ItemListResult> results = itemService.getItemsByGroup(TEST_GROUP_ID);
 
-        @Test
-        @DisplayName("성공")
-        void success() {
-            // given
-            Member member = createMember(TEST_MEMBER_ID);
-            Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
-            Item item = createItem(TEST_ITEM_ID, group, member);
+			// then
+			assertThat(results).hasSize(1);
+			assertThat(results.get(0).id()).isEqualTo(TEST_ITEM_ID);
+		}
 
-            given(itemRepository.findByMemberId(TEST_MEMBER_ID)).willReturn(List.of(item));
+	}
 
-            // when
-            List<ItemListResult> results = itemService.getMySellingItems(TEST_MEMBER_ID);
+	@Nested
+	@DisplayName("내 판매 상품 조회")
+	class GetMySellingItems {
 
-            // then
-            assertThat(results).hasSize(1);
-            assertThat(results.get(0).id()).isEqualTo(TEST_ITEM_ID);
-        }
-    }
+		@Test
+		@DisplayName("성공")
+		void success() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, group, member);
+
+			given(itemRepository.findByMemberId(TEST_MEMBER_ID)).willReturn(List.of(item));
+
+			// when
+			List<ItemListResult> results = itemService.getMySellingItems(TEST_MEMBER_ID);
+
+			// then
+			assertThat(results).hasSize(1);
+			assertThat(results.get(0).id()).isEqualTo(TEST_ITEM_ID);
+		}
+
+	}
+
 }

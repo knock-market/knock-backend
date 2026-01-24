@@ -8,18 +8,20 @@ import java.util.Optional;
 
 public interface BookmarkRepository {
 
-    Bookmark save(Bookmark bookmark);
+	Bookmark save(Bookmark bookmark);
 
-    void delete(Bookmark bookmark);
+	Optional<Bookmark> findById(Long id);
 
-    Optional<Bookmark> findByMemberAndItem(Member member, Item item);
+	void delete(Bookmark bookmark);
 
-    boolean existsByMemberAndItem(Member member, Item item);
+	Optional<Bookmark> findByMemberAndItem(Member member, Item item);
 
-    Optional<Bookmark> findByMemberAndItemWithDeleted(Long memberId, Long itemId);
+	boolean existsByMemberAndItem(Member member, Item item);
 
-    List<Bookmark> findByMemberId(Long memberId);
+	Optional<Bookmark> findByMemberAndItemWithDeleted(Long memberId, Long itemId);
 
-    List<Bookmark> findAllByMemberIdJoined(Long memberId);
+	List<Bookmark> findByMemberId(Long memberId);
+
+	List<Bookmark> findAllByMemberIdJoined(Long memberId);
 
 }

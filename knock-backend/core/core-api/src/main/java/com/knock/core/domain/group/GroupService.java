@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 public class GroupService {
 
 	private final GroupRepository groupRepository;
+
 	private final MemberRepository memberRepository;
 
 	@Transactional
@@ -35,7 +36,7 @@ public class GroupService {
 		Group savedGroup = groupRepository.save(group);
 
 		Member ownerMember = memberRepository.findById(memberId)
-				.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 
 		groupRepository.saveMember(savedGroup, ownerMember, GroupMember.GroupRole.ADMIN);
 
@@ -52,14 +53,14 @@ public class GroupService {
 		Group savedGroup = groupRepository.save(group);
 
 		Member member = memberRepository.findById(memberId)
-				.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 		groupRepository.saveMember(savedGroup, member, GroupMember.GroupRole.ADMIN);
 	}
 
 	@Transactional
 	public GroupInviteCodeResult generateTimedInviteCode(Long memberId, Long groupId, InviteDuration duration) {
 		Group group = groupRepository.findGroupByGroupId(groupId)
-				.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
+			.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
 
 		if (!group.getOwnerId().equals(memberId)) {
 			throw new CoreException(ErrorType.FORBIDDEN);
@@ -76,10 +77,10 @@ public class GroupService {
 	@Transactional
 	public Long joinGroup(Long memberId, GroupJoinData data) {
 		Member member = memberRepository.findById(memberId)
-				.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 
 		Group group = groupRepository.findByInviteCode(data.inviteCode())
-				.orElseThrow(() -> new CoreException(ErrorType.INVALID_INVITE_CODE));
+			.orElseThrow(() -> new CoreException(ErrorType.INVALID_INVITE_CODE));
 
 		if (group.isInviteCodeExpired()) {
 			throw new CoreException(ErrorType.INVITE_CODE_EXPIRED);
@@ -97,23 +98,23 @@ public class GroupService {
 	@Transactional
 	public void leaveGroup(Long memberId, Long groupId) {
 		GroupMember groupMember = groupRepository.findMember(groupId, memberId)
-				.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
+			.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
 		groupRepository.deleteMember(groupMember);
 	}
 
 	@Transactional(readOnly = true)
 	public List<GroupResult> getMyGroups(Long memberId) {
 		return groupRepository.findGroupMembersByMemberId(memberId)
-				.stream()
-				.map(GroupMember::getGroup)
-				.map(GroupResult::from)
-				.collect(Collectors.toList());
+			.stream()
+			.map(GroupMember::getGroup)
+			.map(GroupResult::from)
+			.collect(Collectors.toList());
 	}
 
 	@Transactional(readOnly = true)
 	public GroupResult getGroupDetail(Long groupId) {
 		Group group = groupRepository.findGroupByGroupId(groupId)
-				.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
+			.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
 		return GroupResult.from(group);
 	}
 

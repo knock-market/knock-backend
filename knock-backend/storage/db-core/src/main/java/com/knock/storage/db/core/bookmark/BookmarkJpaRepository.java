@@ -12,16 +12,16 @@ import java.util.Optional;
 @Repository
 interface BookmarkJpaRepository extends JpaRepository<Bookmark, Long> {
 
-    Optional<Bookmark> findByMemberAndItem(Member member, Item item);
+	Optional<Bookmark> findByMemberAndItem(Member member, Item item);
 
-    boolean existsByMemberAndItem(Member member, Item item);
+	boolean existsByMemberAndItem(Member member, Item item);
 
-    @Query(value = "SELECT * FROM bookmark WHERE member_id = :memberId AND item_id = :itemId", nativeQuery = true)
-    Optional<Bookmark> findByMemberAndItemWithDeleted(Long memberId, Long itemId);
+	@Query(value = "SELECT * FROM bookmark WHERE member_id = :memberId AND item_id = :itemId", nativeQuery = true)
+	Optional<Bookmark> findByMemberAndItemWithDeleted(Long memberId, Long itemId);
 
-    List<Bookmark> findByMemberId(Long memberId);
+	List<Bookmark> findByMemberId(Long memberId);
 
-    @Query("SELECT b FROM Bookmark b JOIN FETCH b.item i LEFT JOIN FETCH i.images WHERE b.member.id = :memberId")
-    List<Bookmark> findAllByMemberIdJoined(Long memberId);
+	@Query("SELECT b FROM Bookmark b JOIN FETCH b.item i LEFT JOIN FETCH i.images WHERE b.member.id = :memberId")
+	List<Bookmark> findAllByMemberIdJoined(Long memberId);
 
 }

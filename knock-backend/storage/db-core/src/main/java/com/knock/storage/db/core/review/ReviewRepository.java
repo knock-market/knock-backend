@@ -4,10 +4,10 @@ import java.util.List;
 
 public interface ReviewRepository {
 
-    Review save(Review review);
+	Review save(Review review);
 
-    List<Review> findByRevieweeId(Long revieweeId);
+	List<Review> findByRevieweeId(Long revieweeId);
 
-    boolean existsByReservationId(Long reservationId);
+	boolean existsByReservationId(Long reservationId);
 
 }

@@ -39,15 +39,15 @@ public class ReservationService {
 		}
 
 		return reservationRepository
-				.findByItemIdAndMemberIdAndStatus(data.itemId(), data.memberId(), ReservationStatus.WAITING)
-				.map(Reservation::getId)
-				.orElseThrow(() -> new CoreException(ErrorType.RESERVATION_NOT_FOUND));
+			.findByItemIdAndMemberIdAndStatus(data.itemId(), data.memberId(), ReservationStatus.WAITING)
+			.map(Reservation::getId)
+			.orElseThrow(() -> new CoreException(ErrorType.RESERVATION_NOT_FOUND));
 	}
 
 	@Transactional
 	public void approveReservation(Long memberId, Long reservationId) {
 		Reservation reservation = reservationRepository.findByIdWithItemAndMember(reservationId)
-				.orElseThrow(() -> new CoreException(ErrorType.RESERVATION_NOT_FOUND));
+			.orElseThrow(() -> new CoreException(ErrorType.RESERVATION_NOT_FOUND));
 
 		if (!reservation.getItem().getMember().getId().equals(memberId)) {
 			throw new CoreException(ErrorType.FORBIDDEN);
@@ -59,7 +59,7 @@ public class ReservationService {
 	@Transactional
 	public void completeReservation(Long memberId, Long reservationId) {
 		Reservation reservation = reservationRepository.findByIdWithItemAndMember(reservationId)
-				.orElseThrow(() -> new CoreException(ErrorType.RESERVATION_NOT_FOUND));
+			.orElseThrow(() -> new CoreException(ErrorType.RESERVATION_NOT_FOUND));
 
 		boolean isOwner = reservation.getItem().getMember().getId().equals(memberId);
 		boolean isReserver = reservation.getMember().getId().equals(memberId);
@@ -74,7 +74,7 @@ public class ReservationService {
 	@Transactional
 	public void cancelReservation(Long memberId, Long reservationId) {
 		Reservation reservation = reservationRepository.findByIdWithItemAndMember(reservationId)
-				.orElseThrow(() -> new CoreException(ErrorType.RESERVATION_NOT_FOUND));
+			.orElseThrow(() -> new CoreException(ErrorType.RESERVATION_NOT_FOUND));
 
 		boolean isOwner = reservation.getItem().getMember().getId().equals(memberId);
 		boolean isReserver = reservation.getMember().getId().equals(memberId);

@@ -23,13 +23,16 @@ public class ItemController {
 	private final ItemService itemService;
 
 	@PostMapping("/api/v1/items")
-	public ApiResponse<ItemIdResponseDto> createItem(@AuthenticationPrincipal MemberPrincipal principal, @RequestBody ItemCreateRequestDto request) {
-		ItemCreateResult result = itemService.createItem(principal.getMemberId(), request.groupId(), ItemCreateData.of(request));
+	public ApiResponse<ItemIdResponseDto> createItem(@AuthenticationPrincipal MemberPrincipal principal,
+			@RequestBody ItemCreateRequestDto request) {
+		ItemCreateResult result = itemService.createItem(principal.getMemberId(), request.groupId(),
+				ItemCreateData.of(request));
 		return ApiResponse.success(new ItemIdResponseDto(result.id()));
 	}
 
 	@GetMapping("/api/v1/items/{itemId}")
-	public ApiResponse<ItemResponseDto> getItem(@AuthenticationPrincipal MemberPrincipal principal, @PathVariable Long itemId) {
+	public ApiResponse<ItemResponseDto> getItem(@AuthenticationPrincipal MemberPrincipal principal,
+			@PathVariable Long itemId) {
 		itemService.increaseViewCount(itemId, principal.getMemberId());
 		ItemReadResult result = itemService.getItem(itemId);
 		return ApiResponse.success(ItemResponseDto.from(result));

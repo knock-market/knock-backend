@@ -1,5 +1,6 @@
 package com.knock.storage.db.core.group;
 
+import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -47,6 +48,10 @@ public class Group extends BaseEntity {
 		this.inviteCode = inviteCode;
 		this.ownerId = ownerId;
 		this.isPersonal = isPersonal;
+	}
+
+	public static Group create(String name, String description, Member owner) {
+		return new Group(name, description, java.util.UUID.randomUUID().toString(), owner.getId(), false);
 	}
 
 	public static Group create(String name, String description, String inviteCode, Long ownerId) {

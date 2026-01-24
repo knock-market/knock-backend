@@ -31,69 +31,64 @@ import static org.springframework.restdocs.request.RequestDocumentation.pathPara
 
 class BookmarkControllerTest extends RestDocsTest {
 
-    private BookmarkService bookmarkService;
+	private BookmarkService bookmarkService;
 
-    private BookmarkController bookmarkController;
+	private BookmarkController bookmarkController;
 
-    private MemberPrincipal principal;
+	private MemberPrincipal principal;
 
-    @BeforeEach
-    public void setUp() {
-        bookmarkService = mock(BookmarkService.class);
-        bookmarkController = new BookmarkController(bookmarkService);
-        principal = new MemberPrincipal(1L, TEST_EMAIL, "ROLE_USER");
-        mockMvc = mockController(bookmarkController, new ApiControllerAdvice(), principalResolver(principal));
-    }
+	@BeforeEach
+	public void setUp() {
+		bookmarkService = mock(BookmarkService.class);
+		bookmarkController = new BookmarkController(bookmarkService);
+		principal = new MemberPrincipal(1L, TEST_EMAIL, "ROLE_USER");
+		mockMvc = mockController(bookmarkController, new ApiControllerAdvice(), principalResolver(principal));
+	}
 
-    @Test
-    @DisplayName("북마크 토글 성공")
-    void toggleBookmark_success() {
-        // given
-        given(bookmarkService.toggleBookmark(anyLong(), any())).willReturn(true);
+	@Test
+	@DisplayName("북마크 토글 성공")
+	void toggleBookmark_success() {
+		// given
+		given(bookmarkService.toggleBookmark(anyLong(), any())).willReturn(true);
 
-        // when & then
-        restDocGiven()
-                .pathParam("itemId", TEST_ITEM_ID)
-                .post("/api/v1/items/{itemId}/bookmarks")
-                .then()
-                .status(HttpStatus.OK)
-                .apply(document("api/v1/items/bookmarks-toggle", requestPreprocessor(), responsePreprocessor(),
-                        pathParameters(
-                                parameterWithName("itemId").description("상품 ID")),
-                        relaxedResponseFields(
-                                fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
-                                fieldWithPath("data.itemId").type(JsonFieldType.NUMBER).description("상품 ID"),
-                                fieldWithPath("data.toggleOn").type(JsonFieldType.BOOLEAN)
-                                        .description("북마크 설정 여부 (true: 설정, false: 해제)"),
-                                fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
-    }
+		// when & then
+		restDocGiven().pathParam("itemId", TEST_ITEM_ID)
+			.post("/api/v1/items/{itemId}/bookmarks")
+			.then()
+			.status(HttpStatus.OK)
+			.apply(document("api/v1/items/bookmarks-toggle", requestPreprocessor(), responsePreprocessor(),
+					pathParameters(parameterWithName("itemId").description("상품 ID")),
+					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
+							fieldWithPath("data.itemId").type(JsonFieldType.NUMBER).description("상품 ID"),
+							fieldWithPath("data.toggleOn").type(JsonFieldType.BOOLEAN)
+								.description("북마크 설정 여부 (true: 설정, false: 해제)"),
+							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+	}
 
-    @Test
-    @DisplayName("내 북마크 목록 조회 성공")
-    void getMyBookmarks_success() {
-        // given
-        Member member = createMember(TEST_MEMBER_ID);
-        Item item = createItem(TEST_ITEM_ID, createGroup(), member);
-        Bookmark bookmark = createBookmark(TEST_BOOKMARK_ID, member, item);
-        BookmarkResult result = BookmarkResult.from(bookmark, TEST_IMAGE_URL);
+	@Test
+	@DisplayName("내 북마크 목록 조회 성공")
+	void getMyBookmarks_success() {
+		// given
+		Member member = createMember(TEST_MEMBER_ID);
+		Item item = createItem(TEST_ITEM_ID, createGroup(), member);
+		Bookmark bookmark = createBookmark(TEST_BOOKMARK_ID, member, item);
+		BookmarkResult result = BookmarkResult.from(bookmark, TEST_IMAGE_URL);
 
-        given(bookmarkService.getMyBookmarks(anyLong())).willReturn(List.of(result));
+		given(bookmarkService.getMyBookmarks(anyLong())).willReturn(List.of(result));
 
-        // when & then
-        restDocGiven()
-                .get("/api/v1/items/my-bookmarks")
-                .then()
-                .status(HttpStatus.OK)
-                .apply(document("api/v1/items/my-bookmarks", requestPreprocessor(), responsePreprocessor(),
-                        relaxedResponseFields(
-                                fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
-                                fieldWithPath("data[].bookmarkId").type(JsonFieldType.NUMBER).description("북마크 ID"),
-                                fieldWithPath("data[].itemId").type(JsonFieldType.NUMBER).description("상품 ID"),
-                                fieldWithPath("data[].title").type(JsonFieldType.STRING).description("상품 제목"),
-                                fieldWithPath("data[].price").type(JsonFieldType.NUMBER).description("상품 가격"),
-                                fieldWithPath("data[].thumbnailUrl").type(JsonFieldType.STRING)
-                                        .description("상품 썸네일 URL"),
-                                fieldWithPath("data[].createdAt").description("생성일"),
-                                fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
-    }
+		// when & then
+		restDocGiven().get("/api/v1/items/my-bookmarks")
+			.then()
+			.status(HttpStatus.OK)
+			.apply(document("api/v1/items/my-bookmarks", requestPreprocessor(), responsePreprocessor(),
+					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
+							fieldWithPath("data[].bookmarkId").type(JsonFieldType.NUMBER).description("북마크 ID"),
+							fieldWithPath("data[].itemId").type(JsonFieldType.NUMBER).description("상품 ID"),
+							fieldWithPath("data[].title").type(JsonFieldType.STRING).description("상품 제목"),
+							fieldWithPath("data[].price").type(JsonFieldType.NUMBER).description("상품 가격"),
+							fieldWithPath("data[].thumbnailUrl").type(JsonFieldType.STRING).description("상품 썸네일 URL"),
+							fieldWithPath("data[].createdAt").description("생성일"),
+							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+	}
+
 }

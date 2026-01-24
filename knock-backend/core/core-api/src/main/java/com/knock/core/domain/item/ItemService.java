@@ -26,7 +26,9 @@ import java.util.List;
 public class ItemService {
 
 	private final ItemRepository itemRepository;
+
 	private final MemberRepository memberRepository;
+
 	private final GroupRepository groupRepository;
 
 	private final RedisTemplate<String, Object> redisTemplate;
@@ -34,11 +36,12 @@ public class ItemService {
 	@Transactional
 	public ItemCreateResult createItem(Long memberId, Long groupId, ItemCreateData data) {
 		Member member = memberRepository.findById(memberId)
-				.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 		Group group = groupRepository.findGroupByGroupId(groupId)
-				.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
+			.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
 
-		Item item = Item.create(group, member, data.title(), data.description(), data.price(), data.type(), data.category());
+		Item item = Item.create(group, member, data.title(), data.description(), data.price(), data.type(),
+				data.category());
 
 		Item savedItem = itemRepository.save(item, data.imageUrls());
 		return new ItemCreateResult(savedItem.getId());
@@ -47,7 +50,7 @@ public class ItemService {
 	@Transactional(readOnly = true)
 	public ItemReadResult getItem(Long itemId) {
 		Item item = itemRepository.findByIdWithImages(itemId)
-				.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
+			.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
 
 		return ItemReadResult.from(item, item.getImages());
 	}
@@ -77,15 +80,15 @@ public class ItemService {
 	// todo : 로직 완성 필요
 	@Async
 	public void increaseViewCount(Long itemId, Long memberId) {
-//		String logKey = "item:view:log:" + itemId + ":" + memberId;
-//		String countKey = "item:viewCount:" + itemId;
-//
-//		Boolean hasViewed = redisTemplate.hasKey(logKey);
-//
-//		if (!hasViewed) {
-//			redisTemplate.opsForValue().increment(countKey);
-//			redisTemplate.opsForValue().set(logKey, "1", java.time.Duration.ofMinutes(30));
-//		}
+		// String logKey = "item:view:log:" + itemId + ":" + memberId;
+		// String countKey = "item:viewCount:" + itemId;
+		//
+		// Boolean hasViewed = redisTemplate.hasKey(logKey);
+		//
+		// if (!hasViewed) {
+		// redisTemplate.opsForValue().increment(countKey);
+		// redisTemplate.opsForValue().set(logKey, "1", java.time.Duration.ofMinutes(30));
+		// }
 		itemRepository.increaseViewCountById(itemId);
 	}
 

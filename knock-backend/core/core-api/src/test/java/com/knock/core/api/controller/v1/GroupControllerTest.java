@@ -50,18 +50,16 @@ class GroupControllerTest extends RestDocsTest {
 
 		// when & then
 		restDocGiven().contentType(ContentType.JSON)
-				.body(request)
-				.post("/api/v1/groups")
-				.then()
-				.status(HttpStatus.OK)
-				.apply(document("api/v1/groups/create", requestPreprocessor(), responsePreprocessor(),
-						requestFields(
-								fieldWithPath("name").type(JsonFieldType.STRING).description("그룹 이름"),
-								fieldWithPath("description").type(JsonFieldType.STRING).description("그룹 설명")),
-						relaxedResponseFields(
-								fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
-								fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("생성된 그룹 ID"),
-								fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+			.body(request)
+			.post("/api/v1/groups")
+			.then()
+			.status(HttpStatus.OK)
+			.apply(document("api/v1/groups/create", requestPreprocessor(), responsePreprocessor(),
+					requestFields(fieldWithPath("name").type(JsonFieldType.STRING).description("그룹 이름"),
+							fieldWithPath("description").type(JsonFieldType.STRING).description("그룹 설명")),
+					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
+							fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("생성된 그룹 ID"),
+							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}
 
 	@Test
@@ -73,17 +71,15 @@ class GroupControllerTest extends RestDocsTest {
 
 		// when & then
 		restDocGiven().contentType(ContentType.JSON)
-				.body(request)
-				.post("/api/v1/groups/join")
-				.then()
-				.status(HttpStatus.OK)
-				.apply(document("api/v1/groups/join", requestPreprocessor(), responsePreprocessor(),
-						requestFields(
-								fieldWithPath("inviteCode").type(JsonFieldType.STRING).description("초대 코드")),
-						relaxedResponseFields(
-								fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
-								fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("가입된 그룹 ID"),
-								fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+			.body(request)
+			.post("/api/v1/groups/join")
+			.then()
+			.status(HttpStatus.OK)
+			.apply(document("api/v1/groups/join", requestPreprocessor(), responsePreprocessor(),
+					requestFields(fieldWithPath("inviteCode").type(JsonFieldType.STRING).description("초대 코드")),
+					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
+							fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("가입된 그룹 ID"),
+							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}
 
 	@Test
@@ -95,16 +91,15 @@ class GroupControllerTest extends RestDocsTest {
 		given(groupService.getMyGroups(anyLong())).willReturn(List.of(result));
 
 		// when & then
-		restDocGiven()
-				.get("/api/v1/groups/my")
-				.then()
-				.status(HttpStatus.OK)
-				.apply(document("api/v1/groups/my", requestPreprocessor(), responsePreprocessor(),
-						relaxedResponseFields(
-								fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
-								fieldWithPath("data[].id").type(JsonFieldType.NUMBER).description("그룹 ID"),
-								fieldWithPath("data[].name").type(JsonFieldType.STRING).description("그룹 이름"),
-								fieldWithPath("data[].description").type(JsonFieldType.STRING).description("그룹 설명"),
-								fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+		restDocGiven().get("/api/v1/groups/my")
+			.then()
+			.status(HttpStatus.OK)
+			.apply(document("api/v1/groups/my", requestPreprocessor(), responsePreprocessor(),
+					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
+							fieldWithPath("data[].id").type(JsonFieldType.NUMBER).description("그룹 ID"),
+							fieldWithPath("data[].name").type(JsonFieldType.STRING).description("그룹 이름"),
+							fieldWithPath("data[].description").type(JsonFieldType.STRING).description("그룹 설명"),
+							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}
+
 }

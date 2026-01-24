@@ -73,6 +73,11 @@ public class Item extends BaseEntity {
 		this.viewCount = 0L;
 	}
 
+	public static Item create(String title, String description, Long price, ItemType type, ItemCategory category,
+			Group group, Member member) {
+		return new Item(group, member, title, description, price, type, category);
+	}
+
 	public static Item create(Group group, Member member, String title, String description, Long price, ItemType type,
 			ItemCategory category) {
 		return new Item(group, member, title, description, price, type, category);

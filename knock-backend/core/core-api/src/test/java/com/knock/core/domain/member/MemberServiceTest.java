@@ -32,87 +32,88 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class MemberServiceTest {
 
-    @InjectMocks
-    private MemberService memberService;
+	@InjectMocks
+	private MemberService memberService;
 
-    @Mock
-    private MemberRepository memberRepository;
+	@Mock
+	private MemberRepository memberRepository;
 
-    @Mock
-    private PasswordEncoder passwordEncoder;
+	@Mock
+	private PasswordEncoder passwordEncoder;
 
-    @Mock
-    private ApplicationEventPublisher eventPublisher;
+	@Mock
+	private ApplicationEventPublisher eventPublisher;
 
-    @Nested
-    @DisplayName("회원가입")
-    class Signup {
+	@Nested
+	@DisplayName("회원가입")
+	class Signup {
 
-        @Test
-        @DisplayName("성공")
-        void success() {
-            // given
-            MemberSignupData data = new MemberSignupData(
-                    TEST_EMAIL, TEST_PASSWORD, TEST_NAME, TEST_NICKNAME, null, TEST_PROVIDER);
-            Member savedMember = createMember(TEST_MEMBER_ID);
+		@Test
+		@DisplayName("성공")
+		void success() {
+			// given
+			MemberSignupData data = new MemberSignupData(TEST_EMAIL, TEST_PASSWORD, TEST_NAME, TEST_NICKNAME, null,
+					TEST_PROVIDER);
+			Member savedMember = createMember(TEST_MEMBER_ID);
 
-            given(memberRepository.existsByEmail(TEST_EMAIL)).willReturn(false);
-            given(passwordEncoder.encode(anyString())).willReturn("encodedPassword");
-            given(memberRepository.save(any(Member.class))).willReturn(savedMember);
+			given(memberRepository.existsByEmail(TEST_EMAIL)).willReturn(false);
+			given(passwordEncoder.encode(anyString())).willReturn("encodedPassword");
+			given(memberRepository.save(any(Member.class))).willReturn(savedMember);
 
-            // when
-            MemberSignupResult result = memberService.signup(data);
+			// when
+			MemberSignupResult result = memberService.signup(data);
 
-            // then
-            assertThat(result.email()).isEqualTo(TEST_EMAIL);
-            verify(memberRepository).save(any(Member.class));
-            verify(eventPublisher).publishEvent(any(MemberCreatedEvent.class));
-        }
+			// then
+			assertThat(result.email()).isEqualTo(TEST_EMAIL);
+			verify(memberRepository).save(any(Member.class));
+			verify(eventPublisher).publishEvent(any(MemberCreatedEvent.class));
+		}
 
-        @Test
-        @DisplayName("실패 - 이메일 중복")
-        void fail_duplicateEmail() {
-            // given
-            MemberSignupData data = new MemberSignupData(
-                    TEST_EMAIL, TEST_PASSWORD, TEST_NAME, TEST_NICKNAME, null, TEST_PROVIDER);
+		@Test
+		@DisplayName("실패 - 이메일 중복")
+		void fail_duplicateEmail() {
+			// given
+			MemberSignupData data = new MemberSignupData(TEST_EMAIL, TEST_PASSWORD, TEST_NAME, TEST_NICKNAME, null,
+					TEST_PROVIDER);
 
-            given(memberRepository.existsByEmail(TEST_EMAIL)).willReturn(true);
+			given(memberRepository.existsByEmail(TEST_EMAIL)).willReturn(true);
 
-            // when & then
-            assertThatThrownBy(() -> memberService.signup(data))
-                    .isInstanceOf(CoreException.class)
-                    .hasFieldOrPropertyWithValue("errorType", ErrorType.DUPLICATE_EMAIL);
-        }
-    }
+			// when & then
+			assertThatThrownBy(() -> memberService.signup(data)).isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.DUPLICATE_EMAIL);
+		}
 
-    @Nested
-    @DisplayName("회원 조회")
-    class GetMember {
+	}
 
-        @Test
-        @DisplayName("성공")
-        void success() {
-            // given
-            Member member = createMember(TEST_MEMBER_ID);
-            given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
+	@Nested
+	@DisplayName("회원 조회")
+	class GetMember {
 
-            // when
-            MemberResult result = memberService.getMember(TEST_MEMBER_ID);
+		@Test
+		@DisplayName("성공")
+		void success() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
 
-            // then
-            assertThat(result.email()).isEqualTo(TEST_EMAIL);
-        }
+			// when
+			MemberResult result = memberService.getMember(TEST_MEMBER_ID);
 
-        @Test
-        @DisplayName("실패 - 회원 없음")
-        void fail_memberNotFound() {
-            // given
-            given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.empty());
+			// then
+			assertThat(result.email()).isEqualTo(TEST_EMAIL);
+		}
 
-            // when & then
-            assertThatThrownBy(() -> memberService.getMember(TEST_MEMBER_ID))
-                    .isInstanceOf(CoreException.class)
-                    .hasFieldOrPropertyWithValue("errorType", ErrorType.MEMBER_NOT_FOUND);
-        }
-    }
+		@Test
+		@DisplayName("실패 - 회원 없음")
+		void fail_memberNotFound() {
+			// given
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.empty());
+
+			// when & then
+			assertThatThrownBy(() -> memberService.getMember(TEST_MEMBER_ID)).isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.MEMBER_NOT_FOUND);
+		}
+
+	}
+
 }

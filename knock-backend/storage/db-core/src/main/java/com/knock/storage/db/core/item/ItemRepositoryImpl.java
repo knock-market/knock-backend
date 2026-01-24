@@ -55,4 +55,5 @@ public class ItemRepositoryImpl implements ItemRepository {
 	public void increaseViewCountById(Long itemId) {
 		itemJpaRepository.increaseViewCountById(itemId);
 	}
+
 }

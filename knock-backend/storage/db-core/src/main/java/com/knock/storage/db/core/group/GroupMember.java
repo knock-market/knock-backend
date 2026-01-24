@@ -31,7 +31,9 @@ public class GroupMember extends BaseEntity {
 	private GroupRole role; // ADMIN, MEMBER
 
 	public enum GroupRole {
+
 		ADMIN, MEMBER
+
 	}
 
 	@Builder
@@ -42,11 +44,7 @@ public class GroupMember extends BaseEntity {
 	}
 
 	public static GroupMember create(Group group, Member member, GroupRole role) {
-		return GroupMember.builder()
-				.group(group)
-				.member(member)
-				.role(role)
-				.build();
+		return GroupMember.builder().group(group).member(member).role(role).build();
 	}
 
 }

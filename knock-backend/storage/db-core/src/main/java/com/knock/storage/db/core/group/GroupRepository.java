@@ -9,6 +9,8 @@ public interface GroupRepository {
 
 	Group save(Group group);
 
+	Optional<Group> findById(Long id);
+
 	Optional<Group> findByInviteCode(String inviteCode);
 
 	GroupMember saveMember(Group group, Member member, GroupMember.GroupRole role);

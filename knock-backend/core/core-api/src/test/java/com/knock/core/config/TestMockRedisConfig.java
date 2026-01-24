@@ -14,17 +14,18 @@ import static org.mockito.Mockito.mock;
 @TestConfiguration
 public class TestMockRedisConfig {
 
-    @Bean
-    @Primary
-    public RedisConnectionFactory redisConnectionFactory() {
-        return mock(RedisConnectionFactory.class);
-    }
+	@Bean
+	@Primary
+	public RedisConnectionFactory redisConnectionFactory() {
+		return mock(RedisConnectionFactory.class);
+	}
 
-    @Bean
-    @Primary
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory);
-        return template;
-    }
+	@Bean
+	@Primary
+	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+		RedisTemplate<String, Object> template = new RedisTemplate<>();
+		template.setConnectionFactory(redisConnectionFactory);
+		return template;
+	}
+
 }

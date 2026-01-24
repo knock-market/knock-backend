@@ -33,8 +33,7 @@ interface ReservationJpaRepository extends JpaRepository<Reservation, Long> {
 	int createReservationIfNotApproved(@Param("itemId") Long itemId, @Param("memberId") Long memberId);
 
 	@Query("SELECT r FROM Reservation r WHERE r.item.id = :itemId AND r.member.id = :memberId AND r.status = :status")
-	Optional<Reservation> findByItemIdAndMemberIdAndStatus(Long itemId, Long memberId,
-														   ReservationStatus status);
+	Optional<Reservation> findByItemIdAndMemberIdAndStatus(Long itemId, Long memberId, ReservationStatus status);
 
 	@Query("SELECT r FROM Reservation r JOIN FETCH r.item i JOIN FETCH r.member JOIN FETCH i.member WHERE r.id = :id")
 	Optional<Reservation> findByIdWithItemAndMember(Long id);

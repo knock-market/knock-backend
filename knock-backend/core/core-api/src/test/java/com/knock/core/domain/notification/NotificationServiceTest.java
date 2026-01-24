@@ -32,141 +32,144 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class NotificationServiceTest {
 
-    @InjectMocks
-    private NotificationService notificationService;
+	@InjectMocks
+	private NotificationService notificationService;
 
-    @Mock
-    private NotificationRepository notificationRepository;
+	@Mock
+	private NotificationRepository notificationRepository;
 
-    @Mock
-    private MemberRepository memberRepository;
+	@Mock
+	private MemberRepository memberRepository;
 
-    @Nested
-    @DisplayName("알림 생성")
-    class CreateNotification {
+	@Nested
+	@DisplayName("알림 생성")
+	class CreateNotification {
 
-        @Test
-        @DisplayName("성공")
-        void success() {
-            // given
-            Member member = createMember(TEST_MEMBER_ID);
-            NotificationCreateData data = new NotificationCreateData(
-                    TEST_MEMBER_ID, NotificationType.RESERVATION_CREATED, "예약이 들어왔습니다.", "/items/1");
-            Notification notification = Notification.create(member, data.notificationType(), data.content(),
-                    data.relatedUrl());
-            ReflectionTestUtils.setField(notification, "id", TEST_NOTIFICATION_ID);
+		@Test
+		@DisplayName("성공")
+		void success() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			NotificationCreateData data = new NotificationCreateData(TEST_MEMBER_ID,
+					NotificationType.RESERVATION_CREATED, "예약이 들어왔습니다.", "/items/1");
+			Notification notification = Notification.create(member, data.notificationType(), data.content(),
+					data.relatedUrl());
+			ReflectionTestUtils.setField(notification, "id", TEST_NOTIFICATION_ID);
 
-            given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
-            given(notificationRepository.save(any(Notification.class))).willReturn(notification);
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
+			given(notificationRepository.save(any(Notification.class))).willReturn(notification);
 
-            // when
-            Long result = notificationService.createNotification(data);
+			// when
+			Long result = notificationService.createNotification(data);
 
-            // then
-            assertThat(result).isEqualTo(TEST_NOTIFICATION_ID);
-            verify(notificationRepository).save(any(Notification.class));
-        }
+			// then
+			assertThat(result).isEqualTo(TEST_NOTIFICATION_ID);
+			verify(notificationRepository).save(any(Notification.class));
+		}
 
-        @Test
-        @DisplayName("실패 - 회원 없음")
-        void fail_memberNotFound() {
-            // given
-            NotificationCreateData data = new NotificationCreateData(
-                    TEST_MEMBER_ID, NotificationType.RESERVATION_CREATED, "예약이 들어왔습니다.", "/items/1");
-            given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.empty());
+		@Test
+		@DisplayName("실패 - 회원 없음")
+		void fail_memberNotFound() {
+			// given
+			NotificationCreateData data = new NotificationCreateData(TEST_MEMBER_ID,
+					NotificationType.RESERVATION_CREATED, "예약이 들어왔습니다.", "/items/1");
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.empty());
 
-            // when & then
-            assertThatThrownBy(() -> notificationService.createNotification(data))
-                    .isInstanceOf(CoreException.class)
-                    .hasFieldOrPropertyWithValue("errorType", ErrorType.MEMBER_NOT_FOUND);
-        }
-    }
+			// when & then
+			assertThatThrownBy(() -> notificationService.createNotification(data)).isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.MEMBER_NOT_FOUND);
+		}
 
-    @Nested
-    @DisplayName("내 알림 조회")
-    class GetMyNotifications {
+	}
 
-        @Test
-        @DisplayName("성공")
-        void success() {
-            // given
-            Member member = createMember(TEST_MEMBER_ID);
-            Notification notification = Notification.create(member, NotificationType.RESERVATION_CREATED, "테스트",
-                    "/test");
-            ReflectionTestUtils.setField(notification, "id", TEST_NOTIFICATION_ID);
+	@Nested
+	@DisplayName("내 알림 조회")
+	class GetMyNotifications {
 
-            given(notificationRepository.findByMemberId(TEST_MEMBER_ID)).willReturn(List.of(notification));
+		@Test
+		@DisplayName("성공")
+		void success() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			Notification notification = Notification.create(member, NotificationType.RESERVATION_CREATED, "테스트",
+					"/test");
+			ReflectionTestUtils.setField(notification, "id", TEST_NOTIFICATION_ID);
 
-            // when
-            List<NotificationResult> results = notificationService.getMyNotifications(TEST_MEMBER_ID);
+			given(notificationRepository.findByMemberId(TEST_MEMBER_ID)).willReturn(List.of(notification));
 
-            // then
-            assertThat(results).hasSize(1);
-        }
+			// when
+			List<NotificationResult> results = notificationService.getMyNotifications(TEST_MEMBER_ID);
 
-        @Test
-        @DisplayName("빈 목록")
-        void emptyList() {
-            // given
-            given(notificationRepository.findByMemberId(TEST_MEMBER_ID)).willReturn(List.of());
+			// then
+			assertThat(results).hasSize(1);
+		}
 
-            // when
-            List<NotificationResult> results = notificationService.getMyNotifications(TEST_MEMBER_ID);
+		@Test
+		@DisplayName("빈 목록")
+		void emptyList() {
+			// given
+			given(notificationRepository.findByMemberId(TEST_MEMBER_ID)).willReturn(List.of());
 
-            // then
-            assertThat(results).isEmpty();
-        }
-    }
+			// when
+			List<NotificationResult> results = notificationService.getMyNotifications(TEST_MEMBER_ID);
 
-    @Nested
-    @DisplayName("알림 읽음 처리")
-    class MarkAsRead {
+			// then
+			assertThat(results).isEmpty();
+		}
 
-        @Test
-        @DisplayName("성공")
-        void success() {
-            // given
-            Member member = createMember(TEST_MEMBER_ID);
-            Notification notification = Notification.create(member, NotificationType.RESERVATION_CREATED, "테스트",
-                    "/test");
-            ReflectionTestUtils.setField(notification, "id", TEST_NOTIFICATION_ID);
+	}
 
-            given(notificationRepository.findById(TEST_NOTIFICATION_ID)).willReturn(Optional.of(notification));
+	@Nested
+	@DisplayName("알림 읽음 처리")
+	class MarkAsRead {
 
-            // when
-            notificationService.markAsRead(TEST_MEMBER_ID, TEST_NOTIFICATION_ID);
+		@Test
+		@DisplayName("성공")
+		void success() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			Notification notification = Notification.create(member, NotificationType.RESERVATION_CREATED, "테스트",
+					"/test");
+			ReflectionTestUtils.setField(notification, "id", TEST_NOTIFICATION_ID);
 
-            // then
-            assertThat(notification.isRead()).isTrue();
-        }
+			given(notificationRepository.findById(TEST_NOTIFICATION_ID)).willReturn(Optional.of(notification));
 
-        @Test
-        @DisplayName("실패 - 알림 없음")
-        void fail_notificationNotFound() {
-            // given
-            given(notificationRepository.findById(TEST_NOTIFICATION_ID)).willReturn(Optional.empty());
+			// when
+			notificationService.markAsRead(TEST_MEMBER_ID, TEST_NOTIFICATION_ID);
 
-            // when & then
-            assertThatThrownBy(() -> notificationService.markAsRead(TEST_MEMBER_ID, TEST_NOTIFICATION_ID))
-                    .isInstanceOf(CoreException.class)
-                    .hasFieldOrPropertyWithValue("errorType", ErrorType.NOTIFICATION_NOT_FOUND);
-        }
+			// then
+			assertThat(notification.isRead()).isTrue();
+		}
 
-        @Test
-        @DisplayName("실패 - 권한 없음")
-        void fail_forbidden() {
-            // given
-            Member member = createMember(TEST_MEMBER_ID);
-            Notification notification = Notification.create(member, NotificationType.RESERVATION_CREATED, "테스트",
-                    "/test");
-            ReflectionTestUtils.setField(notification, "id", TEST_NOTIFICATION_ID);
+		@Test
+		@DisplayName("실패 - 알림 없음")
+		void fail_notificationNotFound() {
+			// given
+			given(notificationRepository.findById(TEST_NOTIFICATION_ID)).willReturn(Optional.empty());
 
-            given(notificationRepository.findById(TEST_NOTIFICATION_ID)).willReturn(Optional.of(notification));
+			// when & then
+			assertThatThrownBy(() -> notificationService.markAsRead(TEST_MEMBER_ID, TEST_NOTIFICATION_ID))
+				.isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.NOTIFICATION_NOT_FOUND);
+		}
 
-            // when & then - Different member (ID=2) tries to mark as read
-            assertThatThrownBy(() -> notificationService.markAsRead(TEST_MEMBER_ID_2, TEST_NOTIFICATION_ID))
-                    .isInstanceOf(CoreException.class)
-                    .hasFieldOrPropertyWithValue("errorType", ErrorType.FORBIDDEN);
-        }
-    }
+		@Test
+		@DisplayName("실패 - 권한 없음")
+		void fail_forbidden() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			Notification notification = Notification.create(member, NotificationType.RESERVATION_CREATED, "테스트",
+					"/test");
+			ReflectionTestUtils.setField(notification, "id", TEST_NOTIFICATION_ID);
+
+			given(notificationRepository.findById(TEST_NOTIFICATION_ID)).willReturn(Optional.of(notification));
+
+			// when & then - Different member (ID=2) tries to mark as read
+			assertThatThrownBy(() -> notificationService.markAsRead(TEST_MEMBER_ID_2, TEST_NOTIFICATION_ID))
+				.isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.FORBIDDEN);
+		}
+
+	}
+
 }

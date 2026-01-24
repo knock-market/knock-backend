@@ -31,65 +31,60 @@ import static org.springframework.restdocs.request.RequestDocumentation.pathPara
 
 class NotificationControllerTest extends RestDocsTest {
 
-    private NotificationService notificationService;
+	private NotificationService notificationService;
 
-    private NotificationController notificationController;
+	private NotificationController notificationController;
 
-    private MemberPrincipal principal;
+	private MemberPrincipal principal;
 
-    @BeforeEach
-    public void setUp() {
-        notificationService = mock(NotificationService.class);
-        notificationController = new NotificationController(notificationService);
-        principal = new MemberPrincipal(1L, TEST_EMAIL, "ROLE_USER");
-        mockMvc = mockController(notificationController, new ApiControllerAdvice(), principalResolver(principal));
-    }
+	@BeforeEach
+	public void setUp() {
+		notificationService = mock(NotificationService.class);
+		notificationController = new NotificationController(notificationService);
+		principal = new MemberPrincipal(1L, TEST_EMAIL, "ROLE_USER");
+		mockMvc = mockController(notificationController, new ApiControllerAdvice(), principalResolver(principal));
+	}
 
-    @Test
-    @DisplayName("내 알림 목록 조회 성공")
-    void getMyNotifications_success() {
-        // given
-        Member member = createMember(TEST_MEMBER_ID);
-        Notification notification = Notification.create(member, NotificationType.RESERVATION_CREATED, "테스트 알림",
-                "/test");
-        ReflectionTestUtils.setField(notification, "id", TEST_NOTIFICATION_ID);
-        NotificationResult result = NotificationResult.from(notification);
+	@Test
+	@DisplayName("내 알림 목록 조회 성공")
+	void getMyNotifications_success() {
+		// given
+		Member member = createMember(TEST_MEMBER_ID);
+		Notification notification = Notification.create(member, NotificationType.RESERVATION_CREATED, "테스트 알림",
+				"/test");
+		ReflectionTestUtils.setField(notification, "id", TEST_NOTIFICATION_ID);
+		NotificationResult result = NotificationResult.from(notification);
 
-        given(notificationService.getMyNotifications(anyLong())).willReturn(List.of(result));
+		given(notificationService.getMyNotifications(anyLong())).willReturn(List.of(result));
 
-        // when & then
-        restDocGiven()
-                .get("/api/v1/notifications")
-                .then()
-                .status(HttpStatus.OK)
-                .apply(document("api/v1/notifications/my-list", requestPreprocessor(), responsePreprocessor(),
-                        relaxedResponseFields(
-                                fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
-                                fieldWithPath("data[].id").type(JsonFieldType.NUMBER).description("알림 ID"),
-                                fieldWithPath("data[].notificationType").type(JsonFieldType.STRING)
-                                        .description("알림 유형"),
-                                fieldWithPath("data[].content").type(JsonFieldType.STRING).description("알림 내용"),
-                                fieldWithPath("data[].relatedUrl").type(JsonFieldType.STRING).description("이동 URL"),
-                                fieldWithPath("data[].isRead").type(JsonFieldType.BOOLEAN).description("읽음 여부"),
-                                fieldWithPath("data[].createdAt").description("생성일"),
-                                fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
-    }
+		// when & then
+		restDocGiven().get("/api/v1/notifications")
+			.then()
+			.status(HttpStatus.OK)
+			.apply(document("api/v1/notifications/my-list", requestPreprocessor(), responsePreprocessor(),
+					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
+							fieldWithPath("data[].id").type(JsonFieldType.NUMBER).description("알림 ID"),
+							fieldWithPath("data[].notificationType").type(JsonFieldType.STRING).description("알림 유형"),
+							fieldWithPath("data[].content").type(JsonFieldType.STRING).description("알림 내용"),
+							fieldWithPath("data[].relatedUrl").type(JsonFieldType.STRING).description("이동 URL"),
+							fieldWithPath("data[].isRead").type(JsonFieldType.BOOLEAN).description("읽음 여부"),
+							fieldWithPath("data[].createdAt").description("생성일"),
+							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+	}
 
-    @Test
-    @DisplayName("알림 읽음 처리 성공")
-    void markAsRead_success() {
-        // when & then
-        restDocGiven()
-                .pathParam("id", TEST_NOTIFICATION_ID)
-                .patch("/api/v1/notifications/{id}/read")
-                .then()
-                .status(HttpStatus.OK)
-                .apply(document("api/v1/notifications/read", requestPreprocessor(), responsePreprocessor(),
-                        pathParameters(
-                                parameterWithName("id").description("알림 ID")),
-                        relaxedResponseFields(
-                                fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
-                                fieldWithPath("data").type(JsonFieldType.NULL).description("데이터"),
-                                fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
-    }
+	@Test
+	@DisplayName("알림 읽음 처리 성공")
+	void markAsRead_success() {
+		// when & then
+		restDocGiven().pathParam("id", TEST_NOTIFICATION_ID)
+			.patch("/api/v1/notifications/{id}/read")
+			.then()
+			.status(HttpStatus.OK)
+			.apply(document("api/v1/notifications/read", requestPreprocessor(), responsePreprocessor(),
+					pathParameters(parameterWithName("id").description("알림 ID")),
+					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
+							fieldWithPath("data").type(JsonFieldType.NULL).description("데이터"),
+							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+	}
+
 }

@@ -26,12 +26,13 @@ public class RestDocsUtils {
 		return new HandlerMethodArgumentResolver() {
 			@Override
 			public boolean supportsParameter(MethodParameter parameter) {
-				return parameter.hasParameterAnnotation(AuthenticationPrincipal.class) ||
-						parameter.getParameterAnnotation(AuthenticationPrincipal.class) != null;
+				return parameter.hasParameterAnnotation(AuthenticationPrincipal.class)
+						|| parameter.getParameterAnnotation(AuthenticationPrincipal.class) != null;
 			}
 
 			@Override
-			public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+			public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+					NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
 				return principal;
 			}
 		};

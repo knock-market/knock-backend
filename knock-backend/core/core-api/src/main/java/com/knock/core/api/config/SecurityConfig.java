@@ -22,17 +22,17 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http, SecurityContextRepository securityContextRepository)
 			throws Exception {
 		http.csrf(AbstractHttpConfigurer::disable)
-				.formLogin(AbstractHttpConfigurer::disable)
-				.httpBasic(AbstractHttpConfigurer::disable)
-				.securityContext(securityContext -> {
-					securityContext.securityContextRepository(securityContextRepository);
-					securityContext.requireExplicitSave(true);
-				})
-				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/v1/auth/**", "/api/v1/members")
-						.permitAll()
-						.anyRequest()
-						.authenticated())
-				.sessionManagement(session -> session.maximumSessions(1).maxSessionsPreventsLogin(false));
+			.formLogin(AbstractHttpConfigurer::disable)
+			.httpBasic(AbstractHttpConfigurer::disable)
+			.securityContext(securityContext -> {
+				securityContext.securityContextRepository(securityContextRepository);
+				securityContext.requireExplicitSave(true);
+			})
+			.authorizeHttpRequests(auth -> auth.requestMatchers("/api/v1/auth/**", "/api/v1/members")
+				.permitAll()
+				.anyRequest()
+				.authenticated())
+			.sessionManagement(session -> session.maximumSessions(1).maxSessionsPreventsLogin(false));
 
 		return http.build();
 	}

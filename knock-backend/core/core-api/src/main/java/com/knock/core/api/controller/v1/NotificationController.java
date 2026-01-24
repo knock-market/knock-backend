@@ -21,7 +21,8 @@ public class NotificationController {
 	private final NotificationService notificationService;
 
 	@GetMapping("/api/v1/notifications")
-	public ApiResponse<List<NotificationResponseDto>> getMyNotifications(@AuthenticationPrincipal MemberPrincipal principal) {
+	public ApiResponse<List<NotificationResponseDto>> getMyNotifications(
+			@AuthenticationPrincipal MemberPrincipal principal) {
 		List<NotificationResult> results = notificationService.getMyNotifications(principal.getMemberId());
 		List<NotificationResponseDto> response = results.stream().map(NotificationResponseDto::from).toList();
 		return ApiResponse.success(response);

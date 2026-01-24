@@ -20,22 +20,21 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookmarkController {
 
-    private final BookmarkService bookmarkService;
+	private final BookmarkService bookmarkService;
 
-    @PostMapping("/api/v1/items/{itemId}/bookmarks")
-    public ApiResponse<BookmarkToggleResponseDto> toggleBookmarkItem(@AuthenticationPrincipal MemberPrincipal principal, @PathVariable Long itemId) {
-        boolean isToggleOn = bookmarkService.toggleBookmark(principal.getMemberId(), new BookmarkToggleData(itemId));
-        BookmarkToggleResponseDto response = new BookmarkToggleResponseDto(itemId, isToggleOn);
-        return ApiResponse.success(response);
-    }
+	@PostMapping("/api/v1/items/{itemId}/bookmarks")
+	public ApiResponse<BookmarkToggleResponseDto> toggleBookmarkItem(@AuthenticationPrincipal MemberPrincipal principal,
+			@PathVariable Long itemId) {
+		boolean isToggleOn = bookmarkService.toggleBookmark(principal.getMemberId(), new BookmarkToggleData(itemId));
+		BookmarkToggleResponseDto response = new BookmarkToggleResponseDto(itemId, isToggleOn);
+		return ApiResponse.success(response);
+	}
 
-    @GetMapping("/api/v1/items/my-bookmarks")
-    public ApiResponse<List<MyBookmarkResponseDto>> getMyBookmarks(@AuthenticationPrincipal MemberPrincipal principal) {
-        List<BookmarkResult> results = bookmarkService.getMyBookmarks(principal.getMemberId());
-        List<MyBookmarkResponseDto> response = results.stream()
-                .map(MyBookmarkResponseDto::from)
-                .toList();
-        return ApiResponse.success(response);
-    }
+	@GetMapping("/api/v1/items/my-bookmarks")
+	public ApiResponse<List<MyBookmarkResponseDto>> getMyBookmarks(@AuthenticationPrincipal MemberPrincipal principal) {
+		List<BookmarkResult> results = bookmarkService.getMyBookmarks(principal.getMemberId());
+		List<MyBookmarkResponseDto> response = results.stream().map(MyBookmarkResponseDto::from).toList();
+		return ApiResponse.success(response);
+	}
 
 }

@@ -13,7 +13,8 @@ public class GroupRepositoryImpl implements GroupRepository {
 
 	private final GroupMemberJpaRepository groupMemberJpaRepository;
 
-	public GroupRepositoryImpl(GroupJpaRepository groupJpaRepository, GroupMemberJpaRepository groupMemberJpaRepository) {
+	public GroupRepositoryImpl(GroupJpaRepository groupJpaRepository,
+			GroupMemberJpaRepository groupMemberJpaRepository) {
 		this.groupJpaRepository = groupJpaRepository;
 		this.groupMemberJpaRepository = groupMemberJpaRepository;
 	}
@@ -21,6 +22,11 @@ public class GroupRepositoryImpl implements GroupRepository {
 	@Override
 	public Group save(Group group) {
 		return groupJpaRepository.save(group);
+	}
+
+	@Override
+	public Optional<Group> findById(Long id) {
+		return groupJpaRepository.findById(id);
 	}
 
 	@Override

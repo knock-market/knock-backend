@@ -43,17 +43,17 @@ public abstract class RestDocsTest {
 		MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter(objectMapper());
 
 		return MockMvcBuilders.standaloneSetup(controller)
-				.setControllerAdvice(advice)
-				.apply(MockMvcRestDocumentation.documentationConfiguration(restDocumentation))
-				.setMessageConverters(converter)
-				.setCustomArgumentResolvers(resolvers)
-				.build();
+			.setControllerAdvice(advice)
+			.apply(MockMvcRestDocumentation.documentationConfiguration(restDocumentation))
+			.setMessageConverters(converter)
+			.setCustomArgumentResolvers(resolvers)
+			.build();
 	}
 
 	private ObjectMapper objectMapper() {
 		return new ObjectMapper().registerModule(new JavaTimeModule())
-				.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-				.disable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS);
+			.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+			.disable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS);
 	}
 
 }

@@ -21,12 +21,14 @@ public class ImageController {
 	private final ImageService imageService;
 
 	@PostMapping("/api/v1/images/upload")
-	public ApiResponse<ImageUploadResult> uploadImage(@AuthenticationPrincipal MemberPrincipal principal, @RequestParam("file") MultipartFile file, @RequestParam("directory") String directory) {
+	public ApiResponse<ImageUploadResult> uploadImage(@AuthenticationPrincipal MemberPrincipal principal,
+			@RequestParam("file") MultipartFile file, @RequestParam("directory") String directory) {
 		return ApiResponse.success(imageService.uploadImage(new ImageUploadData(file, directory)));
 	}
 
 	@DeleteMapping("/api/v1/images")
-	public ApiResponse<Void> deleteImage(@AuthenticationPrincipal MemberPrincipal principal, @RequestParam("imageUrl") String imageUrl) {
+	public ApiResponse<Void> deleteImage(@AuthenticationPrincipal MemberPrincipal principal,
+			@RequestParam("imageUrl") String imageUrl) {
 		imageService.deleteImage(new ImageDeleteData(imageUrl));
 		return ApiResponse.success(null);
 	}

@@ -1,19 +1,15 @@
 package com.knock.storage.db.core.member;
 
-import com.knock.storage.db.core.config.QueryDslConfig;
+import com.knock.storage.db.CoreDbContextTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
-@Import(QueryDslConfig.class)
-class MemberRepositoryTest {
+class MemberRepositoryTest extends CoreDbContextTest {
 
 	@Autowired
 	private MemberRepository memberRepository;
@@ -48,4 +44,5 @@ class MemberRepositoryTest {
 		assertThat(exists).isTrue();
 		assertThat(notExists).isFalse();
 	}
+
 }

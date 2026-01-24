@@ -19,7 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
 	private final MemberRepository memberRepository;
+
 	private final PasswordEncoder passwordEncoder;
+
 	private final ApplicationEventPublisher eventPublisher;
 
 	@Transactional
@@ -29,13 +31,13 @@ public class MemberService {
 		}
 
 		Member member = Member.builder()
-				.email(data.email())
-				.password(passwordEncoder.encode(data.password()))
-				.name(data.name())
-				.nickname(data.nickname())
-				.profileImageUrl(data.profileImageUrl())
-				.provider(data.provider())
-				.build();
+			.email(data.email())
+			.password(passwordEncoder.encode(data.password()))
+			.name(data.name())
+			.nickname(data.nickname())
+			.profileImageUrl(data.profileImageUrl())
+			.provider(data.provider())
+			.build();
 
 		Member saved = memberRepository.save(member);
 
@@ -46,7 +48,7 @@ public class MemberService {
 	@Transactional(readOnly = true)
 	public MemberResult getMember(Long memberId) {
 		Member member = memberRepository.findById(memberId)
-				.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 		return MemberResult.of(member);
 	}
 
