@@ -1,3 +1,5 @@
+import org.asciidoctor.gradle.jvm.AsciidoctorTask
+
 tasks.getByName("bootJar") {
     enabled = true
 }
@@ -20,9 +22,15 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    testImplementation("org.springframework.security:spring-security-test")
 
     compileOnly("org.projectlombok:lombok:1.18.42")
     annotationProcessor("org.projectlombok:lombok:1.18.42")
     testCompileOnly("org.projectlombok:lombok:1.18.42")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.42")
+}
+
+tasks.withType<AsciidoctorTask> {
+    attributes(mapOf("snippets" to file("build/generated-snippets")))
+    dependsOn("restDocsTest")
 }
