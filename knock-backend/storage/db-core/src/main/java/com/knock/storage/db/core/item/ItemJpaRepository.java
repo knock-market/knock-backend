@@ -19,6 +19,6 @@ public interface ItemJpaRepository extends JpaRepository<Item, Long> {
 	Optional<Item> findByIdWithImages(Long itemId);
 
 	@Modifying
-	@Query("UPDATE FROM Item i SET i.viewCount = i.viewCount + 1 WHERE i.id = :itemId")
+	@Query("UPDATE Item i SET i.viewCount = i.viewCount + 1 WHERE i.id = :itemId")
 	void increaseViewCountById(Long itemId);
 }
