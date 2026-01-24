@@ -2,6 +2,8 @@ package com.knock.core.api.controller.v1;
 
 import com.knock.auth.MemberPrincipal;
 import com.knock.core.domain.image.ImageService;
+import com.knock.core.domain.image.dto.ImageDeleteData;
+import com.knock.core.domain.image.dto.ImageUploadData;
 import com.knock.core.support.response.ApiResponse;
 import com.knock.infra.s3.dto.ImageUploadResult;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +22,12 @@ public class ImageController {
 
 	@PostMapping("/api/v1/images/upload")
 	public ApiResponse<ImageUploadResult> uploadImage(@AuthenticationPrincipal MemberPrincipal principal, @RequestParam("file") MultipartFile file, @RequestParam("directory") String directory) {
-		return ApiResponse.success(imageService.uploadImage(file, directory));
+		return ApiResponse.success(imageService.uploadImage(new ImageUploadData(file, directory)));
 	}
 
 	@DeleteMapping("/api/v1/images")
 	public ApiResponse<Void> deleteImage(@AuthenticationPrincipal MemberPrincipal principal, @RequestParam("imageUrl") String imageUrl) {
-		imageService.deleteImage(imageUrl);
+		imageService.deleteImage(new ImageDeleteData(imageUrl));
 		return ApiResponse.success(null);
 	}
 

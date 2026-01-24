@@ -1,5 +1,7 @@
 package com.knock.core.domain.image;
 
+import com.knock.core.domain.image.dto.ImageDeleteData;
+import com.knock.core.domain.image.dto.ImageUploadData;
 import com.knock.infra.s3.dto.ImageUploadResult;
 import com.knock.infra.s3.service.S3Service;
 import lombok.RequiredArgsConstructor;
@@ -19,13 +21,13 @@ public class ImageService {
 
 	private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-	public ImageUploadResult uploadImage(MultipartFile file, String directory) {
-		validateImageFile(file);
-		return s3Service.uploadImage(file, directory);
+	public ImageUploadResult uploadImage(ImageUploadData data) {
+		validateImageFile(data.file());
+		return s3Service.uploadImage(data.file(), data.directory());
 	}
 
-	public void deleteImage(String imageUrl) {
-		s3Service.deleteImage(imageUrl);
+	public void deleteImage(ImageDeleteData data) {
+		s3Service.deleteImage(data.imageUrl());
 	}
 
 	private void validateImageFile(MultipartFile file) {

@@ -1,9 +1,10 @@
 package com.knock.core.api.controller.v1;
 
 import com.knock.auth.MemberPrincipal;
-import com.knock.core.api.controller.v1.response.BookmarkResponseDto;
 import com.knock.core.api.controller.v1.response.BookmarkToggleResponseDto;
+import com.knock.core.api.controller.v1.response.MyBookmarkResponseDto;
 import com.knock.core.domain.bookmark.BookmarkService;
+import com.knock.core.domain.bookmark.dto.BookmarkResult;
 import com.knock.core.domain.bookmark.dto.BookmarkToggleData;
 import com.knock.core.support.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +30,12 @@ public class BookmarkController {
     }
 
     @GetMapping("/api/v1/items/my-bookmarks")
-    public ApiResponse<List<BookmarkResponseDto>> getMyBookmarks(@AuthenticationPrincipal MemberPrincipal principal) {
-        return ApiResponse.success(bookmarkService.getMyBookmarks(principal.getMemberId()));
+    public ApiResponse<List<MyBookmarkResponseDto>> getMyBookmarks(@AuthenticationPrincipal MemberPrincipal principal) {
+        List<BookmarkResult> results = bookmarkService.getMyBookmarks(principal.getMemberId());
+        List<MyBookmarkResponseDto> response = results.stream()
+                .map(MyBookmarkResponseDto::from)
+                .toList();
+        return ApiResponse.success(response);
     }
 
 }

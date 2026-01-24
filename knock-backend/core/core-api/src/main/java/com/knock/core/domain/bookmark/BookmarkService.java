@@ -1,6 +1,6 @@
 package com.knock.core.domain.bookmark;
 
-import com.knock.core.api.controller.v1.response.BookmarkResponseDto;
+import com.knock.core.domain.bookmark.dto.BookmarkResult;
 import com.knock.core.domain.bookmark.dto.BookmarkToggleData;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
@@ -51,14 +51,14 @@ public class BookmarkService {
     }
 
     @Transactional(readOnly = true)
-    public List<BookmarkResponseDto> getMyBookmarks(Long memberId) {
+    public List<BookmarkResult> getMyBookmarks(Long memberId) {
         List<Bookmark> bookmarks = bookmarkRepository.findAllByMemberIdJoined(memberId);
 
         return bookmarks.stream().map(bookmark -> {
             Item item = bookmark.getItem();
             List<ItemImage> images = item.getImages();
             String thumbnailUrl = images.isEmpty() ? null : images.getFirst().getImageUrl();
-            return BookmarkResponseDto.from(bookmark, thumbnailUrl);
+            return BookmarkResult.from(bookmark, thumbnailUrl);
         }).toList();
     }
 }

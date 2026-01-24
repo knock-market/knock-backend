@@ -26,7 +26,8 @@ public class GroupController {
 
 	@PostMapping("/api/v1/groups")
 	public ApiResponse<GroupIdResponseDto> createGroup(@AuthenticationPrincipal MemberPrincipal principal, @RequestBody GroupCreateRequestDto request) {
-		Long groupId = groupService.createGroup(principal.getMemberId(), new GroupCreateData(request.name(), request.description()));
+		Long groupId = groupService.createGroup(principal.getMemberId(),
+				new GroupCreateData(request.name(), request.description()));
 		GroupIdResponseDto response = new GroupIdResponseDto(groupId);
 		return ApiResponse.success(response);
 	}
@@ -36,14 +37,16 @@ public class GroupController {
 			@AuthenticationPrincipal MemberPrincipal principal,
 			@PathVariable Long groupId,
 			@RequestBody InviteCodeRequestDto request) {
-		GroupInviteCodeResult result = groupService.generateTimedInviteCode(principal.getMemberId(), groupId, request.duration());
+		GroupInviteCodeResult result = groupService.generateTimedInviteCode(principal.getMemberId(), groupId,
+				request.duration());
 		GroupInviteCodeResponseDto response = GroupInviteCodeResponseDto.of(result);
 		return ApiResponse.success(response);
 	}
 
 	@PostMapping("/api/v1/groups/join")
-	public ApiResponse<Long> joinGroup(@AuthenticationPrincipal MemberPrincipal principal, @RequestBody GroupJoinRequestDto request) {
-		return ApiResponse.success(groupService.joinGroup(principal.getMemberId(), GroupJoinData.of(request)));
+	public ApiResponse<GroupIdResponseDto> joinGroup(@AuthenticationPrincipal MemberPrincipal principal, @RequestBody GroupJoinRequestDto request) {
+		Long groupId = groupService.joinGroup(principal.getMemberId(), GroupJoinData.of(request));
+		return ApiResponse.success(new GroupIdResponseDto(groupId));
 	}
 
 	@PostMapping("/api/v1/groups/{groupId}/leave")
@@ -55,15 +58,15 @@ public class GroupController {
 	@GetMapping("/api/v1/groups/my")
 	public ApiResponse<List<GroupResponseDto>> getMyGroups(@AuthenticationPrincipal MemberPrincipal principal) {
 		List<GroupResponseDto> groups = groupService.getMyGroups(principal.getMemberId())
-			.stream()
-			.map(GroupResponseDto::from)
-			.toList();
+				.stream()
+				.map(GroupResponseDto::from)
+				.toList();
 		return ApiResponse.success(groups);
 	}
 
 	@GetMapping("/api/v1/groups/{groupId}")
-	public ApiResponse<GroupResponseDto> getGroupDetail(@AuthenticationPrincipal MemberPrincipal principal) {
-		GroupResult result = groupService.getGroupDetail(principal.getMemberId());
+	public ApiResponse<GroupResponseDto> getGroupDetail(@PathVariable Long groupId) {
+		GroupResult result = groupService.getGroupDetail(groupId);
 		GroupResponseDto response = GroupResponseDto.from(result);
 		return ApiResponse.success(response);
 	}
