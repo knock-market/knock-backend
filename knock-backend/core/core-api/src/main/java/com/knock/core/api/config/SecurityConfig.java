@@ -28,10 +28,8 @@ public class SecurityConfig {
 				securityContext.securityContextRepository(securityContextRepository);
 				securityContext.requireExplicitSave(true);
 			})
-			.authorizeHttpRequests(auth -> auth.requestMatchers("/api/v1/auth/**", "/api/v1/members")
-				.permitAll()
-				.anyRequest()
-				.authenticated())
+			.authorizeHttpRequests(
+					auth -> auth.requestMatchers("/**", "/api/v1/members").permitAll().anyRequest().authenticated())
 			.sessionManagement(session -> session.maximumSessions(1).maxSessionsPreventsLogin(false));
 
 		return http.build();

@@ -2,6 +2,7 @@ package com.knock.core.api.controller.v1;
 
 import com.knock.auth.MemberPrincipal;
 import com.knock.core.api.controller.v1.request.ReservationCreateRequestDto;
+import com.knock.core.api.controller.v1.response.ReservationCreateResponseDto;
 import com.knock.core.api.controller.v1.response.ReservationResponseDto;
 import com.knock.core.domain.reservation.ReservationService;
 import com.knock.core.domain.reservation.dto.ReservationCreateData;
@@ -20,11 +21,11 @@ public class ReservationController {
 	private final ReservationService reservationService;
 
 	@PostMapping("/api/v1/reservations")
-	public ApiResponse<Long> createReservation(@AuthenticationPrincipal MemberPrincipal principal,
+	public ApiResponse<ReservationCreateResponseDto> createReservation(@AuthenticationPrincipal MemberPrincipal principal,
 			@RequestBody ReservationCreateRequestDto request) {
-		Long reservationId = reservationService
-			.createReservation(new ReservationCreateData(request.itemId(), principal.getMemberId()));
-		return ApiResponse.success(reservationId);
+		ReservationCreateData data = new ReservationCreateData(request.itemId(), principal.getMemberId());
+		ReservationCreateResponseDto response = new ReservationCreateResponseDto(reservationService.createReservation(data));
+		return ApiResponse.success(response);
 	}
 
 	@PatchMapping("/api/v1/reservations/{id}/approve")

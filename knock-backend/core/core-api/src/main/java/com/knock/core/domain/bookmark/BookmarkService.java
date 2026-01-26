@@ -36,18 +36,15 @@ public class BookmarkService {
 			.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
 
 		// 현재 북마크 상태 반환
-		return bookmarkRepository.findByMemberAndItemWithDeleted(memberId, data.itemId()).map(bookmark -> { // 기존
-																											// 북마크
-																											// 존재
+		return bookmarkRepository.findByMemberAndItemWithDeleted(memberId, data.itemId()).map(bookmark -> {
 			if (bookmark.getDeletedAt() != null) { // 삭제된 북마크 복구
 				bookmark.restore();
 				return true;
 			}
-			else { // 기존 북마크 삭제
-				bookmarkRepository.delete(bookmark);
-				return false;
-			}
-		}).orElseGet(() -> { // 원래 북마크 없을 때
+			// 기존 북마크 삭제
+			bookmarkRepository.delete(bookmark);
+			return false;
+		}).orElseGet(() -> {
 			Bookmark bookmark = Bookmark.create(member, item);
 			bookmarkRepository.save(bookmark);
 			return true;

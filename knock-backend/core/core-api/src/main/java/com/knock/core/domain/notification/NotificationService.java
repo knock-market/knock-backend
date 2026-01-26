@@ -47,7 +47,7 @@ public class NotificationService {
 		Notification notification = notificationRepository.findById(notificationId)
 			.orElseThrow(() -> new CoreException(ErrorType.NOTIFICATION_NOT_FOUND));
 
-		if (!notification.getMember().getId().equals(memberId)) {
+		if (notification.isOwner(memberId)) {
 			throw new CoreException(ErrorType.FORBIDDEN);
 		}
 
