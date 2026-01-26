@@ -21,10 +21,11 @@ public class ReservationController {
 	private final ReservationService reservationService;
 
 	@PostMapping("/api/v1/reservations")
-	public ApiResponse<ReservationCreateResponseDto> createReservation(@AuthenticationPrincipal MemberPrincipal principal,
-			@RequestBody ReservationCreateRequestDto request) {
+	public ApiResponse<ReservationCreateResponseDto> createReservation(
+			@AuthenticationPrincipal MemberPrincipal principal, @RequestBody ReservationCreateRequestDto request) {
 		ReservationCreateData data = new ReservationCreateData(request.itemId(), principal.getMemberId());
-		ReservationCreateResponseDto response = new ReservationCreateResponseDto(reservationService.createReservation(data));
+		ReservationCreateResponseDto response = new ReservationCreateResponseDto(
+				reservationService.createReservation(data));
 		return ApiResponse.success(response);
 	}
 
