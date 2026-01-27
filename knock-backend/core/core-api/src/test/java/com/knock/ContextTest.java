@@ -7,6 +7,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestConstructor;
 
+/**
+ * 테스트 포함 및 test 프로파일 사용
+ */
 @Tag("context")
 @ActiveProfiles("test")
 @SpringBootTest
