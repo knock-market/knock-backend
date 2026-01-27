@@ -1,12 +1,10 @@
 package com.knock.client.example;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import feign.RetryableException;
-
 import com.knock.client.ClientExampleContextTest;
-
+import feign.RetryableException;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExampleClientTest extends ClientExampleContextTest {
 

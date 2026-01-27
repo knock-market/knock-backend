@@ -1,7 +1,9 @@
 package com.knock.storage.db.core.member;
 
 import com.knock.storage.db.core.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,8 +44,8 @@ public class Member extends BaseEntity {
 	private Double mannerTemperature;
 
 	@Builder
-	public Member(String email, String password, String name, String nickname, String profileImageUrl,
-			String provider, String providerId) {
+	public Member(String email, String password, String name, String nickname, String profileImageUrl, String provider,
+			String providerId) {
 		this.email = email;
 		this.password = password;
 		this.name = name;
@@ -52,6 +54,16 @@ public class Member extends BaseEntity {
 		this.provider = provider;
 		this.providerId = providerId;
 		this.mannerTemperature = 36.5;
+	}
+
+	public static Member create(String email, String name, String password, String nickname, String provider) {
+		return Member.builder()
+			.email(email)
+			.name(name)
+			.password(password)
+			.nickname(nickname)
+			.provider(provider)
+			.build();
 	}
 
 	public void updateProfile(String nickname, String profileImageUrl) {

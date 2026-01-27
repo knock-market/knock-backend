@@ -1,8 +1,8 @@
 package com.knock.storage.db.core.group;
 
+import com.knock.storage.db.core.member.Member;
 import org.springframework.stereotype.Repository;
 
-import com.knock.storage.db.core.member.Member;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,7 +13,8 @@ public class GroupRepositoryImpl implements GroupRepository {
 
 	private final GroupMemberJpaRepository groupMemberJpaRepository;
 
-	public GroupRepositoryImpl(GroupJpaRepository groupJpaRepository, GroupMemberJpaRepository groupMemberJpaRepository) {
+	public GroupRepositoryImpl(GroupJpaRepository groupJpaRepository,
+			GroupMemberJpaRepository groupMemberJpaRepository) {
 		this.groupJpaRepository = groupJpaRepository;
 		this.groupMemberJpaRepository = groupMemberJpaRepository;
 	}
@@ -21,6 +22,11 @@ public class GroupRepositoryImpl implements GroupRepository {
 	@Override
 	public Group save(Group group) {
 		return groupJpaRepository.save(group);
+	}
+
+	@Override
+	public Optional<Group> findById(Long id) {
+		return groupJpaRepository.findById(id);
 	}
 
 	@Override

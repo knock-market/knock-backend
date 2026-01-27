@@ -20,7 +20,8 @@ public class AuthController {
 	@PostMapping("/api/v1/auth/login")
 	public ApiResponse<?> login(@RequestBody AuthLoginRequestDto request, HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse) {
-		authService.login(new SessionAuthService.LoginRequestData(request.email(), request.password()), httpRequest, httpResponse);
+		authService.login(new SessionAuthService.LoginRequestData(request.email(), request.password()), httpRequest,
+				httpResponse);
 		return ApiResponse.success();
 	}
 

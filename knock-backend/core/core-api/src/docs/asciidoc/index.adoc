@@ -1,0 +1,267 @@
+= Knock Market API Documentation
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+[[overview]]
+== Overview
+
+[[overview-http-status-codes]]
+=== HTTP Status Codes
+
+|===
+| Status Code | Description
+
+| `200 OK`
+| The request completed successfully.
+
+| `400 Bad Request`
+| The request was malformed or invalid.
+
+| `401 Unauthorized`
+| Authentication is required.
+
+| `403 Forbidden`
+| You do not have permission to access the resource.
+
+| `404 Not Found`
+| The resource was not found.
+
+| `500 Internal Server Error`
+| An unexpected error occurred on the server.
+|===
+
+[[auth-api]]
+== 1. Auth API
+
+[[auth-login]]
+=== 1.1 Login
+`POST /api/v1/auth/login`
+
+==== Request
+include::{snippets}/api/v1/auth/login/http-request.adoc[]
+include::{snippets}/api/v1/auth/login/request-fields.adoc[]
+
+==== Response
+include::{snippets}/api/v1/auth/login/http-response.adoc[]
+include::{snippets}/api/v1/auth/login/response-fields.adoc[]
+
+[[auth-logout]]
+=== 1.2 Logout
+`POST /api/v1/auth/logout`
+
+==== Response
+include::{snippets}/api/v1/auth/logout/http-response.adoc[]
+include::{snippets}/api/v1/auth/logout/response-fields.adoc[]
+
+[[member-api]]
+== 2. Member API
+
+[[member-signup]]
+=== 2.1 Signup
+`POST /api/v1/members`
+
+==== Request
+include::{snippets}/api/v1/members/signup/http-request.adoc[]
+include::{snippets}/api/v1/members/signup/request-fields.adoc[]
+
+==== Response
+include::{snippets}/api/v1/members/signup/http-response.adoc[]
+include::{snippets}/api/v1/members/signup/response-fields.adoc[]
+
+[[member-my]]
+=== 2.2 Get My Profile
+`GET /api/v1/members/my`
+
+==== Response
+include::{snippets}/api/v1/members/my/http-response.adoc[]
+include::{snippets}/api/v1/members/my/response-fields.adoc[]
+
+[[group-api]]
+== 3. Group API
+
+[[group-create]]
+=== 3.1 Create Group
+`POST /api/v1/groups`
+
+==== Request
+include::{snippets}/api/v1/groups/create/http-request.adoc[]
+include::{snippets}/api/v1/groups/create/request-fields.adoc[]
+
+==== Response
+include::{snippets}/api/v1/groups/create/http-response.adoc[]
+include::{snippets}/api/v1/groups/create/response-fields.adoc[]
+
+[[group-join]]
+=== 3.2 Join Group
+`POST /api/v1/groups/join`
+
+==== Request
+include::{snippets}/api/v1/groups/join/http-request.adoc[]
+include::{snippets}/api/v1/groups/join/request-fields.adoc[]
+
+==== Response
+include::{snippets}/api/v1/groups/join/http-response.adoc[]
+include::{snippets}/api/v1/groups/join/response-fields.adoc[]
+
+[[group-my]]
+=== 3.3 Get My Groups
+`GET /api/v1/groups/my`
+
+==== Response
+include::{snippets}/api/v1/groups/my/http-response.adoc[]
+include::{snippets}/api/v1/groups/my/response-fields.adoc[]
+
+[[item-api]]
+== 4. Item API
+
+[[item-create]]
+=== 4.1 Create Item
+`POST /api/v1/items`
+
+==== Request
+include::{snippets}/api/v1/items/create/http-request.adoc[]
+include::{snippets}/api/v1/items/create/request-fields.adoc[]
+
+==== Response
+include::{snippets}/api/v1/items/create/http-response.adoc[]
+include::{snippets}/api/v1/items/create/response-fields.adoc[]
+
+[[item-get]]
+=== 4.2 Get Item Detail
+`GET /api/v1/items/{itemId}`
+
+==== Request
+include::{snippets}/api/v1/items/get/http-request.adoc[]
+include::{snippets}/api/v1/items/get/path-parameters.adoc[]
+
+==== Response
+include::{snippets}/api/v1/items/get/http-response.adoc[]
+include::{snippets}/api/v1/items/get/response-fields.adoc[]
+
+[[item-list-by-group]]
+=== 4.3 List Items by Group
+`GET /api/v1/groups/{groupId}/items`
+
+==== Request
+include::{snippets}/api/v1/items/list-by-group/http-request.adoc[]
+include::{snippets}/api/v1/items/list-by-group/path-parameters.adoc[]
+
+==== Response
+include::{snippets}/api/v1/items/list-by-group/http-response.adoc[]
+include::{snippets}/api/v1/items/list-by-group/response-fields.adoc[]
+
+[[item-my-selling]]
+=== 4.4 My Selling Items
+`GET /api/v1/items/my-selling`
+
+==== Response
+include::{snippets}/api/v1/items/my-selling/http-response.adoc[]
+include::{snippets}/api/v1/items/my-selling/response-fields.adoc[]
+
+[[bookmark-api]]
+== 5. Bookmark API
+
+[[bookmark-toggle]]
+=== 5.1 Toggle Bookmark
+`POST /api/v1/items/{itemId}/bookmarks`
+
+==== Request
+include::{snippets}/api/v1/items/bookmarks-toggle/http-request.adoc[]
+include::{snippets}/api/v1/items/bookmarks-toggle/path-parameters.adoc[]
+
+==== Response
+include::{snippets}/api/v1/items/bookmarks-toggle/http-response.adoc[]
+include::{snippets}/api/v1/items/bookmarks-toggle/response-fields.adoc[]
+
+[[bookmark-my]]
+=== 5.2 My Bookmarks
+`GET /api/v1/items/my-bookmarks`
+
+==== Response
+include::{snippets}/api/v1/items/my-bookmarks/http-response.adoc[]
+include::{snippets}/api/v1/items/my-bookmarks/response-fields.adoc[]
+
+[[reservation-api]]
+== 6. Reservation API
+
+[[reservation-create]]
+=== 6.1 Create Reservation
+`POST /api/v1/reservations`
+
+==== Request
+include::{snippets}/api/v1/reservations/create/http-request.adoc[]
+include::{snippets}/api/v1/reservations/create/request-fields.adoc[]
+
+==== Response
+include::{snippets}/api/v1/reservations/create/http-response.adoc[]
+include::{snippets}/api/v1/reservations/create/response-fields.adoc[]
+
+[[reservation-approve]]
+=== 6.2 Approve Reservation
+`PATCH /api/v1/reservations/{id}/approve`
+
+==== Request
+include::{snippets}/api/v1/reservations/approve/http-request.adoc[]
+include::{snippets}/api/v1/reservations/approve/path-parameters.adoc[]
+
+==== Response
+include::{snippets}/api/v1/reservations/approve/http-response.adoc[]
+include::{snippets}/api/v1/reservations/approve/response-fields.adoc[]
+
+[[reservation-my]]
+=== 6.3 My Reservations
+`GET /api/v1/reservations/my`
+
+==== Response
+include::{snippets}/api/v1/reservations/my-list/http-response.adoc[]
+include::{snippets}/api/v1/reservations/my-list/response-fields.adoc[]
+
+[[notification-api]]
+== 7. Notification API
+
+[[notification-my]]
+=== 7.1 My Notifications
+`GET /api/v1/notifications`
+
+==== Response
+include::{snippets}/api/v1/notifications/my-list/http-response.adoc[]
+include::{snippets}/api/v1/notifications/my-list/response-fields.adoc[]
+
+[[notification-read]]
+=== 7.2 Mark Notification as Read
+`PATCH /api/v1/notifications/{id}/read`
+
+==== Request
+include::{snippets}/api/v1/notifications/read/http-request.adoc[]
+include::{snippets}/api/v1/notifications/read/path-parameters.adoc[]
+
+==== Response
+include::{snippets}/api/v1/notifications/read/http-response.adoc[]
+include::{snippets}/api/v1/notifications/read/response-fields.adoc[]
+
+[[image-api]]
+== 8. Image API
+
+[[image-upload]]
+=== 8.1 Upload Image
+`POST /api/v1/images/upload`
+
+==== Response
+include::{snippets}/api/v1/images/upload/http-response.adoc[]
+include::{snippets}/api/v1/images/upload/response-fields.adoc[]
+
+[[image-delete]]
+=== 8.2 Delete Image
+`DELETE /api/v1/images`
+
+==== Request
+include::{snippets}/api/v1/images/delete/http-request.adoc[]
+include::{snippets}/api/v1/images/delete/query-parameters.adoc[]
+
+==== Response
+include::{snippets}/api/v1/images/delete/http-response.adoc[]
+include::{snippets}/api/v1/images/delete/response-fields.adoc[]

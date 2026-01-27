@@ -2,6 +2,8 @@ package com.knock.core.api.controller.v1;
 
 import com.knock.auth.MemberPrincipal;
 import com.knock.core.api.controller.v1.request.ReservationCreateRequestDto;
+import com.knock.core.api.controller.v1.response.ReservationCreateResponseDto;
+import com.knock.core.api.controller.v1.response.ReservationResponseDto;
 import com.knock.core.domain.reservation.ReservationService;
 import com.knock.core.domain.reservation.dto.ReservationCreateData;
 import com.knock.core.domain.reservation.dto.ReservationResult;
@@ -19,11 +21,12 @@ public class ReservationController {
 	private final ReservationService reservationService;
 
 	@PostMapping("/api/v1/reservations")
-	public ApiResponse<Long> createReservation(@AuthenticationPrincipal MemberPrincipal principal,
-			@RequestBody ReservationCreateRequestDto request) {
+	public ApiResponse<ReservationCreateResponseDto> createReservation(
+			@AuthenticationPrincipal MemberPrincipal principal, @RequestBody ReservationCreateRequestDto request) {
 		ReservationCreateData data = new ReservationCreateData(request.itemId(), principal.getMemberId());
-		Long reservationId = reservationService.createReservation(data);
-		return ApiResponse.success(reservationId);
+		ReservationCreateResponseDto response = new ReservationCreateResponseDto(
+				reservationService.createReservation(data));
+		return ApiResponse.success(response);
 	}
 
 	@PatchMapping("/api/v1/reservations/{id}/approve")
@@ -48,13 +51,18 @@ public class ReservationController {
 	}
 
 	@GetMapping("/api/v1/items/{itemId}/reservations")
-	public ApiResponse<List<ReservationResult>> getReservationsByItem(@PathVariable Long itemId) {
-		return ApiResponse.success(reservationService.getReservationsByItem(itemId));
+	public ApiResponse<List<ReservationResponseDto>> getReservationsByItem(@PathVariable Long itemId) {
+		List<ReservationResult> results = reservationService.getReservationsByItem(itemId);
+		List<ReservationResponseDto> response = results.stream().map(ReservationResponseDto::from).toList();
+		return ApiResponse.success(response);
 	}
 
 	@GetMapping("/api/v1/reservations/my")
-	public ApiResponse<List<ReservationResult>> getMyReservations(@AuthenticationPrincipal MemberPrincipal principal) {
-		return ApiResponse.success(reservationService.getMyReservations(principal.getMemberId()));
+	public ApiResponse<List<ReservationResponseDto>> getMyReservations(
+			@AuthenticationPrincipal MemberPrincipal principal) {
+		List<ReservationResult> results = reservationService.getMyReservations(principal.getMemberId());
+		List<ReservationResponseDto> response = results.stream().map(ReservationResponseDto::from).toList();
+		return ApiResponse.success(response);
 	}
 
 }

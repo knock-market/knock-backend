@@ -1,7 +1,6 @@
 package com.knock.core.api.config;
 
 import com.knock.core.support.error.CoreException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;

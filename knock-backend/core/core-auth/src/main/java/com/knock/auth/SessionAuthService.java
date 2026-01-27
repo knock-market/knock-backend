@@ -63,4 +63,5 @@ public class SessionAuthService implements AuthService {
 
 	public record LoginRequestData(String email, String rawPassword) {
 	}
+
 }

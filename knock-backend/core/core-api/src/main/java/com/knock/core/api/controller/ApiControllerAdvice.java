@@ -3,7 +3,6 @@ package com.knock.core.api.controller;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
 import com.knock.core.support.response.ApiResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;

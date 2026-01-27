@@ -1,5 +1,8 @@
 package com.knock.core.support.error;
 
+import lombok.Getter;
+
+@Getter
 public class ErrorMessage {
 
 	private final String code;
@@ -18,18 +21,6 @@ public class ErrorMessage {
 		this.code = errorType.getCode().name();
 		this.message = errorType.getMessage();
 		this.data = data;
-	}
-
-	public String getCode() {
-		return code;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public Object getData() {
-		return data;
 	}
 
 }

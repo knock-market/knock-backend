@@ -18,6 +18,7 @@ public class ItemRepositoryImpl implements ItemRepository {
 	public Item save(Item item, List<String> imageUrls) {
 		Item savedItem = itemJpaRepository.save(item);
 
+		// 연관된 이미지 모두 저장
 		if (imageUrls != null && !imageUrls.isEmpty()) {
 			itemImageRepository.saveAll(imageUrls, savedItem);
 		}
@@ -32,12 +33,27 @@ public class ItemRepositoryImpl implements ItemRepository {
 
 	@Override
 	public List<Item> findByGroupId(Long groupId) {
-		return itemJpaRepository.findByGroup_Id(groupId);
+		return itemJpaRepository.findAllByGroup_Id(groupId);
+	}
+
+	@Override
+	public List<Item> findByMemberId(Long memberId) {
+		return itemJpaRepository.findAllByMember_Id(memberId);
 	}
 
 	@Override
 	public void delete(Item item) {
 		itemJpaRepository.delete(item);
+	}
+
+	@Override
+	public Optional<Item> findByIdWithImages(Long itemId) {
+		return itemJpaRepository.findByIdWithImages(itemId);
+	}
+
+	@Override
+	public void increaseViewCountById(Long itemId) {
+		itemJpaRepository.increaseViewCountById(itemId);
 	}
 
 }

@@ -18,35 +18,35 @@ import org.hibernate.annotations.SQLRestriction;
 @SQLRestriction("deleted_at IS NULL")
 public class Review extends BaseEntity {
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reservation_id", nullable = false)
-    private Reservation reservation;
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "reservation_id", nullable = false, unique = true)
+	private Reservation reservation;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reviewer_id", nullable = false)
-    private Member reviewer;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "reviewer_id", nullable = false)
+	private Member reviewer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reviewee_id", nullable = false)
-    private Member reviewee;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "reviewee_id", nullable = false)
+	private Member reviewee;
 
-    @Column(columnDefinition = "TEXT")
-    private String content;
+	@Column(columnDefinition = "TEXT")
+	private String content;
 
-    @Column(nullable = false)
-    private Integer score;
+	@Column(nullable = false)
+	private Integer score;
 
-    private Review(Reservation reservation, Member reviewer, Member reviewee, String content, Integer score) {
-        this.reservation = reservation;
-        this.reviewer = reviewer;
-        this.reviewee = reviewee;
-        this.content = content;
-        this.score = score;
-    }
+	private Review(Reservation reservation, Member reviewer, Member reviewee, String content, Integer score) {
+		this.reservation = reservation;
+		this.reviewer = reviewer;
+		this.reviewee = reviewee;
+		this.content = content;
+		this.score = score;
+	}
 
-    public static Review create(Reservation reservation, Member reviewer, Member reviewee, String content,
-            Integer score) {
-        return new Review(reservation, reviewer, reviewee, content, score);
-    }
+	public static Review create(Reservation reservation, Member reviewer, Member reviewee, String content,
+			Integer score) {
+		return new Review(reservation, reviewer, reviewee, content, score);
+	}
 
 }

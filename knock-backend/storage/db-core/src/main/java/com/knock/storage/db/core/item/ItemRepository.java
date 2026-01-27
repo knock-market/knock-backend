@@ -11,6 +11,12 @@ public interface ItemRepository {
 
 	List<Item> findByGroupId(Long groupId);
 
+	List<Item> findByMemberId(Long memberId);
+
+	Optional<Item> findByIdWithImages(Long itemId);
+
 	void delete(Item item);
+
+	void increaseViewCountById(Long itemId);
 
 }

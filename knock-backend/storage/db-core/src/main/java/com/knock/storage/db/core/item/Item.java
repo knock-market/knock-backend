@@ -13,6 +13,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "item")
 @Getter
@@ -28,6 +31,9 @@ public class Item extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id", nullable = false)
 	private Member member;
+
+	@OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
+	private List<ItemImage> images = new ArrayList<>();
 
 	@Column(nullable = false)
 	private String title;
@@ -51,7 +57,7 @@ public class Item extends BaseEntity {
 	private ItemStatus status;
 
 	// todo: 조회 로직에 대해서 고민 e.g. 세션 기반으로 한 사용자당 30분마다 +1
-	@Column(name = "view_count")
+	@Column(name = "view_count", nullable = false, columnDefinition = "bigint default 0")
 	private Long viewCount;
 
 	public Item(Group group, Member member, String title, String description, Long price, ItemType type,
@@ -65,6 +71,11 @@ public class Item extends BaseEntity {
 		this.category = category;
 		this.status = ItemStatus.ON_SALE;
 		this.viewCount = 0L;
+	}
+
+	public static Item create(String title, String description, Long price, ItemType type, ItemCategory category,
+			Group group, Member member) {
+		return new Item(group, member, title, description, price, type, category);
 	}
 
 	public static Item create(Group group, Member member, String title, String description, Long price, ItemType type,

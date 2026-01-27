@@ -1,7 +1,8 @@
 package com.knock.storage.db.core.item;
 
-import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
 
 interface ItemImageJpaRepository extends JpaRepository<ItemImage, Long> {
 

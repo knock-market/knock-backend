@@ -53,4 +53,15 @@ public class ReservationRepositoryImpl implements ReservationRepository {
 		jpaRepository.delete(reservation);
 	}
 
+	@Override
+	public Optional<Reservation> findByItemIdAndMemberIdAndStatus(Long itemId, Long memberId,
+			ReservationStatus status) {
+		return jpaRepository.findByItemIdAndMemberIdAndStatus(itemId, memberId, status);
+	}
+
+	@Override
+	public Optional<Reservation> findByIdWithItemAndMember(Long id) {
+		return jpaRepository.findByIdWithItemAndMember(id);
+	}
+
 }

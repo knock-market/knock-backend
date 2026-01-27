@@ -1,4 +1,4 @@
-package com.knock.auth.config;
+package com.knock.core.api.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,8 +8,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -30,10 +28,8 @@ public class SecurityConfig {
 				securityContext.securityContextRepository(securityContextRepository);
 				securityContext.requireExplicitSave(true);
 			})
-			.authorizeHttpRequests(auth -> auth.requestMatchers("/api/v1/auth/**", "/api/v1/members")
-				.permitAll()
-				.anyRequest()
-				.authenticated())
+			.authorizeHttpRequests(
+					auth -> auth.requestMatchers("/**", "/api/v1/members").permitAll().anyRequest().authenticated())
 			.sessionManagement(session -> session.maximumSessions(1).maxSessionsPreventsLogin(false));
 
 		return http.build();

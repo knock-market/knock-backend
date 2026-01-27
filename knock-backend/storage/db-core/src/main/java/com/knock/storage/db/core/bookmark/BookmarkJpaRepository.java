@@ -3,6 +3,8 @@ package com.knock.storage.db.core.bookmark;
 import com.knock.storage.db.core.item.Item;
 import com.knock.storage.db.core.member.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -11,10 +13,16 @@ import java.util.Optional;
 @Repository
 interface BookmarkJpaRepository extends JpaRepository<Bookmark, Long> {
 
-    Optional<Bookmark> findByMemberAndItem(Member member, Item item);
+	Optional<Bookmark> findByMemberAndItem(Member member, Item item);
 
-    boolean existsByMemberAndItem(Member member, Item item);
+	boolean existsByMemberAndItem(Member member, Item item);
 
-    List<Bookmark> findByMemberId(Long memberId);
+	@Query(value = "SELECT * FROM bookmark WHERE member_id = :memberId AND item_id = :itemId", nativeQuery = true)
+	Optional<Bookmark> findByMemberAndItemWithDeleted(@Param("memberId") Long memberId, @Param("itemId") Long itemId);
+
+	List<Bookmark> findByMemberId(Long memberId);
+
+	@Query("SELECT DISTINCT b FROM Bookmark b JOIN FETCH b.item i LEFT JOIN FETCH i.images WHERE b.member.id = :memberId")
+	List<Bookmark> findAllByMemberIdJoined(@Param("memberId") Long memberId);
 
 }

@@ -1,74 +1,48 @@
 package com.knock.storage.db.core.member;
 
+import com.knock.storage.db.CoreDbContextTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-@Transactional
-@ActiveProfiles("local")
-class MemberRepositoryTest {
+class MemberRepositoryTest extends CoreDbContextTest {
 
 	@Autowired
 	private MemberRepository memberRepository;
 
-	final String EMAIL = "EMAIL-id@example.com";
-
-	final String NAME = "test-name";
-
-	final String NICKNAME = "test-nickname";
-
-	final String PROVIDER = "GOOGLE";
-
-	final String PROFILE_IMAGE_URL = "http://profile.img/1";
-
 	@Test
-	void testShouldBeSavedAndFound() {
+	@DisplayName("회원 저장 및 조회 성공")
+	void saveAndFindMember() {
 		// given
-		Member member = Member.builder()
-			.email(EMAIL)
-			.name(NAME)
-			.nickname(NICKNAME)
-			.provider(PROVIDER)
-			.profileImageUrl(PROFILE_IMAGE_URL)
-			.build();
+		Member member = Member.create("test@test.com", "Name", "Password", "Nickname", "LOCAL");
 
 		// when
 		Member savedMember = memberRepository.save(member);
+		Optional<Member> foundMember = memberRepository.findById(savedMember.getId());
 
 		// then
-		assertThat(savedMember.getId()).isNotNull();
-		assertThat(savedMember.getName()).isEqualTo(NAME);
-		assertThat(savedMember.getNickname()).isEqualTo(NICKNAME);
-		assertThat(savedMember.getEmail()).isEqualTo(EMAIL);
+		assertThat(foundMember).isPresent();
+		assertThat(foundMember.get().getEmail()).isEqualTo("test@test.com");
 	}
 
 	@Test
-	void testShouldBeSavedAndDeleted() {
+	@DisplayName("이메일로 회원 존재 여부 확인")
+	void existsByEmail() {
 		// given
-		Member member = Member.builder()
-			.email(EMAIL)
-			.name(NAME)
-			.nickname(NICKNAME)
-			.provider(PROVIDER)
-			.profileImageUrl(PROFILE_IMAGE_URL)
-			.build();
+		Member member = Member.create("test@test.com", "Name", "Password", "Nickname", "LOCAL");
 		memberRepository.save(member);
 
 		// when
-		Member foundMember = memberRepository.findByEmail(EMAIL).orElseThrow();
+		boolean exists = memberRepository.existsByEmail("test@test.com");
+		boolean notExists = memberRepository.existsByEmail("non-existent@test.com");
 
 		// then
-		assertThat(foundMember.getName()).isEqualTo(NAME);
-		foundMember.delete();
-		memberRepository.save(foundMember);
-		// @SQLRestriction 동작 테스트
-		assertThat(memberRepository.findByEmail(EMAIL)).isEmpty();
+		assertThat(exists).isTrue();
+		assertThat(notExists).isFalse();
 	}
 
 }

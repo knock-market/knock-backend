@@ -29,36 +29,26 @@ public class ReservationService {
 
 	@Transactional
 	public Long createReservation(ReservationCreateData data) {
-		// Member validation
 		memberRepository.findById(data.memberId()).orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
+		itemRepository.findById(data.itemId()).orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
 
-		// Item validation
-		itemRepository.findById(data.itemId()).orElseThrow(() -> new IllegalArgumentException("Item not found"));
-
-		// Atomic operation: 승인된 예약이 없을 때만 생성 (Race Condition 방지)
 		int created = reservationRepository.createIfNotApproved(data.itemId(), data.memberId());
 
 		if (created == 0) {
-			throw new IllegalStateException("이미 예약이 확정된 물건입니다.");
+			throw new CoreException(ErrorType.RESERVATION_ALREADY_EXISTS);
 		}
 
-		// 생성된 예약 조회하여 ID 반환
-		// Note: Native query로 생성했으므로 별도 조회 필요
-		List<Reservation> reservations = reservationRepository.findByItemId(data.itemId());
-		return reservations.stream()
-			.filter(r -> r.getMember().getId().equals(data.memberId()))
-			.filter(r -> r.getStatus() == ReservationStatus.WAITING)
-			.findFirst()
+		return reservationRepository
+			.findByItemIdAndMemberIdAndStatus(data.itemId(), data.memberId(), ReservationStatus.WAITING)
 			.map(Reservation::getId)
-			.orElseThrow(() -> new IllegalStateException("예약 생성 실패"));
+			.orElseThrow(() -> new CoreException(ErrorType.RESERVATION_NOT_FOUND));
 	}
 
 	@Transactional
 	public void approveReservation(Long memberId, Long reservationId) {
-		Reservation reservation = reservationRepository.findById(reservationId)
-			.orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
+		Reservation reservation = reservationRepository.findByIdWithItemAndMember(reservationId)
+			.orElseThrow(() -> new CoreException(ErrorType.RESERVATION_NOT_FOUND));
 
-		// 물건 주인인지 확인
 		if (!reservation.getItem().getMember().getId().equals(memberId)) {
 			throw new CoreException(ErrorType.FORBIDDEN);
 		}
@@ -68,10 +58,9 @@ public class ReservationService {
 
 	@Transactional
 	public void completeReservation(Long memberId, Long reservationId) {
-		Reservation reservation = reservationRepository.findById(reservationId)
-			.orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
+		Reservation reservation = reservationRepository.findByIdWithItemAndMember(reservationId)
+			.orElseThrow(() -> new CoreException(ErrorType.RESERVATION_NOT_FOUND));
 
-		// 물건 주인 또는 예약자인지 확인
 		boolean isOwner = reservation.getItem().getMember().getId().equals(memberId);
 		boolean isReserver = reservation.getMember().getId().equals(memberId);
 
@@ -84,10 +73,9 @@ public class ReservationService {
 
 	@Transactional
 	public void cancelReservation(Long memberId, Long reservationId) {
-		Reservation reservation = reservationRepository.findById(reservationId)
-			.orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
+		Reservation reservation = reservationRepository.findByIdWithItemAndMember(reservationId)
+			.orElseThrow(() -> new CoreException(ErrorType.RESERVATION_NOT_FOUND));
 
-		// 물건 주인 또는 예약자인지 확인
 		boolean isOwner = reservation.getItem().getMember().getId().equals(memberId);
 		boolean isReserver = reservation.getMember().getId().equals(memberId);
 

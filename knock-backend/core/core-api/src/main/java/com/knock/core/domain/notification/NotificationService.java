@@ -9,6 +9,7 @@ import com.knock.storage.db.core.member.MemberRepository;
 import com.knock.storage.db.core.notification.Notification;
 import com.knock.storage.db.core.notification.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +18,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class NotificationService {
 
 	private final NotificationRepository notificationRepository;
@@ -41,13 +41,13 @@ public class NotificationService {
 		return notifications.stream().map(NotificationResult::from).collect(Collectors.toList());
 	}
 
+	@Async
 	@Transactional
 	public void markAsRead(Long memberId, Long notificationId) {
 		Notification notification = notificationRepository.findById(notificationId)
-			.orElseThrow(() -> new IllegalArgumentException("Notification not found"));
+			.orElseThrow(() -> new CoreException(ErrorType.NOTIFICATION_NOT_FOUND));
 
-		// 본인의 알림인지 확인
-		if (!notification.getMember().getId().equals(memberId)) {
+		if (notification.isOwner(memberId)) {
 			throw new CoreException(ErrorType.FORBIDDEN);
 		}
 

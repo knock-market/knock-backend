@@ -8,8 +8,8 @@ import java.util.List;
 @Repository
 interface ReviewJpaRepository extends JpaRepository<Review, Long> {
 
-    List<Review> findByRevieweeId(Long revieweeId);
+	List<Review> findByRevieweeId(Long revieweeId);
 
-    boolean existsByReservationId(Long reservationId);
+	boolean existsByReservationId(Long reservationId);
 
 }

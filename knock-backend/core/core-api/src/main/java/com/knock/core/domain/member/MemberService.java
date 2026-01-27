@@ -3,11 +3,11 @@ package com.knock.core.domain.member;
 import com.knock.core.domain.member.dto.MemberResult;
 import com.knock.core.domain.member.dto.MemberSignupData;
 import com.knock.core.domain.member.dto.MemberSignupResult;
+import com.knock.core.domain.member.event.MemberCreatedEvent;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
-import com.knock.core.domain.member.event.MemberCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,9 +41,7 @@ public class MemberService {
 
 		Member saved = memberRepository.save(member);
 
-		// 이벤트 발행 (개인 그룹 생성을 위해)
 		eventPublisher.publishEvent(new MemberCreatedEvent(saved.getId(), saved.getName()));
-
 		return MemberSignupResult.of(saved);
 	}
 

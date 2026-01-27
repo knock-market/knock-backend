@@ -1,12 +1,15 @@
 package com.knock.storage.db.core.group;
 
 import com.knock.storage.db.core.member.Member;
+
 import java.util.List;
 import java.util.Optional;
 
 public interface GroupRepository {
 
 	Group save(Group group);
+
+	Optional<Group> findById(Long id);
 
 	Optional<Group> findByInviteCode(String inviteCode);
 
