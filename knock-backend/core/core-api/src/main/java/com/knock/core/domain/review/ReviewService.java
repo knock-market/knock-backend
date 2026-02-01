@@ -3,12 +3,8 @@ package com.knock.core.domain.review;
 import com.knock.core.api.controller.v1.response.ReviewResponse;
 import com.knock.core.domain.review.dto.request.ReviewCreateData;
 import com.knock.core.domain.review.dto.response.ReviewResult;
-import com.knock.core.enums.ReservationStatus;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
-import com.knock.core.support.error.review.ReviewErrorType;
-import com.knock.core.support.error.review.ReviewException;
-import com.knock.storage.db.core.item.Item;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
 import com.knock.storage.db.core.reservation.Reservation;
@@ -17,10 +13,10 @@ import com.knock.storage.db.core.review.Review;
 import com.knock.storage.db.core.review.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -38,15 +34,24 @@ public class ReviewService {
 
 	@Transactional
 	public ReviewResult createReview(Long memberId, ReviewCreateData reviewCreateData) {
-		Reservation findReservation = findReservation(memberId, reviewCreateData.itemId());
-		Member buyer = findReservation.getMember();
-		Member seller = findReservation.getItem().getMember();
+		Reservation reservation = findReservation(memberId, reviewCreateData.itemId());
+		validateDuplicateReview(reservation.getId(), memberId);
 
-		Review saveReview = reviewRepository
-			.save(Review.create(findReservation, buyer, seller, reviewCreateData.content(), reviewCreateData.score()));
-		reputationService.changeReputation(seller, reviewCreateData.score());
+		Member buyer = reservation.getMember();
+		Member seller = reservation.getItem().getMember();
 
-		return ReviewResult.from(saveReview);
+		try {
+			Review savedReview = reviewRepository
+				.save(Review.create(reservation, buyer, seller, reviewCreateData.content(), reviewCreateData.score()));
+
+			reputationService.changeReputation(seller, reviewCreateData.score());
+
+			return ReviewResult.from(savedReview);
+		}
+		catch (DataIntegrityViolationException e) {
+
+			throw new CoreException(ErrorType.DUPLICATE_REVIEW);
+		}
 	}
 
 	@Transactional(readOnly = true)
@@ -58,14 +63,16 @@ public class ReviewService {
 	}
 
 	@Transactional(readOnly = true)
-	public int countReview(Long userId) {
+	public Long countReview(Long userId) {
 		validateMemberExists(userId);
 
 		return reviewRepository.countReviewByUserId(userId);
 	}
 
-	private Member findMember(Long memberId) {
-		return memberRepository.findById(memberId).orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
+	private void validateDuplicateReview(Long reservationId, Long reviewerId) {
+		if (reviewRepository.existsByReservationIdAndReviewerId(reservationId, reviewerId)) {
+			throw new CoreException(ErrorType.DUPLICATE_REVIEW);
+		}
 	}
 
 	private void validateMemberExists(Long userId) {

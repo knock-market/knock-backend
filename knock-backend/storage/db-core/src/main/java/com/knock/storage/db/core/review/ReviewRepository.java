@@ -8,8 +8,8 @@ public interface ReviewRepository {
 
 	List<Review> findByRevieweeId(Long revieweeId);
 
-	boolean existsByReservationId(Long reservationId);
+	Long countReviewByUserId(Long userId);
 
-	int countReviewByUserId(Long userId);
+	boolean existsByReservationIdAndReviewerId(Long reservationId, Long memberId);
 
 }

@@ -22,13 +22,13 @@ public class ReviewRepositoryImpl implements ReviewRepository {
 	}
 
 	@Override
-	public boolean existsByReservationId(Long reservationId) {
-		return jpaRepository.existsByReservationId(reservationId);
+	public Long countReviewByUserId(Long userId) {
+		return jpaRepository.countByReviewee_Id(userId);
 	}
 
 	@Override
-	public int countReviewByUserId(Long userId) {
-		return jpaRepository.countByReviewee_Id(userId);
+	public boolean existsByReservationIdAndReviewerId(Long reservationId, Long ReviewerId) {
+		return jpaRepository.existsByReservation_IdAndReviewer_Id(reservationId, ReviewerId);
 	}
 
 }

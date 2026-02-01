@@ -10,8 +10,8 @@ interface ReviewJpaRepository extends JpaRepository<Review, Long> {
 
 	List<Review> findByRevieweeId(Long revieweeId);
 
-	boolean existsByReservationId(Long reservationId);
+	Long countByReviewee_Id(Long userId);
 
-	int countByReviewee_Id(Long userId);
+	boolean existsByReservation_IdAndReviewer_Id(Long reservationId, Long reviewerId);
 
 }
