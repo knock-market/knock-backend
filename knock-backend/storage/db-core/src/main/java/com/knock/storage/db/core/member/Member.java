@@ -71,4 +71,8 @@ public class Member extends BaseEntity {
 		this.profileImageUrl = profileImageUrl;
 	}
 
+	public void updateMannerTemperature(double score) {
+		this.mannerTemperature = score;
+	}
+
 }
