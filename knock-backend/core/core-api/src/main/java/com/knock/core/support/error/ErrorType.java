@@ -20,8 +20,11 @@ public enum ErrorType {
 	GROUP_NOT_FOUND(HttpStatus.BAD_REQUEST, ErrorCode.G003, "그룹을 찾을 수 없습니다.", LogLevel.WARN),
 	INVITE_CODE_EXPIRED(HttpStatus.BAD_REQUEST, ErrorCode.G004, "초대 코드가 만료되었습니다.", LogLevel.WARN),
 	FORBIDDEN(HttpStatus.FORBIDDEN, ErrorCode.E403, "접근 권한이 없습니다.", LogLevel.WARN),
+
+	// Reservation
 	RESERVATION_NOT_FOUND(HttpStatus.BAD_REQUEST, ErrorCode.R001, "예약을 찾을 수 없습니다.", LogLevel.WARN),
-	RESERVATION_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, ErrorCode.R002, "이미 예약된 시간입니다.", LogLevel.WARN);
+	RESERVATION_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, ErrorCode.R002, "이미 예약된 시간입니다.", LogLevel.WARN),
+	RESERVATION_NOT_COMPLETED(HttpStatus.BAD_REQUEST, ErrorCode.R003, "완료된 예약에 대해서만 후기를 작성할 수 있습니다.", LogLevel.WARN),;
 
 	private final HttpStatus status;
 
