@@ -1,16 +1,15 @@
 name: Java CI with Gradle
-
 on:
   push:
     branches: [ "main", "develop" ]
   pull_request:
     branches: [ "*" ]
-
+    types: [opened, synchronize, reopened]
 permissions:
   contents: read
-
 jobs:
-  build:
+  build-and-analyze:
+    name: Build and Analyze
     runs-on: ubuntu-latest
     services:
       redis:
@@ -22,21 +21,26 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          fetch-depth: 0
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
-
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
       - name: Grant execute permission for gradlew
         run: chmod +x knock-backend/gradlew
-
-      - name: Run Gradle check
-        run: cd knock-backend && ./gradlew check
+      - name: Build and analyze
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: cd knock-backend && ./gradlew build sonar --info

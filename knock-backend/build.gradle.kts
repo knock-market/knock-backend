@@ -4,9 +4,17 @@ plugins {
     id("io.spring.dependency-management")
     id("io.spring.javaformat") apply false
     id("org.asciidoctor.jvm.convert") apply false
+    id("org.sonarqube") version "7.1.0.6387"
 }
 
 apply(from = "lint.gradle")
+
+sonar {
+    properties {
+        property("sonar.projectKey", "knock-market_knock-backend")
+        property("sonar.organization", "knock-market")
+    }
+}
 
 allprojects {
     group = "${property("projectGroup")}"
