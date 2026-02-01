@@ -65,11 +65,6 @@ public class ReservationRepositoryImpl implements ReservationRepository {
 	}
 
 	@Override
-	public Optional<Reservation> findByItemIdAndStatus(Long itemId, ReservationStatus status) {
-		return jpaRepository.findByItem_IdAndStatus(itemId, status);
-	}
-
-	@Override
 	public Optional<Reservation> findReservationForReview(Long reviewerId, Long itemId) {
 		return jpaRepository.findReservationForReview(reviewerId, itemId);
 	}

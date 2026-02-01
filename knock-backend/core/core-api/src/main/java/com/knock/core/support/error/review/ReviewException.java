@@ -1,5 +1,8 @@
 package com.knock.core.support.error.review;
 
+import lombok.Getter;
+
+@Getter
 public class ReviewException extends RuntimeException {
 
 	private final Object data;

@@ -48,7 +48,7 @@ class ReputationServiceUnitTest {
 	void changeReputation_Min_Limit() {
 		// given
 		Member member = createMember(0.5); // 0점 직전
-		int reviewScore = 1; // 가정: 1점이면 -2.0점 하락 시도 (계산상 -1.5)
+		int reviewScore = 1; // 가정: 1점이면 -5.0점 하락 시도 (계산상 -4.5)
 
 		// when
 		reputationService.changeReputation(member, reviewScore);

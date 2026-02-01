@@ -6,6 +6,7 @@ import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
 import com.knock.storage.db.core.item.Item;
 import com.knock.storage.db.core.member.Member;
+import com.knock.storage.db.core.member.MemberRepository;
 import com.knock.storage.db.core.reservation.Reservation;
 import com.knock.storage.db.core.reservation.ReservationRepository;
 import com.knock.storage.db.core.review.Review;
@@ -37,6 +38,9 @@ class ReviewServiceUnitTest {
 
 	@Mock
 	private ReservationRepository reservationRepository;
+
+	@Mock
+	private MemberRepository memberRepository;
 
 	@Mock
 	private ReputationService reputationService;
