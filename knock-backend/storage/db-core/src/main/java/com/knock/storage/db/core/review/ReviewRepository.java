@@ -10,4 +10,6 @@ public interface ReviewRepository {
 
 	boolean existsByReservationId(Long reservationId);
 
+	int countReviewByUserId(Long userId);
+
 }

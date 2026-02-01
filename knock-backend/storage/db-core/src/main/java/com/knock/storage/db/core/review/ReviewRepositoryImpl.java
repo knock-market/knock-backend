@@ -26,4 +26,9 @@ public class ReviewRepositoryImpl implements ReviewRepository {
 		return jpaRepository.existsByReservationId(reservationId);
 	}
 
+	@Override
+	public int countReviewByUserId(Long userId) {
+		return jpaRepository.countByReviewee_Id(userId);
+	}
+
 }
