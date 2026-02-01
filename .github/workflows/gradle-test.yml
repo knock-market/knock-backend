@@ -9,6 +9,7 @@ permissions:
   contents: read
 jobs:
   build:
+    name: Build with Gradle Test
     runs-on: ubuntu-latest
     services:
       redis:
