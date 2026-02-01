@@ -27,4 +27,8 @@ public interface ReservationRepository {
 
 	Optional<Reservation> findByIdWithItemAndMember(Long id);
 
+	Optional<Reservation> findByItemIdAndStatus(Long itemId, ReservationStatus status);
+
+	Optional<Reservation> findReservationForReview(Long reviewerId, Long itemId);
+
 }
