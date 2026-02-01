@@ -22,9 +22,12 @@ public enum ErrorType {
 	FORBIDDEN(HttpStatus.FORBIDDEN, ErrorCode.E403, "접근 권한이 없습니다.", LogLevel.WARN),
 
 	// Reservation
-	RESERVATION_NOT_FOUND(HttpStatus.BAD_REQUEST, ErrorCode.R001, "예약을 찾을 수 없습니다.", LogLevel.WARN),
-	RESERVATION_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, ErrorCode.R002, "이미 예약된 시간입니다.", LogLevel.WARN),
-	RESERVATION_NOT_COMPLETED(HttpStatus.BAD_REQUEST, ErrorCode.R003, "완료된 예약에 대해서만 후기를 작성할 수 있습니다.", LogLevel.WARN),;
+	RESERVATION_NOT_FOUND(HttpStatus.BAD_REQUEST, ErrorCode.RE001, "예약을 찾을 수 없습니다.", LogLevel.WARN),
+	RESERVATION_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, ErrorCode.RE002, "이미 예약된 시간입니다.", LogLevel.WARN),
+	RESERVATION_NOT_COMPLETED(HttpStatus.BAD_REQUEST, ErrorCode.RE003, "완료된 예약에 대해서만 후기를 작성할 수 있습니다.", LogLevel.WARN),
+
+	// Review
+	DUPLICATE_REVIEW(HttpStatus.BAD_REQUEST, ErrorCode.RV001, "중복된 리뷰 요청입니다.", LogLevel.WARN);
 
 	private final HttpStatus status;
 
