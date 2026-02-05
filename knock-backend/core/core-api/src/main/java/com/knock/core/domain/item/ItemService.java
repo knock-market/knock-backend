@@ -14,7 +14,6 @@ import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,14 +30,14 @@ public class ItemService {
 
 	private final GroupRepository groupRepository;
 
-	private final RedisTemplate<String, Object> redisTemplate;
+	private final com.knock.storage.db.core.bookmark.BookmarkRepository bookmarkRepository;
 
 	@Transactional
 	public ItemCreateResult createItem(Long memberId, Long groupId, ItemCreateData data) {
 		Member member = memberRepository.findById(memberId)
-			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
+				.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 		Group group = groupRepository.findGroupByGroupId(groupId)
-			.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
+				.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
 
 		Item item = Item.create(group, member, data.title(), data.description(), data.price(), data.type(),
 				data.category());
@@ -50,7 +49,7 @@ public class ItemService {
 	@Transactional(readOnly = true)
 	public ItemReadResult getItem(Long itemId) {
 		Item item = itemRepository.findByIdWithImages(itemId)
-			.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
+				.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
 
 		return ItemReadResult.from(item, item.getImages());
 	}
@@ -62,7 +61,8 @@ public class ItemService {
 		return items.stream().map(item -> {
 			List<ItemImage> images = item.getImages();
 			String thumbnailUrl = images.isEmpty() ? null : images.get(0).getImageUrl();
-			return ItemListResult.from(item, thumbnailUrl);
+			long likesCount = bookmarkRepository.countByItemId(item.getId());
+			return ItemListResult.from(item, thumbnailUrl, likesCount);
 		}).toList();
 	}
 
@@ -73,7 +73,8 @@ public class ItemService {
 		return items.stream().map(item -> {
 			List<ItemImage> images = item.getImages();
 			String thumbnailUrl = images.isEmpty() ? null : images.getFirst().getImageUrl();
-			return ItemListResult.from(item, thumbnailUrl);
+			long likesCount = bookmarkRepository.countByItemId(item.getId());
+			return ItemListResult.from(item, thumbnailUrl, likesCount);
 		}).toList();
 	}
 
@@ -88,7 +89,8 @@ public class ItemService {
 		//
 		// if (!hasViewed) {
 		// redisTemplate.opsForValue().increment(countKey);
-		// redisTemplate.opsForValue().set(logKey, "1", java.time.Duration.ofMinutes(30));
+		// redisTemplate.opsForValue().set(logKey, "1",
+		// java.time.Duration.ofMinutes(30));
 		// }
 		itemRepository.increaseViewCountById(itemId);
 	}

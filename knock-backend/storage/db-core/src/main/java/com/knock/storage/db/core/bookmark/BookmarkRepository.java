@@ -24,4 +24,6 @@ public interface BookmarkRepository {
 
 	List<Bookmark> findAllByMemberIdJoined(Long memberId);
 
+	long countByItemId(Long itemId);
+
 }

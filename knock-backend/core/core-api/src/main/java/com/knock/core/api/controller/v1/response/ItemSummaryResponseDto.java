@@ -6,10 +6,10 @@ import com.knock.core.enums.ItemStatus;
 import com.knock.core.enums.ItemType;
 
 public record ItemSummaryResponseDto(Long id, String title, Long price, ItemType type, ItemCategory category,
-		ItemStatus status, String thumbnailUrl, Long writerId) {
+		ItemStatus status, String thumbnailUrl, Long writerId, Long likesCount, java.time.LocalDateTime postedAt) {
 
 	public static ItemSummaryResponseDto from(ItemListResult result) {
 		return new ItemSummaryResponseDto(result.id(), result.title(), result.price(), result.type(), result.category(),
-				result.status(), result.thumbnailUrl(), result.writerId());
+				result.status(), result.thumbnailUrl(), result.writerId(), result.likesCount(), result.postedAt());
 	}
 }
