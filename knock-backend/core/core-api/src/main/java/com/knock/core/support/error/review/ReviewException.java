@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public class ReviewException extends RuntimeException {
 
-	private final Object data;
+	private final transient Object data;
 
 	private final ReviewErrorType reviewErrorType;
 
