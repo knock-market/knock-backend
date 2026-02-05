@@ -27,8 +27,8 @@ public class ReviewRepositoryImpl implements ReviewRepository {
 	}
 
 	@Override
-	public boolean existsByReservationIdAndReviewerId(Long reservationId, Long ReviewerId) {
-		return jpaRepository.existsByReservation_IdAndReviewer_Id(reservationId, ReviewerId);
+	public boolean existsByReservationIdAndReviewerId(Long reservationId, Long reviewerId) {
+		return jpaRepository.existsByReservation_IdAndReviewer_Id(reservationId, reviewerId);
 	}
 
 }
