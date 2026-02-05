@@ -15,7 +15,7 @@ public class ReputationService {
 		double change = ReputationPolicy.calculateChange(score);
 		double currentScore = seller.getMannerTemperature();
 
-		double newScore = Math.max(0, Math.min(100, currentScore + change));
+		double newScore = Math.clamp(currentScore + change, 0, 100);
 		seller.updateMannerTemperature(newScore);
 	}
 
