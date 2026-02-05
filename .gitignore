@@ -41,3 +41,9 @@ out/
 /knock-backend/gradle/wrapper/gradle-wrapper.properties
 /knock-backend/gradle/wrapper/gradle-wrapper.jar
 /knock-backend/docker/local/data/*
+
+### Frontend ###
+node_modules/
+dist/
+.env*
+.DS_Store
