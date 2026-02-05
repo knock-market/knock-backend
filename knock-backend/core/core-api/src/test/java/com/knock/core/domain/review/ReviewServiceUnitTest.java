@@ -51,7 +51,6 @@ class ReviewServiceUnitTest {
 		// given
 		Long reviewerId = 1L;
 		Long itemId = 100L;
-		Long sellerId = 2L;
 		int score = 5;
 		String content = "아주 좋아요!";
 
