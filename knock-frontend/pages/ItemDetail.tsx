@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { itemsApi, authApi, reservationsApi, bookmarksApi } from '../services';
 import { ItemDetailSkeleton } from '../components/Skeletons';
-import { ItemStatus, ItemResponseDto } from '../types';
+import { CURRENT_USER, CATEGORY_LABELS } from '../constants';
+import { ItemStatus, ItemResponseDto, ItemCategory } from '../types';
 import { AlertCircle, ArrowLeft, CheckCircle, Clock, Heart, MapPin, Share, Loader2 } from 'lucide-react';
 import ImageWithFallback from '../components/ImageWithFallback';
-import { CURRENT_USER } from '../constants';
 
 const ItemDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -185,7 +185,7 @@ const ItemDetail = () => {
         <div className="flex items-center space-x-2 mb-6">
           <span className="text-sm text-gray-500">Like New</span>
           <span className="text-gray-300">•</span>
-          <span className="text-sm text-gray-500">Electronics</span>
+          <span className="text-sm text-gray-500">{CATEGORY_LABELS[item.category as ItemCategory] || item.category}</span>
         </div>
 
         {/* Description */}
@@ -209,29 +209,20 @@ const ItemDetail = () => {
             className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 -mx-2 rounded-xl transition-colors"
           >
             <div className="flex items-center space-x-3">
-              <ImageWithFallback src={item.writerProfileImageUrl || CURRENT_USER.avatar} alt="Seller" className="w-12 h-12 rounded-full border border-gray-100" />
+              <ImageWithFallback src={item.writerProfileImageUrl || 'https://ui-avatars.com/api/?name=?&background=e2e8f0&color=94a3b8'} alt="Seller" className="w-12 h-12 rounded-full border border-gray-100" />
               <div>
                 <p className="font-bold text-gray-900">{item.writerNickname || `Seller #${item.writerId}`}</p>
                 <p className="text-xs text-gray-500">Member</p>
               </div>
             </div>
             <div className="flex flex-col items-end">
-              <div className="flex items-center text-emerald-600 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-lg">
-                <CheckCircle size={12} className="mr-1" />
-                TRUSTED
-              </div>
-              <span className="text-[10px] text-gray-400 mt-1">98% Positive</span>
+              <span className="text-[10px] text-gray-400 mt-1">Recently active</span>
             </div>
           </div>
         </div>
 
         {/* Q&A Section Placeholder */}
         <div className="mt-8 pt-6 border-t border-gray-100">
-          <div className="bg-emerald-50 p-3 rounded-lg rounded-tl-none mb-3 inline-block max-w-[80%]">
-            <p className="text-sm text-emerald-900"><strong>Seller:</strong> Yes, I'll be here until 5 PM!</p>
-          </div>
-          <div className="text-xs text-gray-400 mb-4 ml-2">1 hour ago</div>
-
           <div className="flex items-center bg-gray-50 rounded-full px-4 py-2">
             <input
               type="text"

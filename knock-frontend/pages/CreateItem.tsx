@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Camera, Image as ImageIcon, ChevronDown, X, Loader2 } from 'lucide-react';
-import { itemsApi, imagesApi } from '../services';
+import { itemsApi, imagesApi, groupsApi } from '../services';
+import { GroupResponseDto } from '../types';
 
 const CreateItem: React.FC = () => {
     const navigate = useNavigate();
@@ -13,10 +14,33 @@ const CreateItem: React.FC = () => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('');
-    const [groupId, setGroupId] = useState('1');
+    const [groups, setGroups] = useState<GroupResponseDto[]>([]);
+    const [groupId, setGroupId] = useState('');
     const [imageUrls, setImageUrls] = useState<string[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const preSelectedGroupId = queryParams.get('groupId');
+
+    useEffect(() => {
+        groupsApi.getMyGroups()
+            .then(res => {
+                const fetchedGroups = res.data || [];
+                setGroups(fetchedGroups);
+
+                // Priority: 1. URL parameter, 2. First group in list
+                if (preSelectedGroupId) {
+                    setGroupId(preSelectedGroupId);
+                } else if (fetchedGroups.length > 0) {
+                    setGroupId(String(fetchedGroups[0].id));
+                }
+            })
+            .catch(err => {
+                console.error("Failed to fetch groups:", err);
+            });
+    }, [preSelectedGroupId]);
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
@@ -99,10 +123,16 @@ const CreateItem: React.FC = () => {
                         <select
                             value={groupId}
                             onChange={(e) => setGroupId(e.target.value)}
-                            className="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            disabled={groups.length === 0}
+                            className="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
                         >
-                            <option value="1">Incheon Univ. IT Dept</option>
-                            <option value="2">Design Studio</option>
+                            {groups.length === 0 ? (
+                                <option value="" disabled>No circles joined</option>
+                            ) : (
+                                groups.map(g => (
+                                    <option key={g.id} value={g.id}>{g.name}</option>
+                                ))
+                            )}
                         </select>
                         <div className="absolute right-4 top-3.5 pointer-events-none w-3 h-3 bg-yellow-400 rounded-sm"></div>
                     </div>
@@ -142,12 +172,11 @@ const CreateItem: React.FC = () => {
                             className="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500"
                         >
                             <option value="" disabled>Select Category</option>
-                            <option value="Appliances">Appliances</option>
-                            <option value="Books">Books</option>
-                            <option value="Living">Living</option>
-                            <option value="Fashion">Fashion</option>
-                            <option value="Digital">Digital</option>
-                            <option value="Other">Other</option>
+                            <option value="CLOTHING">Clothing</option>
+                            <option value="FURNITURE">Furniture</option>
+                            <option value="DIGITAL_DEVICE">Digital / Electronics</option>
+                            <option value="BOOKS">Books</option>
+                            <option value="ETC">Other</option>
                         </select>
                         <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400">
                             <ChevronDown size={20} />
@@ -248,7 +277,7 @@ const CreateItem: React.FC = () => {
                                 description,
                                 category,
                                 groupId,
-                                itemType: transactionType === 'sale' ? 'SALE' : 'FREE',
+                                itemType: transactionType === 'sale' ? 'SELL' : 'GIVE',
                                 price: transactionType === 'sale' ? Number(price) : 0,
                                 imageUrls: imageUrls
                             })

@@ -13,7 +13,7 @@ import NotificationSettings from './pages/NotificationSettings';
 import BlockedUsers from './pages/BlockedUsers';
 import ManageItems from './pages/ManageItems';
 import ManageItemDetail from './pages/ManageItemDetail';
-import Likes from './pages/Likes';
+import Bookmarks from './pages/Bookmarks';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import BottomNav from './components/BottomNav';
@@ -57,7 +57,7 @@ const App: React.FC = () => {
           <Route path="/settings/notifications" element={<NotificationSettings />} />
           <Route path="/settings/blocked" element={<BlockedUsers />} />
           <Route path="/notifications" element={<Notifications />} />
-          <Route path="/saved" element={<Likes />} />
+          <Route path="/saved" element={<Bookmarks />} />
         </Routes>
       </Layout>
     </HashRouter>

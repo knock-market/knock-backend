@@ -1,10 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Keyboard, X, ArrowRight, Loader2, User } from 'lucide-react';
-import { CURRENT_USER } from '../constants'; // Keeping CURRENT_USER for now or replace with authApi.getMe()
-import { groupsApi } from '../services';
+import { groupsApi, authApi } from '../services';
 import { HomeSkeleton } from '../components/Skeletons';
 import ImageWithFallback from '../components/ImageWithFallback';
+
+const GREETINGS = [
+  { title: (name: string) => `Welcome back, ${name}! 👋`, subtitle: "See what's happening in your circles today." },
+  { title: (name: string) => `Hey ${name}! ✨`, subtitle: "Let's check out what's new." },
+  { title: (name: string) => `Good to see you, ${name}! 🎉`, subtitle: "Your circles are waiting." },
+];
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -13,15 +18,29 @@ const Home: React.FC = () => {
   const [isJoining, setIsJoining] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [groups, setGroups] = useState<any[]>([]);
+  const [userName, setUserName] = useState('');
+
+  const greeting = useMemo(() => {
+    const index = Math.floor(Math.random() * GREETINGS.length);
+    return GREETINGS[index];
+  }, []);
 
   useEffect(() => {
     setIsLoading(true);
-    groupsApi.getMyGroups()
-      .then((response: any) => {
-        setGroups(response.data || []);
+
+    Promise.all([
+      groupsApi.getMyGroups(),
+      authApi.getMe()
+    ])
+      .then(([groupsRes, userRes]: any[]) => {
+        setGroups(groupsRes.data || []);
+        const userData = userRes.data;
+        const firstName = (userData?.name || userData?.nickname || 'User').split(' ')[0];
+        setUserName(firstName);
       })
       .catch((err) => {
-        console.error("Failed to fetch groups", err);
+        console.error("Failed to fetch data", err);
+        setUserName('User');
       })
       .finally(() => {
         setIsLoading(false);
@@ -125,10 +144,10 @@ const Home: React.FC = () => {
       <div className="bg-white px-6 pt-12 pb-6 sticky top-0 z-10 shadow-sm">
         <div className="flex justify-between items-center mb-1">
           <h1 className="text-2xl font-bold text-gray-900">
-            Welcome back, {CURRENT_USER.name.split(' ')[0]}! 👋
+            {greeting.title(userName)}
           </h1>
         </div>
-        <p className="text-gray-500 text-sm">See what's happening in your circles today.</p>
+        <p className="text-gray-500 text-sm">{greeting.subtitle}</p>
       </div>
 
       <div className="p-6 space-y-8">

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, SlidersHorizontal, Search, X, Plus, LogOut, Package } from 'lucide-react';
 import { itemsApi, groupsApi } from '../services';
-import { ItemType } from '../types';
+import { ItemType, ItemCategory } from '../types';
+import { CATEGORY_LABELS } from '../constants';
 import { GroupFeedSkeleton } from '../components/Skeletons';
 import ImageWithFallback from '../components/ImageWithFallback';
 
@@ -16,7 +17,7 @@ const GroupFeed: React.FC = () => {
   const [showInfo, setShowInfo] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const filters = ['All', 'Appliances', 'Living', 'Books', 'Free'];
+  const filters = ['All', ...Object.values(ItemCategory), 'Free'];
 
   useEffect(() => {
     if (!id) return;
@@ -36,7 +37,7 @@ const GroupFeed: React.FC = () => {
   // Apply filter locally for now, real app might filter on backend
   const filteredItems = items.filter(item => {
     if (activeFilter === 'All') return true;
-    if (activeFilter === 'Free') return item.type === ItemType.FREE || item.price === 0;
+    if (activeFilter === 'Free') return item.type === ItemType.GIVE || item.price === 0;
     return item.category === activeFilter;
   });
 
@@ -61,7 +62,7 @@ const GroupFeed: React.FC = () => {
       {/* Floating Action Button for Create Item */}
       <div className="fixed bottom-24 left-0 right-0 max-w-md mx-auto z-40 px-6 flex justify-end pointer-events-none">
         <button
-          onClick={() => navigate('/create')}
+          onClick={() => navigate(`/create?groupId=${id}`)}
           className="w-14 h-14 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-lg shadow-emerald-200 transition-all active:scale-90 flex items-center justify-center pointer-events-auto"
           aria-label="Sell Item"
         >
@@ -204,7 +205,7 @@ const GroupFeed: React.FC = () => {
                     : 'bg-white text-gray-600 border border-gray-200'
                     }`}
                 >
-                  {filter}
+                  {filter === 'All' || filter === 'Free' ? filter : CATEGORY_LABELS[filter as ItemCategory]}
                 </button>
               ))}
             </div>
@@ -228,11 +229,9 @@ const GroupFeed: React.FC = () => {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute top-2 left-2">
-                  {item.type === ItemType.FREE ? (
+                  {item.type === ItemType.GIVE ? (
                     <span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wide">Free</span>
-                  ) : item.type === ItemType.RENT ? (
-                    <span className="bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wide">Rent</span>
-                  ) : item.type === ItemType.SALE && (
+                  ) : item.type === ItemType.SELL && (
                     <span className="bg-white/90 text-gray-900 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wide">Sale</span>
                   )}
                 </div>
@@ -247,9 +246,8 @@ const GroupFeed: React.FC = () => {
               <div className="p-3">
                 <h3 className="font-medium text-gray-900 text-sm truncate mb-1">{item.title}</h3>
                 <div className="flex items-center justify-between">
-                  <span className={`font-bold text-sm ${item.type === ItemType.FREE ? 'text-emerald-600' : 'text-gray-900'}`}>
+                  <span className={`font-bold text-sm ${item.type === ItemType.GIVE ? 'text-emerald-600' : 'text-gray-900'}`}>
                     {item.price === 0 ? 'Free' : `₩${item.price.toLocaleString()}`}
-                    {item.type === ItemType.RENT && '/day'}
                   </span>
                 </div>
                 <div className="mt-2 text-[10px] text-gray-400 flex items-center justify-between">

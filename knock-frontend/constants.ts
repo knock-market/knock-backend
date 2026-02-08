@@ -1,4 +1,4 @@
-import { GroupWithUI, ItemWithUI, ItemStatus, ItemType, User, NotificationResponseDto } from './types';
+import { GroupWithUI, ItemWithUI, ItemStatus, ItemType, ItemCategory, User, NotificationResponseDto } from './types';
 
 export const CURRENT_USER: User = {
   id: 'u1',
@@ -10,6 +10,14 @@ export const CURRENT_USER: User = {
 };
 
 export const DEFAULT_IMAGE = 'https://picsum.photos/400/300?grayscale';
+
+export const CATEGORY_LABELS: Record<ItemCategory, string> = {
+  [ItemCategory.CLOTHING]: 'Clothing',
+  [ItemCategory.FURNITURE]: 'Furniture',
+  [ItemCategory.BOOKS]: 'Books',
+  [ItemCategory.DIGITAL_DEVICE]: 'Digital / Electronics',
+  [ItemCategory.ETC]: 'Other'
+};
 
 
 export const MOCK_GROUPS: GroupWithUI[] = [
@@ -52,7 +60,7 @@ export const MOCK_ITEMS: ItemWithUI[] = [
     id: 'i1',
     title: 'Vintage Film Camera',
     price: 45000,
-    type: ItemType.SALE,
+    type: ItemType.SELL,
     status: ItemStatus.AVAILABLE,
     image: 'https://picsum.photos/id/250/400/400',
     description: 'Classic film camera, works perfectly. Moving out so selling my collection.',
@@ -60,7 +68,7 @@ export const MOCK_ITEMS: ItemWithUI[] = [
     groupName: 'Incheon Univ. IT Dept',
     postedAt: '2 hours ago',
     likes: 12,
-    category: 'Appliances',
+    category: ItemCategory.DIGITAL_DEVICE,
     requesters: [
       {
         id: 'r1',
@@ -92,7 +100,7 @@ export const MOCK_ITEMS: ItemWithUI[] = [
     id: 'i2',
     title: 'Calculus Textbook',
     price: 0,
-    type: ItemType.FREE,
+    type: ItemType.GIVE,
     status: ItemStatus.AVAILABLE,
     image: 'https://picsum.photos/id/24/400/400',
     description: 'Used for one semester. Some highlights but good condition.',
@@ -107,29 +115,14 @@ export const MOCK_ITEMS: ItemWithUI[] = [
     groupName: 'Incheon Univ. IT Dept',
     postedAt: '5 hours ago',
     likes: 4,
-    category: 'Books',
-    requesters: []
-  },
-  {
-    id: 'i3',
-    title: 'Ergonomic Chair',
-    price: 0,
-    type: ItemType.RENT,
-    status: ItemStatus.RESERVED,
-    image: 'https://picsum.photos/id/1078/400/400',
-    description: 'Available for borrowing over the weekend.',
-    seller: CURRENT_USER,
-    groupName: 'Design Studio',
-    postedAt: 'Yesterday',
-    likes: 8,
-    category: 'Living',
+    category: ItemCategory.BOOKS,
     requesters: []
   },
   {
     id: 'i4',
     title: 'Mechanical Keyboard',
     price: 85000,
-    type: ItemType.SALE,
+    type: ItemType.SELL,
     status: ItemStatus.AVAILABLE,
     image: 'https://picsum.photos/id/366/400/400',
     description: 'Blue switches. Clicky.',
@@ -144,7 +137,7 @@ export const MOCK_ITEMS: ItemWithUI[] = [
     groupName: 'Incheon Univ. IT Dept',
     postedAt: '1 day ago',
     likes: 22,
-    category: 'Appliances',
+    category: ItemCategory.DIGITAL_DEVICE,
     requesters: []
   }
 ];

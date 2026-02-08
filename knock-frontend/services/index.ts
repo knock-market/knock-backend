@@ -36,7 +36,7 @@ export const itemsApi = {
         title: string;
         description: string;
         price: number;
-        itemType: 'SALE' | 'FREE' | 'RENT';
+        itemType: 'SELL' | 'GIVE';
         category: string;
         imageUrls: string[];
     }) => client.post('/items', data),

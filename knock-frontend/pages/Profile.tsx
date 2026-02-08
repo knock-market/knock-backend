@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CURRENT_USER } from '../constants';
 import { authApi } from '../services';
-import { Settings, Clock, Heart, MessageCircle, CheckCircle, ArrowLeft, Package, UserX, Info } from 'lucide-react';
+import { Settings, MessageCircle, CheckCircle, ArrowLeft, Package, UserX, Info } from 'lucide-react';
 import { ProfileSkeleton } from '../components/Skeletons';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { MemberResponseDto, User } from '../types';
@@ -125,35 +125,6 @@ const Profile: React.FC = () => {
                     <div className="bg-white flex-1 p-4 rounded-2xl text-center shadow-sm border border-gray-100">
                         <p className="text-[10px] text-emerald-500 uppercase font-bold mb-2 tracking-wider">Active</p>
                         <p className="text-xl font-bold text-emerald-500">3</p>
-                    </div>
-                </div>
-
-                {/* Badges */}
-                <div>
-                    <div className="flex justify-between items-center mb-4 px-1">
-                        <h2 className="font-bold text-gray-900 text-lg">My Trust Badges</h2>
-                        <button
-                            onClick={handleSeeAll}
-                            className="text-emerald-500 text-xs font-bold hover:text-emerald-600 transition-colors"
-                        >
-                            See All
-                        </button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-white p-5 rounded-2xl border border-gray-100 flex flex-col items-center text-center shadow-sm">
-                            <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center mb-3 text-amber-500 border border-amber-100">
-                                <Clock size={24} />
-                            </div>
-                            <h3 className="font-bold text-sm text-gray-900">Punctual x15</h3>
-                            <p className="text-[10px] text-gray-400 mt-1">Always shows up on time</p>
-                        </div>
-                        <div className="bg-white p-5 rounded-2xl border border-gray-100 flex flex-col items-center text-center shadow-sm">
-                            <div className="w-12 h-12 bg-pink-50 rounded-full flex items-center justify-center mb-3 text-pink-500 border border-pink-100">
-                                <Heart size={24} />
-                            </div>
-                            <h3 className="font-bold text-sm text-gray-900">Kind & Friendly x22</h3>
-                            <p className="text-[10px] text-gray-400 mt-1">Great attitude</p>
-                        </div>
                     </div>
                 </div>
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Users, Heart, User, Bell } from 'lucide-react';
+import { Users, Bookmark, User, Bell } from 'lucide-react';
 
 const BottomNav: React.FC = () => {
   const navigate = useNavigate();
@@ -8,7 +8,7 @@ const BottomNav: React.FC = () => {
 
   const navItems = [
     { icon: Users, label: 'Groups', path: '/home' },
-    { icon: Heart, label: 'Likes', path: '/saved' },
+    { icon: Bookmark, label: 'Saved', path: '/saved' },
     { icon: Bell, label: 'Notifications', path: '/notifications' },
     { icon: User, label: 'MyPage', path: '/profile' },
   ];
@@ -23,19 +23,18 @@ const BottomNav: React.FC = () => {
         // /notifications is for Notifications.
         // /profile is for My Page.
         // /manage-items should highlight My Page.
-        const isActive = location.pathname === item.path || 
+        const isActive = location.pathname === item.path ||
           (item.label === 'Groups' && (location.pathname === '/home' || location.pathname === '/groups' || location.pathname.startsWith('/group/'))) ||
           (item.label === 'MyPage' && location.pathname === '/manage-items');
-        
+
         return (
           <button
             key={item.label}
             onClick={() => navigate(item.path)}
-            className={`flex flex-col items-center justify-center space-y-1.5 w-full transition-all duration-200 active:scale-95 ${
-              isActive ? 'text-emerald-600' : 'text-gray-400 hover:text-gray-600'
-            }`}
+            className={`flex flex-col items-center justify-center space-y-1.5 w-full transition-all duration-200 active:scale-95 ${isActive ? 'text-emerald-600' : 'text-gray-400 hover:text-gray-600'
+              }`}
           >
-            <item.icon size={26} strokeWidth={isActive ? 2.5 : 2} fill={isActive && item.label === 'Likes' ? 'currentColor' : 'none'} />
+            <item.icon size={26} strokeWidth={isActive ? 2.5 : 2} fill={isActive && item.label === 'Saved' ? 'currentColor' : 'none'} />
             <span className={`text-[10px] font-medium ${isActive ? 'font-bold' : ''}`}>
               {item.label}
             </span>

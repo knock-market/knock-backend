@@ -1,8 +1,15 @@
 // ============== Enums (Match Backend) ==============
 export enum ItemType {
-  SALE = 'SALE',
-  FREE = 'FREE',
-  RENT = 'RENT'
+  SELL = 'SELL',
+  GIVE = 'GIVE'
+}
+
+export enum ItemCategory {
+  CLOTHING = 'CLOTHING',
+  FURNITURE = 'FURNITURE',
+  ETC = 'ETC',
+  DIGITAL_DEVICE = 'DIGITAL_DEVICE',
+  BOOKS = 'BOOKS'
 }
 
 export enum ItemStatus {
@@ -44,7 +51,7 @@ export interface ItemSummaryResponseDto {
   title: string;
   price: number;
   type: ItemType;
-  category: string;
+  category: ItemCategory;
   status: ItemStatus;
   thumbnailUrl?: string;
   writerId?: string | number;
@@ -57,7 +64,7 @@ export interface ItemResponseDto {
   description: string;
   price: number;
   type: ItemType;
-  category: string;
+  category: ItemCategory;
   status: ItemStatus;
   imageUrls: string[];
   writerId?: string | number;

@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, Package, Loader2 } from 'lucide-react';
+import { Bookmark, Package, Loader2 } from 'lucide-react';
 import { bookmarksApi } from '../services';
 import { MOCK_ITEMS } from '../constants';
-import { ItemType, MyBookmarkResponseDto, ItemWithUI } from '../types';
+import { ItemType, MyBookmarkResponseDto, ItemWithUI, ItemCategory } from '../types';
 import ImageWithFallback from '../components/ImageWithFallback';
 
-const Likes: React.FC = () => {
+const Bookmarks: React.FC = () => {
   const navigate = useNavigate();
-  const [likedItems, setLikedItems] = useState<ItemWithUI[]>([]);
+  const [savedItems, setSavedItems] = useState<ItemWithUI[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -23,16 +23,16 @@ const Likes: React.FC = () => {
           price: b.price,
           thumbnailUrl: b.thumbnailUrl,
           image: b.thumbnailUrl,
-          type: b.price === 0 ? ItemType.FREE : ItemType.SALE,
+          type: b.price === 0 ? ItemType.GIVE : ItemType.SELL,
           status: 'AVAILABLE' as any,
-          category: '',
+          category: ItemCategory.ETC,
           postedAt: b.createdAt ? new Date(b.createdAt).toLocaleDateString() : ''
         }));
-        setLikedItems(items);
+        setSavedItems(items);
       })
       .catch(() => {
         // Fallback to mock data
-        setLikedItems([MOCK_ITEMS[0], MOCK_ITEMS[2]]);
+        setSavedItems([MOCK_ITEMS[0], MOCK_ITEMS[2]]);
       })
       .finally(() => setIsLoading(false));
   }, []);
@@ -48,12 +48,12 @@ const Likes: React.FC = () => {
   return (
     <div className="bg-white min-h-screen pb-24 max-w-md mx-auto">
       <div className="px-6 py-5 flex items-center border-b border-gray-100 sticky top-0 bg-white z-10">
-        <h1 className="text-xl font-bold text-gray-900">Liked Items</h1>
+        <h1 className="text-xl font-bold text-gray-900">Saved Items</h1>
       </div>
 
       <div className="p-4 space-y-4">
-        {likedItems.length > 0 ? (
-          likedItems.map((item) => (
+        {savedItems.length > 0 ? (
+          savedItems.map((item) => (
             <div
               key={item.id}
               onClick={() => navigate(`/item/${item.id}`)}
@@ -66,9 +66,9 @@ const Likes: React.FC = () => {
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute top-1 right-1 bg-white/80 backdrop-blur-sm p-1.5 rounded-full">
-                  <Heart size={14} className="text-red-500 fill-current" />
+                  <Bookmark size={14} className="text-emerald-600 fill-current" />
                 </div>
-                {item.type === ItemType.FREE && (
+                {item.type === ItemType.GIVE && (
                   <span className="absolute bottom-0 left-0 right-0 bg-emerald-500/90 text-white text-[10px] font-bold px-2 py-0.5 text-center">FREE</span>
                 )}
               </div>
@@ -79,7 +79,7 @@ const Likes: React.FC = () => {
                   <h3 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug">{item.title}</h3>
                 </div>
                 <div className="mt-auto">
-                  <span className={`font-bold text-sm ${item.type === ItemType.FREE ? 'text-emerald-600' : 'text-gray-900'}`}>
+                  <span className={`font-bold text-sm ${item.type === ItemType.GIVE ? 'text-emerald-600' : 'text-gray-900'}`}>
                     {item.price === 0 ? 'Free' : `₩${item.price.toLocaleString()}`}
                   </span>
                   {item.postedAt && <p className="text-[10px] text-gray-400 mt-1">{item.postedAt}</p>}
@@ -90,11 +90,11 @@ const Likes: React.FC = () => {
         ) : (
           <div className="flex flex-col items-center justify-center py-32 text-center">
             <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center text-gray-300 mb-6 group-hover:scale-110 transition-transform">
-              <Heart size={40} strokeWidth={1.5} className="text-gray-200" />
+              <Bookmark size={40} strokeWidth={1.5} className="text-gray-200" />
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">No liked items yet</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">No saved items yet</h3>
             <p className="text-sm text-gray-500 max-w-[200px] mx-auto leading-relaxed">
-              Items you heart will appear here so you can find them easily later.
+              Items you bookmark will appear here so you can find them easily later.
             </p>
           </div>
         )}
@@ -103,4 +103,4 @@ const Likes: React.FC = () => {
   );
 };
 
-export default Likes;
+export default Bookmarks;
