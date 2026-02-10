@@ -11,13 +11,15 @@ export const authApi = {
         client.post('/members', data),
     logout: () => client.post('/auth/logout'),
     getMe: () => client.get('/members/my'),
+    updateProfile: (data: { nickname?: string; profileImageUrl?: string }) =>
+        client.put('/members/my', data),
 };
 
 // ============== Group API ==============
 export const groupsApi = {
     getMyGroups: () => client.get('/groups/my'),
     getGroup: (groupId: number | string) => client.get(`/groups/${groupId}`),
-    createGroup: (data: { name: string; description?: string }) =>
+    createGroup: (data: { name: string; description?: string; imageUrl?: string; inviteCode?: string }) =>
         client.post('/groups', data),
     createInviteCode: (groupId: number, duration: number = 24) =>
         client.post(`/groups/${groupId}/invite-codes`, { duration }),
