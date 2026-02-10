@@ -23,7 +23,7 @@ public enum ErrorType {
 	// notification
 	NOTIFICATION_NOT_FOUND(HttpStatus.BAD_REQUEST, ErrorCode.N001, "알림을 찾을 수 없습니다.", LogLevel.WARN),
 
-	//group
+	// group
 	INVALID_INVITE_CODE(HttpStatus.BAD_REQUEST, ErrorCode.G001, "옳바르지 않은 그룹 초대 코드입니다.", LogLevel.WARN),
 	ALREADY_MEMBER(HttpStatus.BAD_REQUEST, ErrorCode.G002, "이미 참여한 그룹입니다.", LogLevel.WARN),
 	GROUP_NOT_FOUND(HttpStatus.BAD_REQUEST, ErrorCode.G003, "그룹을 찾을 수 없습니다.", LogLevel.WARN),
