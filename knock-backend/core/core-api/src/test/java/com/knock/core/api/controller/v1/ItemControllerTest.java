@@ -57,21 +57,21 @@ class ItemControllerTest extends RestDocsTest {
 
 		// when & then
 		restDocGiven().contentType(ContentType.JSON)
-				.body(request)
-				.post("/api/v1/items")
-				.then()
-				.status(HttpStatus.OK)
-				.apply(document("api/v1/items/create", requestPreprocessor(), responsePreprocessor(),
-						relaxedRequestFields(fieldWithPath("groupId").type(JsonFieldType.NUMBER).description("그룹 ID"),
-								fieldWithPath("title").type(JsonFieldType.STRING).description("상품 제목"),
-								fieldWithPath("description").type(JsonFieldType.STRING).description("상품 설명"),
-								fieldWithPath("price").type(JsonFieldType.NUMBER).description("가격"),
-								fieldWithPath("itemType").type(JsonFieldType.STRING).description("거래 유형 (SELL, BUY)"),
-								fieldWithPath("category").type(JsonFieldType.STRING).description("카테고리"),
-								fieldWithPath("imageUrls").type(JsonFieldType.ARRAY).description("이미지 URL 목록")),
-						relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
-								fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("생성된 상품 ID"),
-								fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+			.body(request)
+			.post("/api/v1/items")
+			.then()
+			.status(HttpStatus.OK)
+			.apply(document("api/v1/items/create", requestPreprocessor(), responsePreprocessor(),
+					relaxedRequestFields(fieldWithPath("groupId").type(JsonFieldType.NUMBER).description("그룹 ID"),
+							fieldWithPath("title").type(JsonFieldType.STRING).description("상품 제목"),
+							fieldWithPath("description").type(JsonFieldType.STRING).description("상품 설명"),
+							fieldWithPath("price").type(JsonFieldType.NUMBER).description("가격"),
+							fieldWithPath("itemType").type(JsonFieldType.STRING).description("거래 유형 (SELL, BUY)"),
+							fieldWithPath("category").type(JsonFieldType.STRING).description("카테고리"),
+							fieldWithPath("imageUrls").type(JsonFieldType.ARRAY).description("이미지 URL 목록")),
+					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
+							fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("생성된 상품 ID"),
+							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}
 
 	@Test
@@ -85,22 +85,22 @@ class ItemControllerTest extends RestDocsTest {
 
 		// when & then
 		restDocGiven().pathParam("itemId", TEST_ITEM_ID)
-				.get("/api/v1/items/{itemId}")
-				.then()
-				.status(HttpStatus.OK)
-				.apply(document("api/v1/items/get", requestPreprocessor(), responsePreprocessor(),
-						pathParameters(parameterWithName("itemId").description("상품 ID")),
-						relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
-								fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("상품 ID"),
-								fieldWithPath("data.title").type(JsonFieldType.STRING).description("제목"),
-								fieldWithPath("data.description").type(JsonFieldType.STRING).description("설명"),
-								fieldWithPath("data.price").type(JsonFieldType.NUMBER).description("가격"),
-								fieldWithPath("data.type").type(JsonFieldType.STRING).description("거래 유형"),
-								fieldWithPath("data.category").type(JsonFieldType.STRING).description("카테고리"),
-								fieldWithPath("data.status").type(JsonFieldType.STRING).description("상품 상태"),
-								fieldWithPath("data.imageUrls").type(JsonFieldType.ARRAY).description("이미지 URL 목록"),
-								fieldWithPath("data.writerId").type(JsonFieldType.NUMBER).description("판매자 ID"),
-								fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+			.get("/api/v1/items/{itemId}")
+			.then()
+			.status(HttpStatus.OK)
+			.apply(document("api/v1/items/get", requestPreprocessor(), responsePreprocessor(),
+					pathParameters(parameterWithName("itemId").description("상품 ID")),
+					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
+							fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("상품 ID"),
+							fieldWithPath("data.title").type(JsonFieldType.STRING).description("제목"),
+							fieldWithPath("data.description").type(JsonFieldType.STRING).description("설명"),
+							fieldWithPath("data.price").type(JsonFieldType.NUMBER).description("가격"),
+							fieldWithPath("data.type").type(JsonFieldType.STRING).description("거래 유형"),
+							fieldWithPath("data.category").type(JsonFieldType.STRING).description("카테고리"),
+							fieldWithPath("data.status").type(JsonFieldType.STRING).description("상품 상태"),
+							fieldWithPath("data.imageUrls").type(JsonFieldType.ARRAY).description("이미지 URL 목록"),
+							fieldWithPath("data.writerId").type(JsonFieldType.NUMBER).description("판매자 ID"),
+							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}
 
 	@Test
@@ -114,21 +114,21 @@ class ItemControllerTest extends RestDocsTest {
 
 		// when & then
 		restDocGiven().pathParam("groupId", TEST_GROUP_ID)
-				.get("/api/v1/groups/{groupId}/items")
-				.then()
-				.status(HttpStatus.OK)
-				.apply(document("api/v1/items/list-by-group", requestPreprocessor(), responsePreprocessor(),
-						pathParameters(parameterWithName("groupId").description("그룹 ID")),
-						relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
-								fieldWithPath("data[].id").type(JsonFieldType.NUMBER).description("상품 ID"),
-								fieldWithPath("data[].title").type(JsonFieldType.STRING).description("제목"),
-								fieldWithPath("data[].price").type(JsonFieldType.NUMBER).description("가격"),
-								fieldWithPath("data[].type").type(JsonFieldType.STRING).description("거래 유형"),
-								fieldWithPath("data[].category").type(JsonFieldType.STRING).description("카테고리"),
-								fieldWithPath("data[].status").type(JsonFieldType.STRING).description("상품 상태"),
-								fieldWithPath("data[].thumbnailUrl").type(JsonFieldType.STRING).description("썸네일 URL"),
-								fieldWithPath("data[].writerId").type(JsonFieldType.NUMBER).description("판매자 ID"),
-								fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+			.get("/api/v1/groups/{groupId}/items")
+			.then()
+			.status(HttpStatus.OK)
+			.apply(document("api/v1/items/list-by-group", requestPreprocessor(), responsePreprocessor(),
+					pathParameters(parameterWithName("groupId").description("그룹 ID")),
+					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
+							fieldWithPath("data[].id").type(JsonFieldType.NUMBER).description("상품 ID"),
+							fieldWithPath("data[].title").type(JsonFieldType.STRING).description("제목"),
+							fieldWithPath("data[].price").type(JsonFieldType.NUMBER).description("가격"),
+							fieldWithPath("data[].type").type(JsonFieldType.STRING).description("거래 유형"),
+							fieldWithPath("data[].category").type(JsonFieldType.STRING).description("카테고리"),
+							fieldWithPath("data[].status").type(JsonFieldType.STRING).description("상품 상태"),
+							fieldWithPath("data[].thumbnailUrl").type(JsonFieldType.STRING).description("썸네일 URL"),
+							fieldWithPath("data[].writerId").type(JsonFieldType.NUMBER).description("판매자 ID"),
+							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}
 
 	@Test
@@ -142,19 +142,19 @@ class ItemControllerTest extends RestDocsTest {
 
 		// when & then
 		restDocGiven().get("/api/v1/items/my-selling")
-				.then()
-				.status(HttpStatus.OK)
-				.apply(document("api/v1/items/my-selling", requestPreprocessor(), responsePreprocessor(),
-						relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
-								fieldWithPath("data[].id").type(JsonFieldType.NUMBER).description("상품 ID"),
-								fieldWithPath("data[].title").type(JsonFieldType.STRING).description("제목"),
-								fieldWithPath("data[].price").type(JsonFieldType.NUMBER).description("가격"),
-								fieldWithPath("data[].type").type(JsonFieldType.STRING).description("거래 유형"),
-								fieldWithPath("data[].category").type(JsonFieldType.STRING).description("카테고리"),
-								fieldWithPath("data[].status").type(JsonFieldType.STRING).description("상품 상태"),
-								fieldWithPath("data[].thumbnailUrl").type(JsonFieldType.STRING).description("썸네일 URL"),
-								fieldWithPath("data[].writerId").type(JsonFieldType.NUMBER).description("판매자 ID"),
-								fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+			.then()
+			.status(HttpStatus.OK)
+			.apply(document("api/v1/items/my-selling", requestPreprocessor(), responsePreprocessor(),
+					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
+							fieldWithPath("data[].id").type(JsonFieldType.NUMBER).description("상품 ID"),
+							fieldWithPath("data[].title").type(JsonFieldType.STRING).description("제목"),
+							fieldWithPath("data[].price").type(JsonFieldType.NUMBER).description("가격"),
+							fieldWithPath("data[].type").type(JsonFieldType.STRING).description("거래 유형"),
+							fieldWithPath("data[].category").type(JsonFieldType.STRING).description("카테고리"),
+							fieldWithPath("data[].status").type(JsonFieldType.STRING).description("상품 상태"),
+							fieldWithPath("data[].thumbnailUrl").type(JsonFieldType.STRING).description("썸네일 URL"),
+							fieldWithPath("data[].writerId").type(JsonFieldType.NUMBER).description("판매자 ID"),
+							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}
 
 }

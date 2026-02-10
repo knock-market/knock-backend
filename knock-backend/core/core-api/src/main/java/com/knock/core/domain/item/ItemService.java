@@ -6,6 +6,7 @@ import com.knock.core.domain.item.dto.ItemListResult;
 import com.knock.core.domain.item.dto.ItemReadResult;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
+import com.knock.storage.db.core.bookmark.BookmarkRepository;
 import com.knock.storage.db.core.group.Group;
 import com.knock.storage.db.core.group.GroupRepository;
 import com.knock.storage.db.core.item.Item;
@@ -30,14 +31,14 @@ public class ItemService {
 
 	private final GroupRepository groupRepository;
 
-	private final com.knock.storage.db.core.bookmark.BookmarkRepository bookmarkRepository;
+	private final BookmarkRepository bookmarkRepository;
 
 	@Transactional
 	public ItemCreateResult createItem(Long memberId, Long groupId, ItemCreateData data) {
 		Member member = memberRepository.findById(memberId)
-				.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 		Group group = groupRepository.findGroupByGroupId(groupId)
-				.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
+			.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
 
 		Item item = Item.create(group, member, data.title(), data.description(), data.price(), data.type(),
 				data.category());
@@ -49,7 +50,7 @@ public class ItemService {
 	@Transactional(readOnly = true)
 	public ItemReadResult getItem(Long itemId) {
 		Item item = itemRepository.findByIdWithImages(itemId)
-				.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
+			.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
 
 		return ItemReadResult.from(item, item.getImages());
 	}

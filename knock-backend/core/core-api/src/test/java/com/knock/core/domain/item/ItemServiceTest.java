@@ -8,6 +8,7 @@ import com.knock.core.enums.ItemCategory;
 import com.knock.core.enums.ItemType;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
+import com.knock.storage.db.core.bookmark.BookmarkRepository;
 import com.knock.storage.db.core.group.Group;
 import com.knock.storage.db.core.group.GroupRepository;
 import com.knock.storage.db.core.item.Item;
@@ -48,6 +49,9 @@ class ItemServiceTest {
 
 	@Mock
 	private GroupRepository groupRepository;
+
+	@Mock
+	private BookmarkRepository bookmarkRepository;
 
 	@Mock
 	private RedisTemplate<String, Object> redisTemplate;
