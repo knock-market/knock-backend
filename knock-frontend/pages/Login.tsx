@@ -33,7 +33,7 @@ const Login: React.FC = () => {
             {/* Background Decor */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-bl-full -mr-20 -mt-20 opacity-60"></div>
 
-            <div className="flex-1 flex flex-col px-8 pt-20 z-10">
+            <div className="flex-1 flex flex-col px-8 pt-20 z-10 relative">
                 <button
                     onClick={() => navigate('/')}
                     className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-400 mb-8"
@@ -104,6 +104,13 @@ const Login: React.FC = () => {
                         )}
                     </button>
                 </form>
+
+                <div className="mt-6 text-center">
+                    <p className="text-[11px] text-gray-400 leading-relaxed">
+                        By logging in, you agree to our <br />
+                        <Link to="/terms" className="underline hover:text-emerald-600 transition-colors">Terms of Service</Link> and <Link to="/privacy" className="underline hover:text-emerald-600 transition-colors">Privacy Policy</Link>
+                    </p>
+                </div>
 
                 <p className="text-center text-gray-500 mt-auto pb-10">
                     Don't have an account?{' '}

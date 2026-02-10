@@ -52,7 +52,7 @@ const Signup: React.FC = () => {
             {/* Background Decor */}
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-50 rounded-tr-full -ml-20 -mb-20 opacity-60"></div>
 
-            <div className="flex-1 flex flex-col px-8 pt-16 z-10 pb-10">
+            <div className="flex-1 flex flex-col px-8 pt-16 z-10 pb-10 relative">
                 <button
                     onClick={() => navigate('/')}
                     className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-400 mb-6"
@@ -164,7 +164,7 @@ const Signup: React.FC = () => {
                 </form>
 
                 <p className="text-center text-xs text-gray-400 mt-6 px-4">
-                    By signing up, you agree to our <span className="underline font-medium">Terms</span> & <span className="underline font-medium">Privacy Policy</span>.
+                    By signing up, you agree to our <Link to="/terms" className="underline font-medium hover:text-emerald-600">Terms of Service</Link> & <span className="underline font-medium hover:text-emerald-600 cursor-pointer">Privacy Policy</span>.
                 </p>
 
                 <p className="text-center text-gray-500 mt-8">
