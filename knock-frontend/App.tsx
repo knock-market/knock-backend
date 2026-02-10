@@ -16,6 +16,8 @@ import ManageItemDetail from './pages/ManageItemDetail';
 import Bookmarks from './pages/Bookmarks';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import BottomNav from './components/BottomNav';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -58,6 +60,8 @@ const App: React.FC = () => {
           <Route path="/settings/blocked" element={<BlockedUsers />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/saved" element={<Bookmarks />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
         </Routes>
       </Layout>
     </HashRouter>
