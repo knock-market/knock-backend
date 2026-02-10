@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Lock, ArrowRight } from 'lucide-react';
 import { authApi } from '../services';
 
@@ -12,7 +12,7 @@ const Onboarding: React.FC = () => {
       <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-100 rounded-bl-full opacity-50 -mr-16 -mt-16"></div>
       <div className="absolute bottom-0 left-0 w-48 h-48 bg-amber-100 rounded-tr-full opacity-50 -ml-16 -mb-16"></div>
 
-      <div className="flex-1 flex flex-col items-center justify-center px-8 z-10">
+      <div className="flex-1 flex flex-col items-center justify-center px-8 z-10 relative">
         <div className="bg-amber-500 p-6 rounded-3xl mb-8 shadow-xl rotate-3">
           <Lock className="text-white w-12 h-12" strokeWidth={2.5} />
         </div>
@@ -85,9 +85,9 @@ const Onboarding: React.FC = () => {
           </button>
         </div>
 
-        <p className="mt-8 text-xs text-center text-gray-400">
+        <p className="mt-8 text-xs text-center text-gray-400 mb-6">
           By continuing, you agree to our<br />
-          <span className="underline cursor-pointer">Terms of Service</span> and <span className="underline cursor-pointer">Privacy Policy</span>.
+          <Link to="/terms" className="underline font-medium hover:text-emerald-600">Terms of Service</Link> and <Link to="/privacy" className="underline font-medium hover:text-emerald-600">Privacy Policy</Link>.
         </p>
       </div>
     </div>

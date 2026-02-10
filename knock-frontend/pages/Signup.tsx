@@ -164,7 +164,7 @@ const Signup: React.FC = () => {
                 </form>
 
                 <p className="text-center text-xs text-gray-400 mt-6 px-4">
-                    By signing up, you agree to our <Link to="/terms" className="underline font-medium hover:text-emerald-600">Terms of Service</Link> & <span className="underline font-medium hover:text-emerald-600 cursor-pointer">Privacy Policy</span>.
+                    By signing up, you agree to our <Link to="/terms" className="underline font-medium hover:text-emerald-600">Terms of Service</Link> & <Link to="/privacy" className="underline font-medium hover:text-emerald-600">Privacy Policy</Link>.
                 </p>
 
                 <p className="text-center text-gray-500 mt-8">
