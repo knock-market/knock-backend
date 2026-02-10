@@ -38,4 +38,17 @@ interface ReservationJpaRepository extends JpaRepository<Reservation, Long> {
 	@Query("SELECT r FROM Reservation r JOIN FETCH r.item i JOIN FETCH r.member JOIN FETCH i.member WHERE r.id = :id")
 	Optional<Reservation> findByIdWithItemAndMember(Long id);
 
+	Optional<Reservation> findByItem_IdAndStatus(Long itemId, ReservationStatus status);
+
+	@Query("""
+			SELECT r FROM Reservation r
+						JOIN FETCH r.item i
+						JOIN FETCH i.member seller
+						JOIN FETCH r.member buyer
+						WHERE i.id = :itemId
+						AND r.member.id = :reviewerId
+						AND r.status = 'COMPLETED'
+			""")
+	Optional<Reservation> findReservationForReview(@Param("reviewerId") Long reviewerId, @Param("itemId") Long itemId);
+
 }
