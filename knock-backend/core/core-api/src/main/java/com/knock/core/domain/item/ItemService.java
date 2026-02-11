@@ -6,11 +6,9 @@ import com.knock.core.domain.item.dto.ItemListResult;
 import com.knock.core.domain.item.dto.ItemReadResult;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
-import com.knock.storage.db.core.bookmark.BookmarkRepository;
 import com.knock.storage.db.core.group.Group;
 import com.knock.storage.db.core.group.GroupRepository;
 import com.knock.storage.db.core.item.Item;
-import com.knock.storage.db.core.item.ItemImage;
 import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
@@ -30,8 +28,6 @@ public class ItemService {
 	private final MemberRepository memberRepository;
 
 	private final GroupRepository groupRepository;
-
-	private final BookmarkRepository bookmarkRepository;
 
 	@Transactional
 	public ItemCreateResult createItem(Long memberId, Long groupId, ItemCreateData data) {
@@ -57,24 +53,20 @@ public class ItemService {
 
 	@Transactional(readOnly = true)
 	public List<ItemListResult> getItemsByGroup(Long groupId) {
-		List<Item> items = itemRepository.findByGroupId(groupId);
-
-		return items.stream().map(item -> {
-			List<ItemImage> images = item.getImages();
-			String thumbnailUrl = images.isEmpty() ? null : images.get(0).getImageUrl();
-			long likesCount = bookmarkRepository.countByItemId(item.getId());
+		return itemRepository.findByGroupIdWithLikes(groupId).stream().map(row -> {
+			Item item = (Item) row[0];
+			String thumbnailUrl = (String) row[1];
+			long likesCount = (Long) row[2];
 			return ItemListResult.from(item, thumbnailUrl, likesCount);
 		}).toList();
 	}
 
 	@Transactional(readOnly = true)
 	public List<ItemListResult> getMySellingItems(Long memberId) {
-		List<Item> items = itemRepository.findByMemberId(memberId);
-
-		return items.stream().map(item -> {
-			List<ItemImage> images = item.getImages();
-			String thumbnailUrl = images.isEmpty() ? null : images.getFirst().getImageUrl();
-			long likesCount = bookmarkRepository.countByItemId(item.getId());
+		return itemRepository.findByMemberIdWithLikes(memberId).stream().map(row -> {
+			Item item = (Item) row[0];
+			String thumbnailUrl = (String) row[1];
+			long likesCount = (Long) row[2];
 			return ItemListResult.from(item, thumbnailUrl, likesCount);
 		}).toList();
 	}

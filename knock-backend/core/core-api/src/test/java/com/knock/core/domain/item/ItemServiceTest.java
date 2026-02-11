@@ -8,7 +8,6 @@ import com.knock.core.enums.ItemCategory;
 import com.knock.core.enums.ItemType;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
-import com.knock.storage.db.core.bookmark.BookmarkRepository;
 import com.knock.storage.db.core.group.Group;
 import com.knock.storage.db.core.group.GroupRepository;
 import com.knock.storage.db.core.item.Item;
@@ -24,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,9 +49,6 @@ class ItemServiceTest {
 
 	@Mock
 	private GroupRepository groupRepository;
-
-	@Mock
-	private BookmarkRepository bookmarkRepository;
 
 	@Mock
 	private RedisTemplate<String, Object> redisTemplate;
@@ -160,14 +157,16 @@ class ItemServiceTest {
 			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
 			Item item = createItem(TEST_ITEM_ID, group, member);
 
-			given(itemRepository.findByGroupId(TEST_GROUP_ID)).willReturn(List.of(item));
+			List<Object[]> mockResult = new ArrayList<>();
+			mockResult.add(new Object[] { item, TEST_IMAGE_URL, 5L });
+			given(itemRepository.findByGroupIdWithLikes(TEST_GROUP_ID)).willReturn(mockResult);
 
 			// when
 			List<ItemListResult> results = itemService.getItemsByGroup(TEST_GROUP_ID);
 
 			// then
 			assertThat(results).hasSize(1);
-			assertThat(results.get(0).id()).isEqualTo(TEST_ITEM_ID);
+			assertThat(results.getFirst().id()).isEqualTo(TEST_ITEM_ID);
 		}
 
 	}
@@ -184,14 +183,16 @@ class ItemServiceTest {
 			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
 			Item item = createItem(TEST_ITEM_ID, group, member);
 
-			given(itemRepository.findByMemberId(TEST_MEMBER_ID)).willReturn(List.of(item));
+			List<Object[]> mockResult = new ArrayList<>();
+			mockResult.add(new Object[] { item, TEST_IMAGE_URL, 3L });
+			given(itemRepository.findByMemberIdWithLikes(TEST_MEMBER_ID)).willReturn(mockResult);
 
 			// when
 			List<ItemListResult> results = itemService.getMySellingItems(TEST_MEMBER_ID);
 
 			// then
 			assertThat(results).hasSize(1);
-			assertThat(results.get(0).id()).isEqualTo(TEST_ITEM_ID);
+			assertThat(results.getFirst().id()).isEqualTo(TEST_ITEM_ID);
 		}
 
 	}

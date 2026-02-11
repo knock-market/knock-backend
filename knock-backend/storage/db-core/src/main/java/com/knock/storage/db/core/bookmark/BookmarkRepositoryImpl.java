@@ -1,7 +1,5 @@
 package com.knock.storage.db.core.bookmark;
 
-import com.knock.storage.db.core.item.Item;
-import com.knock.storage.db.core.member.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -30,16 +28,6 @@ public class BookmarkRepositoryImpl implements BookmarkRepository {
 	}
 
 	@Override
-	public Optional<Bookmark> findByMemberAndItem(Member member, Item item) {
-		return jpaRepository.findByMemberAndItem(member, item);
-	}
-
-	@Override
-	public boolean existsByMemberAndItem(Member member, Item item) {
-		return jpaRepository.existsByMemberAndItem(member, item);
-	}
-
-	@Override
 	public Optional<Bookmark> findByMemberAndItemWithDeleted(Long memberId, Long itemId) {
 		return jpaRepository.findByMemberAndItemWithDeleted(memberId, itemId);
 	}
@@ -52,11 +40,6 @@ public class BookmarkRepositoryImpl implements BookmarkRepository {
 	@Override
 	public List<Bookmark> findAllByMemberIdJoined(Long memberId) {
 		return jpaRepository.findAllByMemberIdJoined(memberId);
-	}
-
-	@Override
-	public long countByItemId(Long itemId) {
-		return jpaRepository.countByItemId(itemId);
 	}
 
 }
