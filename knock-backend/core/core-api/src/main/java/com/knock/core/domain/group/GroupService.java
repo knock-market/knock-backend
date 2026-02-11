@@ -30,9 +30,12 @@ public class GroupService {
 	private final MemberRepository memberRepository;
 
 	@Transactional
-	public Long createGroup(Long memberId, GroupCreateData data) {
+	public GroupResult createGroup(Long memberId, GroupCreateData data) {
 		String inviteCode = generateUniqueInviteCode();
 		Group group = Group.create(data.name(), data.description(), inviteCode, memberId);
+		if (data.imageUrl() != null && !data.imageUrl().isBlank()) {
+			group.updateCoverImage(data.imageUrl());
+		}
 		Group savedGroup = groupRepository.save(group);
 
 		Member ownerMember = memberRepository.findById(memberId)
@@ -40,7 +43,7 @@ public class GroupService {
 
 		groupRepository.saveMember(savedGroup, ownerMember, GroupMember.GroupRole.ADMIN);
 
-		return savedGroup.getId();
+		return GroupResult.from(savedGroup, 1L);
 	}
 
 	@Transactional

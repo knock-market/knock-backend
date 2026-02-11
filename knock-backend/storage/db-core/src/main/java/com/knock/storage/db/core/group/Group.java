@@ -71,4 +71,8 @@ public class Group extends BaseEntity {
 		return inviteCodeExpiresAt != null && inviteCodeExpiresAt.isBefore(LocalDateTime.now());
 	}
 
+	public void updateCoverImage(String coverImage) {
+		this.coverImage = coverImage;
+	}
+
 }

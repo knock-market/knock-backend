@@ -21,7 +21,7 @@ const CreateGroup: React.FC = () => {
 
         setIsUploading(true);
         try {
-            const res = await imagesApi.upload(file);
+            const res = await imagesApi.upload(file, 'groups');
             setImageUrl(res.data.imageUrl);
         } catch (err) {
             console.error("Upload failed:", err);
@@ -46,15 +46,14 @@ const CreateGroup: React.FC = () => {
 
         // Call real API
         groupsApi.createGroup(groupData)
-            .then(() => {
-                const code = groupData.inviteCode || Math.random().toString(36).substring(2, 8).toUpperCase();
+            .then((res) => {
+                const createdGroup = res.data.data;
+                const code = createdGroup.inviteCode;
                 setInviteLink(`https://knockmarket.app/join/${code}`);
             })
             .catch(err => {
                 console.error("Failed to create group:", err);
-                // Fallback for demo if backend isn't ready
-                const code = groupData.inviteCode || Math.random().toString(36).substring(2, 8).toUpperCase();
-                setInviteLink(`https://knockmarket.app/join/${code}`);
+                alert(err.response?.data?.message || "Failed to create group. Please try again.");
             })
             .finally(() => {
                 setIsSubmitting(false);

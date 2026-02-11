@@ -45,8 +45,11 @@ class GroupControllerTest extends RestDocsTest {
 	@DisplayName("그룹 생성 성공")
 	void createGroup_success() {
 		// given
-		GroupCreateRequestDto request = new GroupCreateRequestDto(TEST_GROUP_NAME, TEST_GROUP_DESCRIPTION);
-		given(groupService.createGroup(anyLong(), any())).willReturn(TEST_GROUP_ID);
+		GroupCreateRequestDto request = new GroupCreateRequestDto(TEST_GROUP_NAME, TEST_GROUP_DESCRIPTION,
+				TEST_IMAGE_URL);
+		GroupResult result = new GroupResult(TEST_GROUP_ID, TEST_GROUP_NAME, TEST_GROUP_DESCRIPTION, TEST_INVITE_CODE,
+				TEST_MEMBER_ID, 1L, TEST_IMAGE_URL);
+		given(groupService.createGroup(anyLong(), any())).willReturn(result);
 
 		// when & then
 		restDocGiven().contentType(ContentType.JSON)
@@ -56,9 +59,13 @@ class GroupControllerTest extends RestDocsTest {
 			.status(HttpStatus.OK)
 			.apply(document("api/v1/groups/create", requestPreprocessor(), responsePreprocessor(),
 					requestFields(fieldWithPath("name").type(JsonFieldType.STRING).description("그룹 이름"),
+							fieldWithPath("imageUrl").type(JsonFieldType.STRING).description("그룹 이미지 URL").optional(),
 							fieldWithPath("description").type(JsonFieldType.STRING).description("그룹 설명")),
 					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
 							fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("생성된 그룹 ID"),
+							fieldWithPath("data.name").type(JsonFieldType.STRING).description("생성된 그룹 이름"),
+							fieldWithPath("data.inviteCode").type(JsonFieldType.STRING).description("초대 코드"),
+							fieldWithPath("data.description").type(JsonFieldType.STRING).description("생성된 그룹 배경"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}
 

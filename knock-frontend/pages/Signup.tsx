@@ -27,6 +27,7 @@ const Signup: React.FC = () => {
         setIsLoading(true);
         setError(null);
 
+        let signupSuccess = false;
         try {
             await authApi.signup({
                 email,
@@ -35,15 +36,28 @@ const Signup: React.FC = () => {
                 nickname,
                 profileImageUrl: '' // Optional for now
             });
-
-            // Auto login after signup
-            await authApi.emailLogin({ email, password });
-            navigate('/home');
+            signupSuccess = true;
         } catch (err: any) {
             console.error("Signup failed:", err);
             setError(err.response?.data?.message || 'Failed to create account. Please check your information and try again.');
-        } finally {
             setIsLoading(false);
+        }
+
+        if (signupSuccess) {
+            try {
+                // Auto login after signup
+                await authApi.emailLogin({ email, password });
+                navigate('/home');
+            } catch (err: any) {
+                console.error("Auto login failed:", err);
+                // The account was created, but login failed
+                setError('Account created successfully! Auto-login failed, redirecting to login page...');
+                setTimeout(() => {
+                    navigate('/login', { state: { email } });
+                }, 2000);
+            } finally {
+                setIsLoading(false);
+            }
         }
     };
 

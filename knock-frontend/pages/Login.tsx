@@ -72,7 +72,13 @@ const Login: React.FC = () => {
                     <div className="space-y-2">
                         <div className="flex justify-between items-center ml-1">
                             <label className="text-sm font-semibold text-gray-700">Password</label>
-                            <button type="button" className="text-xs font-bold text-emerald-600 hover:text-emerald-700">Forgot Password?</button>
+                            <button
+                                type="button"
+                                onClick={() => alert('비밀번호 찾기 기능은 준비 중입니다.')}
+                                className="text-xs font-bold text-emerald-600 hover:text-emerald-700"
+                            >
+                                Forgot Password?
+                            </button>
                         </div>
                         <div className="relative group">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-emerald-500 transition-colors">
