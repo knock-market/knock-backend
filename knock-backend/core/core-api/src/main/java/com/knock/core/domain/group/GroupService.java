@@ -30,9 +30,12 @@ public class GroupService {
 	private final MemberRepository memberRepository;
 
 	@Transactional
-	public Long createGroup(Long memberId, GroupCreateData data) {
+	public GroupResult createGroup(Long memberId, GroupCreateData data) {
 		String inviteCode = generateUniqueInviteCode();
 		Group group = Group.create(data.name(), data.description(), inviteCode, memberId);
+		if (data.imageUrl() != null && !data.imageUrl().isBlank()) {
+			group.updateCoverImage(data.imageUrl());
+		}
 		Group savedGroup = groupRepository.save(group);
 
 		Member ownerMember = memberRepository.findById(memberId)
@@ -40,7 +43,7 @@ public class GroupService {
 
 		groupRepository.saveMember(savedGroup, ownerMember, GroupMember.GroupRole.ADMIN);
 
-		return savedGroup.getId();
+		return GroupResult.from(savedGroup, 1L);
 	}
 
 	@Transactional
@@ -107,7 +110,7 @@ public class GroupService {
 		return groupRepository.findGroupMembersByMemberId(memberId)
 			.stream()
 			.map(GroupMember::getGroup)
-			.map(GroupResult::from)
+			.map(group -> GroupResult.from(group, groupRepository.countMembers(group.getId())))
 			.collect(Collectors.toList());
 	}
 
@@ -115,7 +118,7 @@ public class GroupService {
 	public GroupResult getGroupDetail(Long groupId) {
 		Group group = groupRepository.findGroupByGroupId(groupId)
 			.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
-		return GroupResult.from(group);
+		return GroupResult.from(group, groupRepository.countMembers(groupId));
 	}
 
 	private String generateUniqueInviteCode() {

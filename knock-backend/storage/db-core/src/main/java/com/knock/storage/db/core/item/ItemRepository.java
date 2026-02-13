@@ -9,9 +9,9 @@ public interface ItemRepository {
 
 	Optional<Item> findById(Long id);
 
-	List<Item> findByGroupId(Long groupId);
+	List<Object[]> findByGroupIdWithLikes(Long groupId);
 
-	List<Item> findByMemberId(Long memberId);
+	List<Object[]> findByMemberIdWithLikes(Long memberId);
 
 	Optional<Item> findByIdWithImages(Long itemId);
 

@@ -25,12 +25,10 @@ public class GroupController {
 	private final GroupService groupService;
 
 	@PostMapping("/api/v1/groups")
-	public ApiResponse<GroupIdResponseDto> createGroup(@AuthenticationPrincipal MemberPrincipal principal,
+	public ApiResponse<GroupResponseDto> createGroup(@AuthenticationPrincipal MemberPrincipal principal,
 			@RequestBody GroupCreateRequestDto request) {
-		Long groupId = groupService.createGroup(principal.getMemberId(),
-				new GroupCreateData(request.name(), request.description()));
-		GroupIdResponseDto response = new GroupIdResponseDto(groupId);
-		return ApiResponse.success(response);
+		GroupResult result = groupService.createGroup(principal.getMemberId(), GroupCreateData.of(request));
+		return ApiResponse.success(GroupResponseDto.from(result));
 	}
 
 	@PostMapping("/api/v1/groups/{groupId}/invite-codes")

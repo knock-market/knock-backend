@@ -1,7 +1,7 @@
 package com.knock.storage.db.core.group;
 
-import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.BaseEntity;
+import com.knock.storage.db.core.member.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -69,6 +69,10 @@ public class Group extends BaseEntity {
 
 	public boolean isInviteCodeExpired() {
 		return inviteCodeExpiresAt != null && inviteCodeExpiresAt.isBefore(LocalDateTime.now());
+	}
+
+	public void updateCoverImage(String coverImage) {
+		this.coverImage = coverImage;
 	}
 
 }

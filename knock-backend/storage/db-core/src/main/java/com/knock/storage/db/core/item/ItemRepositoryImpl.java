@@ -32,13 +32,13 @@ public class ItemRepositoryImpl implements ItemRepository {
 	}
 
 	@Override
-	public List<Item> findByGroupId(Long groupId) {
-		return itemJpaRepository.findAllByGroup_Id(groupId);
+	public List<Object[]> findByGroupIdWithLikes(Long groupId) {
+		return itemJpaRepository.findItemsWithLikesByGroupId(groupId);
 	}
 
 	@Override
-	public List<Item> findByMemberId(Long memberId) {
-		return itemJpaRepository.findAllByMember_Id(memberId);
+	public List<Object[]> findByMemberIdWithLikes(Long memberId) {
+		return itemJpaRepository.findItemsWithLikesByMemberId(memberId);
 	}
 
 	@Override

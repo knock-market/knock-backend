@@ -45,7 +45,7 @@ class GroupServiceTest {
 	void createGroup_success() {
 		// given
 		Long memberId = 1L;
-		GroupCreateData data = new GroupCreateData("My Group", "Description");
+		GroupCreateData data = new GroupCreateData("My Group", "Description", null);
 		Member member = Member.builder()
 			.name("User")
 			.email("test@test.com")
@@ -62,10 +62,10 @@ class GroupServiceTest {
 		given(memberRepository.findById(memberId)).willReturn(Optional.of(member));
 
 		// when
-		Long groupId = groupService.createGroup(memberId, data);
+		com.knock.core.domain.group.dto.GroupResult result = groupService.createGroup(memberId, data);
 
 		// then
-		assertThat(groupId).isEqualTo(10L);
+		assertThat(result.id()).isEqualTo(10L);
 		verify(groupRepository).save(any(Group.class));
 		verify(groupRepository).saveMember(any(Group.class), any(Member.class), any(GroupMember.GroupRole.class));
 	}

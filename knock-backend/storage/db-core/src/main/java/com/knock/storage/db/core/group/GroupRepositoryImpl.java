@@ -65,4 +65,9 @@ public class GroupRepositoryImpl implements GroupRepository {
 		return groupJpaRepository.findById(groupId);
 	}
 
+	@Override
+	public long countMembers(Long groupId) {
+		return groupMemberJpaRepository.countByGroupId(groupId);
+	}
+
 }

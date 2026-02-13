@@ -80,7 +80,7 @@ class ItemControllerTest extends RestDocsTest {
 		// given
 		ItemReadResult result = new ItemReadResult(TEST_ITEM_ID, TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION,
 				TEST_ITEM_PRICE, ItemType.SELL, ItemCategory.DIGITAL_DEVICE, ItemStatus.ON_SALE,
-				List.of(TEST_IMAGE_URL), TEST_MEMBER_ID);
+				List.of(TEST_IMAGE_URL), TEST_MEMBER_ID, TEST_NICKNAME, TEST_IMAGE_URL);
 		given(itemService.getItem(anyLong())).willReturn(result);
 
 		// when & then
@@ -108,7 +108,8 @@ class ItemControllerTest extends RestDocsTest {
 	void getItemsByGroup_success() {
 		// given
 		ItemListResult result = new ItemListResult(TEST_ITEM_ID, TEST_ITEM_TITLE, TEST_ITEM_PRICE, ItemType.SELL,
-				ItemCategory.DIGITAL_DEVICE, ItemStatus.ON_SALE, TEST_IMAGE_URL, TEST_MEMBER_ID);
+				ItemCategory.DIGITAL_DEVICE, ItemStatus.ON_SALE, TEST_IMAGE_URL, TEST_MEMBER_ID, 0L,
+				java.time.LocalDateTime.now());
 		given(itemService.getItemsByGroup(anyLong())).willReturn(List.of(result));
 
 		// when & then
@@ -135,7 +136,8 @@ class ItemControllerTest extends RestDocsTest {
 	void getMySelling_success() {
 		// given
 		ItemListResult result = new ItemListResult(TEST_ITEM_ID, TEST_ITEM_TITLE, TEST_ITEM_PRICE, ItemType.SELL,
-				ItemCategory.DIGITAL_DEVICE, ItemStatus.ON_SALE, TEST_IMAGE_URL, TEST_MEMBER_ID);
+				ItemCategory.DIGITAL_DEVICE, ItemStatus.ON_SALE, TEST_IMAGE_URL, TEST_MEMBER_ID, 0L,
+				java.time.LocalDateTime.now());
 		given(itemService.getMySellingItems(anyLong())).willReturn(List.of(result));
 
 		// when & then

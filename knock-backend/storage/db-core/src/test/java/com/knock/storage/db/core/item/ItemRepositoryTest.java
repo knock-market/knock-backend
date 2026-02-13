@@ -58,7 +58,7 @@ class ItemRepositoryTest extends CoreDbContextTest {
 				List.of());
 
 		// when
-		List<Item> items = itemRepository.findByGroupId(group.getId());
+		List<Object[]> items = itemRepository.findByGroupIdWithLikes(group.getId());
 
 		// then
 		assertThat(items).hasSize(2);

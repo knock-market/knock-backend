@@ -9,10 +9,11 @@ import com.knock.storage.db.core.item.ItemImage;
 import java.util.List;
 
 public record ItemReadResult(Long id, String title, String description, Long price, ItemType type,
-		ItemCategory category, ItemStatus status, List<String> imageUrls, Long writerId) {
+		ItemCategory category, ItemStatus status, List<String> imageUrls, Long writerId, String writerNickname,
+		String writerProfileImageUrl) {
 	public static ItemReadResult from(Item item, List<ItemImage> images) {
 		return new ItemReadResult(item.getId(), item.getTitle(), item.getDescription(), item.getPrice(), item.getType(),
 				item.getCategory(), item.getStatus(), images.stream().map(ItemImage::getImageUrl).toList(),
-				item.getMember().getId());
+				item.getMember().getId(), item.getMember().getNickname(), item.getMember().getProfileImageUrl());
 	}
 }

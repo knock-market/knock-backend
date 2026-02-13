@@ -1,7 +1,5 @@
 package com.knock.storage.db.core.bookmark;
 
-import com.knock.storage.db.core.item.Item;
-import com.knock.storage.db.core.member.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -27,16 +25,6 @@ public class BookmarkRepositoryImpl implements BookmarkRepository {
 	@Override
 	public void delete(Bookmark bookmark) {
 		jpaRepository.delete(bookmark);
-	}
-
-	@Override
-	public Optional<Bookmark> findByMemberAndItem(Member member, Item item) {
-		return jpaRepository.findByMemberAndItem(member, item);
-	}
-
-	@Override
-	public boolean existsByMemberAndItem(Member member, Item item) {
-		return jpaRepository.existsByMemberAndItem(member, item);
 	}
 
 	@Override
