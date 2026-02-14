@@ -50,6 +50,10 @@ subprojects {
         enabled = true
     }
 
+    tasks.getByName("bootRun") {
+        enabled = false
+    }
+
     java.sourceCompatibility = JavaVersion.VERSION_21
 
     tasks.withType<JavaCompile> {

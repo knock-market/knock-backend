@@ -1,4 +1,5 @@
 import org.asciidoctor.gradle.jvm.AsciidoctorTask
+import org.springframework.boot.gradle.tasks.run.BootRun
 
 tasks.getByName("bootJar") {
     enabled = true
@@ -6,6 +7,11 @@ tasks.getByName("bootJar") {
 
 tasks.getByName("jar") {
     enabled = false
+}
+
+tasks.named<BootRun>("bootRun") {
+    enabled = true
+    mainClass.set("com.knock.CoreApiApplication")
 }
 
 dependencies {
