@@ -25,14 +25,8 @@ const patch = <T, D = unknown>(url: string, data?: D, config?: object) =>
     client.patch<T, T, D>(url, data, config);
 const del = <T>(url: string, config?: object) => client.delete<T, T>(url, config);
 
-const authServerBaseUrl: string =
-    (import.meta.env.VITE_AUTH_BASE_URL as string | undefined) ?? 'http://localhost:8080';
-
 // ============== Auth API ==============
 export const authApi = {
-    login: (provider: string = 'KAKAO') => {
-        window.location.href = `${authServerBaseUrl}/oauth2/authorization/${provider.toLowerCase()}`;
-    },
     emailLogin: (data: { email: string; password: string }) =>
         post<void, { email: string; password: string }>('/auth/login', data),
     signup: (data: { email: string; name: string; password: string; nickname: string; profileImageUrl?: string }) =>
