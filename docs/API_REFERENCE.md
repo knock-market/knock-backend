@@ -2,12 +2,14 @@
 
 문서화된 모든 API는 `core-api` 모듈의 테스트를 통해 검증되었습니다.
 상세한 Request/Response 스니펫은 `./gradlew :core:core-api:asciidoctor` 실행 후 생성되는 HTML 문서를 참고하세요.
+인증 방식은 **세션 쿠키 기반**이며, 소셜 로그인 API는 아직 구현되지 않았습니다.
 
 ## 1. Auth API
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|
 | POST | `/api/v1/auth/login` | 일반 이메일 로그인 | `AuthLoginRequestDto` <br> `{ email, password }` | `ApiResponse` <br> `(void)` | ✅ Implemented |
 | POST | `/api/v1/auth/logout` | 로그아웃 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
+| POST | `/api/v1/auth/social/{provider}` | 소셜 로그인 | `(TBD)` | `(TBD)` | ❌ Not Implemented |
 
 ## 2. Member API
 | Method | URI | Description | Request Body | Response Body | Status |
