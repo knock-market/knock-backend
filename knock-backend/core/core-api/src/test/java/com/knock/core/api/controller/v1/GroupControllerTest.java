@@ -131,7 +131,8 @@ class GroupControllerTest extends RestDocsTest {
 							fieldWithPath("data.name").type(JsonFieldType.STRING).description("그룹 이름"),
 							fieldWithPath("data.description").type(JsonFieldType.STRING).description("그룹 설명"),
 							fieldWithPath("data.memberCount").type(JsonFieldType.NUMBER).description("그룹 멤버 수"),
-							fieldWithPath("data.profileImageUrl").type(JsonFieldType.STRING).description("그룹 이미지 URL")
+							fieldWithPath("data.profileImageUrl").type(JsonFieldType.STRING)
+								.description("그룹 이미지 URL")
 								.optional(),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}

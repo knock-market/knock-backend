@@ -78,8 +78,8 @@ class MemberControllerTest extends RestDocsTest {
 	@DisplayName("내 정보 조회 성공")
 	void getMyMember_success() {
 		// given
-		MemberResult result = new MemberResult(TEST_MEMBER_ID, TEST_EMAIL, TEST_NAME, TEST_NICKNAME, null, TEST_PROVIDER,
-				36.5);
+		MemberResult result = new MemberResult(TEST_MEMBER_ID, TEST_EMAIL, TEST_NAME, TEST_NICKNAME, null,
+				TEST_PROVIDER, 36.5);
 		given(memberService.getMember(any())).willReturn(result);
 
 		restDocGiven().get("/api/v1/members/my")

@@ -52,10 +52,11 @@ class TradeSocialJourneyIntegrationTest extends ContextTest {
 		Cookie buyerCookie = login(buyerEmail, password);
 		Cookie strangerCookie = login(strangerEmail, password);
 
-		MvcResult createGroupResult = mockMvc.perform(post("/api/v1/groups").cookie(sellerCookie)
-			.contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(Map.of("name", "거래 그룹", "description", "거래용", "imageUrl",
-					"https://example.com/group.png"))))
+		MvcResult createGroupResult = mockMvc
+			.perform(post("/api/v1/groups").cookie(sellerCookie)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(
+						Map.of("name", "거래 그룹", "description", "거래용", "imageUrl", "https://example.com/group.png"))))
 			.andExpect(status().isOk())
 			.andReturn();
 
@@ -65,23 +66,24 @@ class TradeSocialJourneyIntegrationTest extends ContextTest {
 
 		MvcResult createItemResult = mockMvc.perform(post("/api/v1/items").cookie(sellerCookie)
 			.contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(
-					Map.of("groupId", groupId, "title", "맥북", "description", "거의 새 제품", "price", 1500000, "itemType",
-							"SELL", "category", "DIGITAL_DEVICE", "imageUrls", List.of()))))
+			.content(objectMapper.writeValueAsString(Map.of("groupId", groupId, "title", "맥북", "description", "거의 새 제품",
+					"price", 1500000, "itemType", "SELL", "category", "DIGITAL_DEVICE", "imageUrls", List.of()))))
 			.andExpect(status().isOk())
 			.andReturn();
 
 		long itemId = readData(createItemResult).path("id").asLong();
 
-		mockMvc.perform(post("/api/v1/groups/join").cookie(buyerCookie)
-			.contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(Map.of("inviteCode", inviteCode))))
+		mockMvc
+			.perform(post("/api/v1/groups/join").cookie(buyerCookie)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(Map.of("inviteCode", inviteCode))))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.data.id").value(groupId));
 
-		MvcResult reserveResult = mockMvc.perform(post("/api/v1/reservations").cookie(buyerCookie)
-			.contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(Map.of("itemId", itemId))))
+		MvcResult reserveResult = mockMvc
+			.perform(post("/api/v1/reservations").cookie(buyerCookie)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(Map.of("itemId", itemId))))
 			.andExpect(status().isOk())
 			.andReturn();
 
@@ -155,15 +157,17 @@ class TradeSocialJourneyIntegrationTest extends ContextTest {
 	}
 
 	private void signUp(String email, String name, String password, String nickname) throws Exception {
-		mockMvc.perform(post("/api/v1/members").contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(
-					Map.of("email", email, "name", name, "password", password, "nickname", nickname))))
+		mockMvc
+			.perform(post("/api/v1/members").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(
+						Map.of("email", email, "name", name, "password", password, "nickname", nickname))))
 			.andExpect(status().isOk());
 	}
 
 	private Cookie login(String email, String password) throws Exception {
-		MvcResult result = mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(Map.of("email", email, "password", password))))
+		MvcResult result = mockMvc
+			.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(Map.of("email", email, "password", password))))
 			.andExpect(status().isOk())
 			.andReturn();
 		return result.getResponse().getCookie("SESSION_ID");

@@ -46,8 +46,7 @@ class MemberBlockControllerTest extends RestDocsTest {
 	@DisplayName("차단 유저 목록 조회 성공")
 	void getBlockedMembers_success() {
 		// given
-		BlockedMemberResult blockedMember = new BlockedMemberResult(TEST_MEMBER_ID_2, TEST_NAME,
-				LocalDateTime.now());
+		BlockedMemberResult blockedMember = new BlockedMemberResult(TEST_MEMBER_ID_2, TEST_NAME, LocalDateTime.now());
 		given(memberService.getBlockedMembers(any())).willReturn(List.of(blockedMember));
 
 		// when & then

@@ -136,8 +136,10 @@ class MemberSettingsAndBlockServiceTest {
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(blocker));
 			given(memberRepository.findById(TEST_MEMBER_ID_2)).willReturn(Optional.of(blocked));
-			given(memberBlockRepository.existsByBlockerIdAndBlockedId(TEST_MEMBER_ID, TEST_MEMBER_ID_2)).willReturn(false);
-			given(memberBlockRepository.save(any(MemberBlock.class))).willAnswer(invocation -> invocation.getArgument(0));
+			given(memberBlockRepository.existsByBlockerIdAndBlockedId(TEST_MEMBER_ID, TEST_MEMBER_ID_2))
+				.willReturn(false);
+			given(memberBlockRepository.save(any(MemberBlock.class)))
+				.willAnswer(invocation -> invocation.getArgument(0));
 
 			// when
 			memberService.blockMember(TEST_MEMBER_ID, TEST_MEMBER_ID_2);

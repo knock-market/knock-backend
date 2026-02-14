@@ -13,8 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "member_block", uniqueConstraints = {
-		@UniqueConstraint(columnNames = { "blocker_id", "blocked_id" }) })
+@Table(name = "member_block", uniqueConstraints = { @UniqueConstraint(columnNames = { "blocker_id", "blocked_id" }) })
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberBlock extends BaseEntity {

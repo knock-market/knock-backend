@@ -114,7 +114,8 @@ public class MemberService {
 	public void unblockMember(Long blockerId, Long blockedId) {
 		getMemberOrThrow(blockerId);
 		getMemberOrThrow(blockedId);
-		memberBlockRepository.findByBlockerIdAndBlockedId(blockerId, blockedId).ifPresent(memberBlockRepository::delete);
+		memberBlockRepository.findByBlockerIdAndBlockedId(blockerId, blockedId)
+			.ifPresent(memberBlockRepository::delete);
 	}
 
 	private Member getMemberOrThrow(Long memberId) {

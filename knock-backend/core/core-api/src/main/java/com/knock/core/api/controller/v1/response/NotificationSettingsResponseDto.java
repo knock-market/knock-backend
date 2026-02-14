@@ -6,8 +6,8 @@ public record NotificationSettingsResponseDto(boolean push, boolean newItems, bo
 		boolean sound) {
 
 	public static NotificationSettingsResponseDto from(MemberNotificationSettingsResult result) {
-		return new NotificationSettingsResponseDto(result.push(), result.newItems(), result.chat(),
-				result.marketing(), result.sound());
+		return new NotificationSettingsResponseDto(result.push(), result.newItems(), result.chat(), result.marketing(),
+				result.sound());
 	}
 
 }

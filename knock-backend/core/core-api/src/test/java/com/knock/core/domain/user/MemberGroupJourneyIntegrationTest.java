@@ -48,10 +48,11 @@ class MemberGroupJourneyIntegrationTest extends ContextTest {
 			.andExpect(jsonPath("$.data.email").value(email))
 			.andExpect(jsonPath("$.data.nickname").value("초기닉네임"));
 
-		mockMvc.perform(put("/api/v1/members/my").cookie(memberCookie)
-			.contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(Map.of("nickname", "수정닉네임", "profileImageUrl",
-					"https://example.com/profile.png"))))
+		mockMvc
+			.perform(put("/api/v1/members/my").cookie(memberCookie)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(
+						Map.of("nickname", "수정닉네임", "profileImageUrl", "https://example.com/profile.png"))))
 			.andExpect(status().isOk());
 
 		mockMvc.perform(get("/api/v1/members/my").cookie(memberCookie))
@@ -67,10 +68,11 @@ class MemberGroupJourneyIntegrationTest extends ContextTest {
 			.andExpect(jsonPath("$.data.marketing").value(false))
 			.andExpect(jsonPath("$.data.sound").value(true));
 
-		mockMvc.perform(put("/api/v1/members/my/settings/notifications").cookie(memberCookie)
-			.contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(
-					Map.of("push", true, "newItems", false, "chat", false, "marketing", true, "sound", false))))
+		mockMvc
+			.perform(put("/api/v1/members/my/settings/notifications").cookie(memberCookie)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(
+						Map.of("push", true, "newItems", false, "chat", false, "marketing", true, "sound", false))))
 			.andExpect(status().isOk());
 
 		mockMvc.perform(get("/api/v1/members/my/settings/notifications").cookie(memberCookie))
@@ -89,10 +91,10 @@ class MemberGroupJourneyIntegrationTest extends ContextTest {
 		signUp(ownerEmail, "그룹장", ownerPassword, "그룹장닉");
 		Cookie ownerCookie = login(ownerEmail, ownerPassword);
 
-		MvcResult createGroupResult = mockMvc.perform(post("/api/v1/groups").cookie(ownerCookie)
-			.contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper
-				.writeValueAsString(Map.of("name", "E2E 그룹", "description", "통합테스트 그룹", "imageUrl",
+		MvcResult createGroupResult = mockMvc
+			.perform(post("/api/v1/groups").cookie(ownerCookie)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(Map.of("name", "E2E 그룹", "description", "통합테스트 그룹", "imageUrl",
 						"https://example.com/group.png"))))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.data.id").exists())
@@ -114,15 +116,17 @@ class MemberGroupJourneyIntegrationTest extends ContextTest {
 		signUp(memberEmail, "그룹원", memberPassword, "그룹원닉");
 		Cookie memberCookie = login(memberEmail, memberPassword);
 
-		mockMvc.perform(post("/api/v1/groups/join").cookie(memberCookie)
-			.contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(Map.of("inviteCode", inviteCode))))
+		mockMvc
+			.perform(post("/api/v1/groups/join").cookie(memberCookie)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(Map.of("inviteCode", inviteCode))))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.data.id").value(groupId));
 
-		mockMvc.perform(post("/api/v1/groups/join").cookie(memberCookie)
-			.contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(Map.of("inviteCode", inviteCode))))
+		mockMvc
+			.perform(post("/api/v1/groups/join").cookie(memberCookie)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(Map.of("inviteCode", inviteCode))))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.error.code").value("G002"));
 
@@ -131,23 +135,26 @@ class MemberGroupJourneyIntegrationTest extends ContextTest {
 		signUp(outsiderEmail, "외부유저", outsiderPassword, "외부닉");
 		Cookie outsiderCookie = login(outsiderEmail, outsiderPassword);
 
-		mockMvc.perform(post("/api/v1/groups/join").cookie(outsiderCookie)
-			.contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(Map.of("inviteCode", "INVALID"))))
+		mockMvc
+			.perform(post("/api/v1/groups/join").cookie(outsiderCookie)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(Map.of("inviteCode", "INVALID"))))
 			.andExpect(status().isBadRequest())
 			.andExpect(jsonPath("$.error.code").value("G001"));
 	}
 
 	private void signUp(String email, String name, String password, String nickname) throws Exception {
-		mockMvc.perform(post("/api/v1/members").contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(
-					Map.of("email", email, "name", name, "password", password, "nickname", nickname))))
+		mockMvc
+			.perform(post("/api/v1/members").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(
+						Map.of("email", email, "name", name, "password", password, "nickname", nickname))))
 			.andExpect(status().isOk());
 	}
 
 	private Cookie login(String email, String password) throws Exception {
-		MvcResult result = mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(Map.of("email", email, "password", password))))
+		MvcResult result = mockMvc
+			.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(Map.of("email", email, "password", password))))
 			.andExpect(status().isOk())
 			.andReturn();
 		return result.getResponse().getCookie("SESSION_ID");
