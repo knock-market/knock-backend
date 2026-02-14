@@ -30,6 +30,12 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: knock-frontend/package-lock.json
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
       - name: Cache SonarQube packages
@@ -40,6 +46,8 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
       - name: Grant execute permission for gradlew
         run: chmod +x knock-backend/gradlew
+      - name: Frontend quality gate
+        run: cd knock-frontend && npm ci && npm run lint && npm run test && npm run build
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

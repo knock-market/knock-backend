@@ -1,11 +1,15 @@
 import org.asciidoctor.gradle.jvm.AsciidoctorTask
 import org.springframework.boot.gradle.tasks.run.BootRun
 
-tasks.getByName("bootJar") {
+plugins {
+    id("org.asciidoctor.jvm.convert")
+}
+
+tasks.named("bootJar") {
     enabled = true
 }
 
-tasks.getByName("jar") {
+tasks.named("jar") {
     enabled = false
 }
 

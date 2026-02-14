@@ -1,20 +1,23 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Knock Frontend
 
-# Run and deploy your AI Studio app
+Knock Market 프론트엔드 애플리케이션입니다.  
+Vite + React + TypeScript 기반으로 동작하며 `/api/v1` 백엔드 API를 사용합니다.
 
-This contains everything you need to run your app locally.
+## Prerequisites
 
-View your app in AI Studio: https://ai.studio/apps/drive/1fVz_Gb5pRnuQAFoII-vCDXSq7I6YjgVU
+- Node.js 22+
 
-## Run Locally
+## Run
 
-**Prerequisites:**  Node.js
+1. 의존성 설치
+   - `npm install`
+2. 개발 서버 실행
+   - `npm run dev`
+3. 프로덕션 빌드
+   - `npm run build`
 
+## Quality Gate
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+- 타입 체크: `npm run typecheck`
+- 린트(타입 기반): `npm run lint`
+- 테스트(현재 타입 기반): `npm run test`
