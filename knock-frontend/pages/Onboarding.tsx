@@ -60,29 +60,6 @@ const Onboarding: React.FC = () => {
             </button>
           </div>
 
-          <button
-            onClick={() => {
-              const testUser = {
-                email: 'test@knock.com',
-                password: 'password',
-              };
-              authApi.emailLogin(testUser)
-                .then(() => navigate('/home'))
-                .catch(() => {
-                  authApi.signup({
-                    ...testUser,
-                    name: 'Test User',
-                    nickname: 'Tester',
-                    profileImageUrl: '',
-                  }).then(() => {
-                    authApi.emailLogin(testUser).then(() => navigate('/home'));
-                  });
-                });
-            }}
-            className="w-full text-gray-400 font-bold py-2 text-xs transition-all hover:text-gray-600"
-          >
-            Dev Login (Auto-generated)
-          </button>
         </div>
 
         <p className="mt-8 text-xs text-center text-gray-400 mb-6">

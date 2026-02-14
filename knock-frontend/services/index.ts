@@ -1,38 +1,75 @@
 import client from './client';
+import {
+    BlockedUserResponseDto,
+    BookmarkToggleResponseDto,
+    GroupCreateResponseDto,
+    GroupResponseDto,
+    ImageUploadResultDto,
+    InviteDuration,
+    ItemResponseDto,
+    ItemSummaryResponseDto,
+    MemberResponseDto,
+    MyBookmarkResponseDto,
+    NotificationResponseDto,
+    NotificationSettingsResponseDto,
+    ReservationCreateResponseDto,
+    ReservationResponseDto,
+} from '../types';
+
+const get = <T>(url: string, config?: object) => client.get<T, T>(url, config);
+const post = <T, D = unknown>(url: string, data?: D, config?: object) =>
+    client.post<T, T, D>(url, data, config);
+const put = <T, D = unknown>(url: string, data?: D, config?: object) =>
+    client.put<T, T, D>(url, data, config);
+const patch = <T, D = unknown>(url: string, data?: D, config?: object) =>
+    client.patch<T, T, D>(url, data, config);
+const del = <T>(url: string, config?: object) => client.delete<T, T>(url, config);
+
+const authServerBaseUrl: string =
+    (import.meta.env.VITE_AUTH_BASE_URL as string | undefined) ?? 'http://localhost:8080';
 
 // ============== Auth API ==============
 export const authApi = {
     login: (provider: string = 'KAKAO') => {
-        window.location.href = `http://localhost:8080/oauth2/authorization/${provider.toLowerCase()}`;
+        window.location.href = `${authServerBaseUrl}/oauth2/authorization/${provider.toLowerCase()}`;
     },
     emailLogin: (data: { email: string; password: string }) =>
-        client.post('/auth/login', data),
+        post<void, { email: string; password: string }>('/auth/login', data),
     signup: (data: { email: string; name: string; password: string; nickname: string; profileImageUrl?: string }) =>
-        client.post('/members', data),
-    logout: () => client.post('/auth/logout'),
-    getMe: () => client.get('/members/my'),
+        post<void, { email: string; name: string; password: string; nickname: string; profileImageUrl?: string }>(
+            '/members',
+            data
+        ),
+    logout: () => post<void>('/auth/logout'),
+    getMe: () => get<MemberResponseDto>('/members/my'),
     updateProfile: (data: { nickname?: string; profileImageUrl?: string }) =>
-        client.put('/members/my', data),
+        put<void, { nickname?: string; profileImageUrl?: string }>('/members/my', data),
 };
 
 // ============== Group API ==============
 export const groupsApi = {
-    getMyGroups: () => client.get('/groups/my'),
-    getGroup: (groupId: number | string) => client.get(`/groups/${groupId}`),
+    getMyGroups: () => get<GroupResponseDto[]>('/groups/my'),
+    getGroup: (groupId: number | string) => get<GroupResponseDto>(`/groups/${groupId}`),
     createGroup: (data: { name: string; description?: string; imageUrl?: string; inviteCode?: string }) =>
-        client.post('/groups', data),
-    createInviteCode: (groupId: number, duration: number = 24) =>
-        client.post(`/groups/${groupId}/invite-codes`, { duration }),
+        post<GroupCreateResponseDto, { name: string; description?: string; imageUrl?: string; inviteCode?: string }>(
+            '/groups',
+            data
+        ),
+    createInviteCode: (groupId: number, duration: InviteDuration = 'ONE_DAY') =>
+        post<{ inviteCode: string; expiresAt?: string }, { duration: InviteDuration }>(
+            `/groups/${groupId}/invite-codes`,
+            { duration }
+        ),
     joinGroup: (inviteCode: string) =>
-        client.post('/groups/join', { inviteCode }),
+        post<{ id: number }, { inviteCode: string }>('/groups/join', { inviteCode }),
     leaveGroup: (groupId: number) =>
-        client.post(`/groups/${groupId}/leave`),
+        post<void>(`/groups/${groupId}/leave`),
 };
 
 // ============== Item API ==============
 export const itemsApi = {
-    getItems: (groupId: number | string) => client.get(`/groups/${groupId}/items`),
-    getItem: (itemId: number | string) => client.get(`/items/${itemId}`),
+    getItems: (groupId: number | string) => get<ItemSummaryResponseDto[]>(`/groups/${groupId}/items`),
+    getItem: (itemId: number | string) => get<ItemResponseDto>(`/items/${itemId}`),
     createItem: (data: {
         groupId: number;
         title: string;
@@ -41,33 +78,57 @@ export const itemsApi = {
         itemType: 'SELL' | 'GIVE';
         category: string;
         imageUrls: string[];
-    }) => client.post('/items', data),
-    getMySelling: () => client.get('/items/my-selling'),
+    }) => post<{ id: number }, {
+        groupId: number;
+        title: string;
+        description: string;
+        price: number;
+        itemType: 'SELL' | 'GIVE';
+        category: string;
+        imageUrls: string[];
+    }>('/items', data),
+    getMySelling: () => get<ItemSummaryResponseDto[]>('/items/my-selling'),
+    deleteItem: (itemId: number | string) => del<void>(`/items/${itemId}`),
 };
 
 // ============== Bookmark API ==============
 export const bookmarksApi = {
     toggle: (itemId: number | string) =>
-        client.post(`/items/${itemId}/bookmarks`),
-    getMyBookmarks: () => client.get('/items/my-bookmarks'),
+        post<BookmarkToggleResponseDto>(`/items/${itemId}/bookmarks`),
+    getMyBookmarks: () => get<MyBookmarkResponseDto[]>('/items/my-bookmarks'),
 };
 
 // ============== Reservation API ==============
 export const reservationsApi = {
-    create: (itemId: number) => client.post('/reservations', { itemId }),
+    create: (itemId: number) => post<ReservationCreateResponseDto, { itemId: number }>('/reservations', { itemId }),
     getForItem: (itemId: number | string) =>
-        client.get(`/items/${itemId}/reservations`),
-    getMyReservations: () => client.get('/reservations/my'),
-    approve: (id: number) => client.patch(`/reservations/${id}/approve`),
-    complete: (id: number) => client.patch(`/reservations/${id}/complete`),
-    cancel: (id: number) => client.patch(`/reservations/${id}/cancel`),
+        get<ReservationResponseDto[]>(`/items/${itemId}/reservations`),
+    getMyReservations: () => get<ReservationResponseDto[]>('/reservations/my'),
+    approve: (id: number) => patch<void>(`/reservations/${id}/approve`),
+    complete: (id: number) => patch<void>(`/reservations/${id}/complete`),
+    cancel: (id: number) => patch<void>(`/reservations/${id}/cancel`),
 };
 
 // ============== Notification API ==============
 export const notificationsApi = {
-    getAll: () => client.get('/notifications'),
+    getAll: () => get<NotificationResponseDto[]>('/notifications'),
     markAsRead: (id: number | string) =>
-        client.patch(`/notifications/${id}/read`),
+        patch<void>(`/notifications/${id}/read`),
+};
+
+// ============== Member Settings API ==============
+export const memberSettingsApi = {
+    getNotificationSettings: () =>
+        get<NotificationSettingsResponseDto>('/members/my/settings/notifications'),
+    updateNotificationSettings: (data: NotificationSettingsResponseDto) =>
+        put<void, NotificationSettingsResponseDto>('/members/my/settings/notifications', data),
+};
+
+// ============== Member Block API ==============
+export const memberBlockApi = {
+    getBlockedUsers: () => get<BlockedUserResponseDto[]>('/members/my/blocked'),
+    blockUser: (memberId: number | string) => post<void>(`/members/${memberId}/block`),
+    unblockUser: (memberId: number | string) => del<void>(`/members/${memberId}/block`),
 };
 
 // ============== Image API ==============
@@ -76,10 +137,10 @@ export const imagesApi = {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('directory', directory);
-        return client.post('/images/upload', formData, {
+        return post<ImageUploadResultDto, FormData>('/images/upload', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
         });
     },
     delete: (imageUrl: string) =>
-        client.delete('/images', { params: { imageUrl } }),
+        del<void>('/images', { params: { imageUrl } }),
 };

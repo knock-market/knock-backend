@@ -1,7 +1,20 @@
-// ============== Enums (Match Backend) ==============
+export type ApiResultType = 'SUCCESS' | 'ERROR';
+
+export interface ApiErrorDetail {
+  code: string;
+  message: string;
+  data: unknown;
+}
+
+export interface ApiResponse<T> {
+  result: ApiResultType;
+  data: T;
+  error: ApiErrorDetail | null;
+}
+
 export enum ItemType {
   SELL = 'SELL',
-  GIVE = 'GIVE'
+  GIVE = 'GIVE',
 }
 
 export enum ItemCategory {
@@ -9,57 +22,66 @@ export enum ItemCategory {
   FURNITURE = 'FURNITURE',
   ETC = 'ETC',
   DIGITAL_DEVICE = 'DIGITAL_DEVICE',
-  BOOKS = 'BOOKS'
+  BOOKS = 'BOOKS',
 }
 
 export enum ItemStatus {
-  AVAILABLE = 'AVAILABLE',
+  ON_SALE = 'ON_SALE',
   RESERVED = 'RESERVED',
-  COMPLETED = 'COMPLETED'
+  SOLD = 'SOLD',
 }
 
 export enum ReservationStatus {
-  PENDING = 'PENDING',
+  WAITING = 'WAITING',
   APPROVED = 'APPROVED',
   COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED'
+  CANCELED = 'CANCELED',
 }
 
-// ============== API Response DTOs (Match Backend) ==============
+export type InviteDuration =
+  | 'FIVE_MINUTES'
+  | 'THIRTY_MINUTES'
+  | 'ONE_HOUR'
+  | 'ONE_DAY'
+  | 'PERMANENT';
 
-/** GET /api/v1/members/my */
 export interface MemberResponseDto {
-  id: string | number;
+  id?: number;
   email: string;
   name: string;
   nickname: string;
   profileImageUrl?: string;
+  provider?: string;
+  mannerTemperature?: number;
 }
 
-/** GET /api/v1/groups/my, GET /api/v1/groups/{id} */
 export interface GroupResponseDto {
-  id: string | number;
+  id: number;
   name: string;
   description?: string;
-  // NOTE: memberCount and profileImageUrl are NOT in current backend DTO
-  // Frontend will handle missing values gracefully
+  memberCount?: number;
+  profileImageUrl?: string;
 }
 
-/** GET /api/v1/groups/{groupId}/items */
+export interface GroupCreateResponseDto extends GroupResponseDto {
+  inviteCode: string;
+}
+
 export interface ItemSummaryResponseDto {
-  id: string | number;
+  id: number;
   title: string;
   price: number;
   type: ItemType;
   category: ItemCategory;
   status: ItemStatus;
   thumbnailUrl?: string;
-  writerId?: string | number;
+  writerId?: number;
+  likesCount?: number;
+  postedAt?: string;
 }
 
-/** GET /api/v1/items/{id} */
 export interface ItemResponseDto {
-  id: string | number;
+  id: number;
   title: string;
   description: string;
   price: number;
@@ -67,68 +89,86 @@ export interface ItemResponseDto {
   category: ItemCategory;
   status: ItemStatus;
   imageUrls: string[];
-  writerId?: string | number;
-  // NOTE: writerNickname, writerProfileImageUrl are NOT in current backend
+  writerId?: number;
+  writerNickname?: string;
+  writerProfileImageUrl?: string;
 }
 
-/** GET /api/v1/items/my-bookmarks */
 export interface MyBookmarkResponseDto {
-  id: string | number;
+  bookmarkId: number;
+  itemId: number;
   title: string;
   price: number;
   thumbnailUrl?: string;
   createdAt: string;
 }
 
-/** GET /api/v1/reservations/my */
+export interface BookmarkToggleResponseDto {
+  itemId: number;
+  toggleOn: boolean;
+}
+
+export interface ReservationCreateResponseDto {
+  reservationId: number;
+}
+
 export interface ReservationResponseDto {
-  id: string | number;
-  itemId: string | number;
+  id: number;
+  itemId: number;
   itemTitle: string;
-  memberId: string | number;
+  memberId: number;
   memberName: string;
   status: ReservationStatus;
   createdAt: string;
 }
 
-/** GET /api/v1/notifications */
 export interface NotificationResponseDto {
-  id: string | number;
-  type: string;
+  id: number;
+  notificationType: string;
   content: string;
   relatedUrl?: string;
   isRead: boolean;
   createdAt: string;
-  // Frontend compat fields
-  title?: string;
-  message?: string;
-  time?: string;
 }
 
-// ============== Frontend Extended Types ==============
-// These extend API types with UI-specific properties
+export interface NotificationSettingsResponseDto {
+  push: boolean;
+  newItems: boolean;
+  chat: boolean;
+  marketing: boolean;
+  sound: boolean;
+}
+
+export interface BlockedUserResponseDto {
+  id: number;
+  name: string;
+  blockedAt: string;
+}
+
+export interface ImageUploadResultDto {
+  originalFilename: string;
+  imageUrl: string;
+  s3Key: string;
+}
 
 export interface User {
-  id: string | number;
+  id: number | string;
   name: string;
   avatar: string;
   nickname?: string;
   role?: string;
   trustScore?: number;
-  badges?: string[];
 }
 
 export interface GroupWithUI extends GroupResponseDto {
-  memberCount?: number;
   activeListings?: number;
-  image?: string; // For UI compatibility, maps to profileImageUrl
+  image?: string;
 }
 
 export interface ItemWithUI extends ItemSummaryResponseDto {
-  image?: string; // Alias for thumbnailUrl
-  description?: string; // For item detail
-  postedAt?: string;
-  likes?: number;
+  image?: string;
+  description?: string;
+  postedAtLabel?: string;
   isLiked?: boolean;
   groupName?: string;
   seller?: User;

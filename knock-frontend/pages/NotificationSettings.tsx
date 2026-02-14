@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
+import { memberSettingsApi } from '../services';
+import { NotificationSettingsResponseDto } from '../types';
 
 const Toggle: React.FC<{ label: string; description?: string; checked: boolean; onChange: () => void }> = ({ label, description, checked, onChange }) => (
     <div className="flex items-center justify-between py-4">
@@ -19,16 +21,53 @@ const Toggle: React.FC<{ label: string; description?: string; checked: boolean; 
 
 const NotificationSettings: React.FC = () => {
   const navigate = useNavigate();
-  const [settings, setSettings] = useState({
-    push: true,
-    newItems: true,
-    chat: true,
-    marketing: false,
-    sound: true
-  });
+  const [settings, setSettings] = useState<NotificationSettingsResponseDto | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
 
-  const toggle = (key: keyof typeof settings) => {
-    setSettings(prev => ({ ...prev, [key]: !prev[key] }));
+  useEffect(() => {
+    const loadSettings = async () => {
+      setIsLoading(true);
+      try {
+        const response = await memberSettingsApi.getNotificationSettings();
+        setSettings(response);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to load settings.';
+        alert(message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSettings();
+  }, []);
+
+  const toggle = (key: keyof NotificationSettingsResponseDto) => {
+    setSettings((prev) => {
+      if (!prev) {
+        return prev;
+      }
+      return { ...prev, [key]: !prev[key] };
+    });
+    setSaveMessage('');
+  };
+
+  const handleSave = async () => {
+    if (!settings) {
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await memberSettingsApi.updateNotificationSettings(settings);
+      setSaveMessage('Saved.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to save settings.';
+      alert(message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -41,17 +80,24 @@ const NotificationSettings: React.FC = () => {
       </div>
 
       <div className="px-6 py-2 divide-y divide-gray-100">
+        {isLoading ? (
+          <div className="py-20 flex items-center justify-center text-gray-500">
+            <Loader2 size={18} className="animate-spin mr-2" />
+            Loading settings...
+          </div>
+        ) : (
+          <>
         <div className="py-2">
              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider py-2">General</p>
              <Toggle 
                 label="Push Notifications" 
                 description="Pause all notifications"
-                checked={settings.push} 
+                checked={settings?.push ?? false} 
                 onChange={() => toggle('push')} 
              />
              <Toggle 
                 label="Sound & Haptics" 
-                checked={settings.sound} 
+                checked={settings?.sound ?? false} 
                 onChange={() => toggle('sound')} 
              />
         </div>
@@ -61,13 +107,13 @@ const NotificationSettings: React.FC = () => {
              <Toggle 
                 label="New Items in Groups" 
                 description="Get notified when items are posted in your groups"
-                checked={settings.newItems} 
+                checked={settings?.newItems ?? false} 
                 onChange={() => toggle('newItems')} 
              />
              <Toggle 
                 label="Chat Messages" 
                 description="Receive messages from buyers/sellers"
-                checked={settings.chat} 
+                checked={settings?.chat ?? false} 
                 onChange={() => toggle('chat')} 
              />
         </div>
@@ -77,10 +123,26 @@ const NotificationSettings: React.FC = () => {
              <Toggle 
                 label="Marketing & Tips" 
                 description="News about Knock Market"
-                checked={settings.marketing} 
+                checked={settings?.marketing ?? false} 
                 onChange={() => toggle('marketing')} 
              />
         </div>
+            <div className="py-4 flex items-center justify-between">
+              <p className="text-xs text-emerald-600">{saveMessage}</p>
+              <button
+                onClick={handleSave}
+                disabled={isSaving || !settings}
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                  isSaving || !settings
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    : 'bg-emerald-500 text-white hover:bg-emerald-600'
+                }`}
+              >
+                {isSaving ? 'Saving...' : 'Save'}
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
