@@ -24,6 +24,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 
 class GroupControllerTest extends RestDocsTest {
 
@@ -106,6 +108,31 @@ class GroupControllerTest extends RestDocsTest {
 							fieldWithPath("data[].id").type(JsonFieldType.NUMBER).description("그룹 ID"),
 							fieldWithPath("data[].name").type(JsonFieldType.STRING).description("그룹 이름"),
 							fieldWithPath("data[].description").type(JsonFieldType.STRING).description("그룹 설명"),
+							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+	}
+
+	@Test
+	@DisplayName("그룹 상세 조회 성공 - inviteCode 비노출")
+	void getGroupDetail_success_withoutInviteCode() {
+		// given
+		GroupResult result = new GroupResult(TEST_GROUP_ID, TEST_GROUP_NAME, TEST_GROUP_DESCRIPTION, TEST_INVITE_CODE,
+				TEST_MEMBER_ID, 1L, TEST_IMAGE_URL);
+		given(groupService.getGroupDetail(anyLong())).willReturn(result);
+
+		// when & then
+		restDocGiven().pathParam("groupId", TEST_GROUP_ID)
+			.get("/api/v1/groups/{groupId}")
+			.then()
+			.status(HttpStatus.OK)
+			.apply(document("api/v1/groups/detail", requestPreprocessor(), responsePreprocessor(),
+					pathParameters(parameterWithName("groupId").description("그룹 ID")),
+					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
+							fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("그룹 ID"),
+							fieldWithPath("data.name").type(JsonFieldType.STRING).description("그룹 이름"),
+							fieldWithPath("data.description").type(JsonFieldType.STRING).description("그룹 설명"),
+							fieldWithPath("data.memberCount").type(JsonFieldType.NUMBER).description("그룹 멤버 수"),
+							fieldWithPath("data.profileImageUrl").type(JsonFieldType.STRING).description("그룹 이미지 URL")
+								.optional(),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}
 

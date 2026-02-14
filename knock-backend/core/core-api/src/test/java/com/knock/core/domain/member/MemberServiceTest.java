@@ -7,6 +7,7 @@ import com.knock.core.domain.member.event.MemberCreatedEvent;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
 import com.knock.storage.db.core.member.Member;
+import com.knock.storage.db.core.member.MemberBlockRepository;
 import com.knock.storage.db.core.member.MemberRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -43,6 +44,9 @@ class MemberServiceTest {
 
 	@Mock
 	private ApplicationEventPublisher eventPublisher;
+
+	@Mock
+	private MemberBlockRepository memberBlockRepository;
 
 	@Nested
 	@DisplayName("회원가입")
@@ -112,6 +116,40 @@ class MemberServiceTest {
 			// when & then
 			assertThatThrownBy(() -> memberService.getMember(TEST_MEMBER_ID)).isInstanceOf(CoreException.class)
 				.hasFieldOrPropertyWithValue("errorType", ErrorType.MEMBER_NOT_FOUND);
+		}
+
+	}
+
+	@Nested
+	@DisplayName("회원 프로필 수정")
+	class UpdateProfile {
+
+		@Test
+		@DisplayName("성공")
+		void success() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
+
+			// when
+			memberService.updateProfile(TEST_MEMBER_ID, "updatedNickname", TEST_IMAGE_URL);
+
+			// then
+			assertThat(member.getNickname()).isEqualTo("updatedNickname");
+			assertThat(member.getProfileImageUrl()).isEqualTo(TEST_IMAGE_URL);
+		}
+
+		@Test
+		@DisplayName("실패 - 닉네임 없음")
+		void fail_emptyNickname() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
+
+			// when & then
+			assertThatThrownBy(() -> memberService.updateProfile(TEST_MEMBER_ID, " ", TEST_IMAGE_URL))
+				.isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.VALIDATION_ERROR);
 		}
 
 	}

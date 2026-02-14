@@ -63,7 +63,7 @@ class ReservationControllerTest extends RestDocsTest {
 			.apply(document("api/v1/reservations/create", requestPreprocessor(), responsePreprocessor(),
 					requestFields(fieldWithPath("itemId").type(JsonFieldType.NUMBER).description("상품 ID")),
 					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
-							fieldWithPath("data").type(JsonFieldType.NUMBER).description("생성된 예약 ID"),
+							fieldWithPath("data.reservationId").type(JsonFieldType.NUMBER).description("생성된 예약 ID"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}
 

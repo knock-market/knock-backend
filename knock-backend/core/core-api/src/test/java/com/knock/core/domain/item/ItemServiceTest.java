@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class ItemServiceTest {
@@ -193,6 +194,45 @@ class ItemServiceTest {
 			// then
 			assertThat(results).hasSize(1);
 			assertThat(results.getFirst().id()).isEqualTo(TEST_ITEM_ID);
+		}
+
+	}
+
+	@Nested
+	@DisplayName("상품 삭제")
+	class DeleteItem {
+
+		@Test
+		@DisplayName("성공")
+		void success() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, group, member);
+
+			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
+
+			// when
+			itemService.deleteItem(TEST_MEMBER_ID, TEST_ITEM_ID);
+
+			// then
+			verify(itemRepository).delete(item);
+		}
+
+		@Test
+		@DisplayName("실패 - 권한 없음")
+		void fail_forbidden() {
+			// given
+			Member owner = createMember(TEST_MEMBER_ID);
+			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, group, owner);
+
+			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
+
+			// when & then
+			assertThatThrownBy(() -> itemService.deleteItem(TEST_MEMBER_ID_2, TEST_ITEM_ID))
+				.isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.FORBIDDEN);
 		}
 
 	}

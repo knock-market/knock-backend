@@ -71,6 +71,17 @@ public class ItemService {
 		}).toList();
 	}
 
+	@Transactional
+	public void deleteItem(Long memberId, Long itemId) {
+		Item item = itemRepository.findById(itemId).orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
+
+		if (!item.getMember().getId().equals(memberId)) {
+			throw new CoreException(ErrorType.FORBIDDEN);
+		}
+
+		itemRepository.delete(item);
+	}
+
 	// todo : 로직 완성 필요
 	@Async
 	@Transactional

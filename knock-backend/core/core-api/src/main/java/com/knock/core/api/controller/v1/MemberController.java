@@ -1,6 +1,7 @@
 package com.knock.core.api.controller.v1;
 
 import com.knock.auth.MemberPrincipal;
+import com.knock.core.api.controller.v1.request.MemberUpdateRequestDto;
 import com.knock.core.api.controller.v1.request.MemberSignupRequestDto;
 import com.knock.core.api.controller.v1.response.MemberResponseDto;
 import com.knock.core.api.controller.v1.response.MemberSignupResponseDto;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,6 +36,13 @@ public class MemberController {
 		MemberResult result = memberService.getMember(principal.getMemberId());
 		MemberResponseDto response = MemberResponseDto.of(result);
 		return ApiResponse.success(response);
+	}
+
+	@PutMapping("/api/v1/members/my")
+	public ApiResponse<?> updateMyMember(@AuthenticationPrincipal MemberPrincipal principal,
+			@RequestBody MemberUpdateRequestDto request) {
+		memberService.updateProfile(principal.getMemberId(), request.nickname(), request.profileImageUrl());
+		return ApiResponse.success();
 	}
 
 }
