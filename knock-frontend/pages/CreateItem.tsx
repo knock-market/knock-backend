@@ -48,7 +48,8 @@ const CreateItem: React.FC = () => {
 
     setIsUploading(true);
     try {
-      const uploadPromises = Array.from(files).map((file) => imagesApi.upload(file));
+      const selectedFiles = Array.from(files as FileList);
+      const uploadPromises = selectedFiles.map((file: File) => imagesApi.upload(file));
       const uploaded = await Promise.all(uploadPromises);
       const newUrls = uploaded.map((file) => file.imageUrl);
       setImageUrls((prev) => [...prev, ...newUrls].slice(0, 5));
