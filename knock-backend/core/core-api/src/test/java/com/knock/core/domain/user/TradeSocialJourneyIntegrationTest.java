@@ -89,6 +89,27 @@ class TradeSocialJourneyIntegrationTest extends ContextTest {
 
 		long reservationId = readData(reserveResult).path("reservationId").asLong();
 
+		mockMvc.perform(get("/api/v1/items/{itemId}/reservations", itemId).cookie(sellerCookie))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.data[0].id").value(reservationId));
+
+		mockMvc.perform(get("/api/v1/items/{itemId}/reservations", itemId).cookie(buyerCookie))
+			.andExpect(status().isForbidden())
+			.andExpect(jsonPath("$.error.code").value("E403"));
+
+		MvcResult sellerNotificationsResult = mockMvc.perform(get("/api/v1/notifications").cookie(sellerCookie))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.data[0].notificationType").value("RESERVATION_CREATED"))
+			.andReturn();
+		long sellerNotificationId = readData(sellerNotificationsResult).path(0).path("id").asLong();
+
+		mockMvc.perform(patch("/api/v1/notifications/{id}/read", sellerNotificationId).cookie(buyerCookie))
+			.andExpect(status().isForbidden())
+			.andExpect(jsonPath("$.error.code").value("E403"));
+
+		mockMvc.perform(patch("/api/v1/notifications/{id}/read", sellerNotificationId).cookie(sellerCookie))
+			.andExpect(status().isOk());
+
 		// 구매자는 승인 권한이 없어야 함
 		mockMvc.perform(patch("/api/v1/reservations/{id}/approve", reservationId).cookie(buyerCookie))
 			.andExpect(status().isForbidden())
@@ -97,8 +118,16 @@ class TradeSocialJourneyIntegrationTest extends ContextTest {
 		mockMvc.perform(patch("/api/v1/reservations/{id}/approve", reservationId).cookie(sellerCookie))
 			.andExpect(status().isOk());
 
+		mockMvc.perform(get("/api/v1/notifications").cookie(buyerCookie))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.data[0].notificationType").value("RESERVATION_APPROVED"));
+
 		mockMvc.perform(patch("/api/v1/reservations/{id}/complete", reservationId).cookie(buyerCookie))
 			.andExpect(status().isOk());
+
+		mockMvc.perform(get("/api/v1/notifications").cookie(sellerCookie))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.data[0].notificationType").value("RESERVATION_COMPLETED"));
 
 		mockMvc.perform(get("/api/v1/reservations/my").cookie(buyerCookie))
 			.andExpect(status().isOk())

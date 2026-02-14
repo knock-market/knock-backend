@@ -1,6 +1,8 @@
 package com.knock.storage.db.core.reservation;
 
 import com.knock.core.enums.ReservationStatus;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,6 +14,10 @@ import java.util.Optional;
 interface ReservationJpaRepository extends JpaRepository<Reservation, Long> {
 
 	List<Reservation> findByItem_IdOrderByCreatedAtAsc(Long itemId);
+
+	@Lock(LockModeType.PESSIMISTIC_WRITE)
+	@Query("SELECT r FROM Reservation r WHERE r.item.id = :itemId ORDER BY r.createdAt ASC")
+	List<Reservation> findByItemIdForUpdate(@Param("itemId") Long itemId);
 
 	List<Reservation> findByMember_IdOrderByCreatedAtDesc(Long memberId);
 

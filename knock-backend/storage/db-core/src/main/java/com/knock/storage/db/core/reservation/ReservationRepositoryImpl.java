@@ -29,6 +29,11 @@ public class ReservationRepositoryImpl implements ReservationRepository {
 	}
 
 	@Override
+	public List<Reservation> findByItemIdForUpdate(Long itemId) {
+		return jpaRepository.findByItemIdForUpdate(itemId);
+	}
+
+	@Override
 	public List<Reservation> findByMemberId(Long memberId) {
 		return jpaRepository.findByMember_IdOrderByCreatedAtDesc(memberId);
 	}

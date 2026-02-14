@@ -109,4 +109,34 @@ class ReservationControllerTest extends RestDocsTest {
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}
 
+	@Test
+	@DisplayName("상품별 예약 목록 조회 성공")
+	void getReservationsByItem_success() {
+		// given
+		Member owner = createMember(TEST_MEMBER_ID);
+		Member buyer = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
+		Item item = createItem(TEST_ITEM_ID, createGroup(), owner);
+		Reservation reservation = createReservation(TEST_RESERVATION_ID, item, buyer, ReservationStatus.WAITING);
+		ReservationResult result = ReservationResult.from(reservation);
+
+		given(reservationService.getReservationsByItem(anyLong(), anyLong())).willReturn(List.of(result));
+
+		// when & then
+		restDocGiven().pathParam("itemId", TEST_ITEM_ID)
+			.get("/api/v1/items/{itemId}/reservations")
+			.then()
+			.status(HttpStatus.OK)
+			.apply(document("api/v1/reservations/item-list", requestPreprocessor(), responsePreprocessor(),
+					pathParameters(parameterWithName("itemId").description("상품 ID")),
+					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
+							fieldWithPath("data[].id").type(JsonFieldType.NUMBER).description("예약 ID"),
+							fieldWithPath("data[].itemId").type(JsonFieldType.NUMBER).description("상품 ID"),
+							fieldWithPath("data[].itemTitle").type(JsonFieldType.STRING).description("상품 제목"),
+							fieldWithPath("data[].memberId").type(JsonFieldType.NUMBER).description("예약자 ID"),
+							fieldWithPath("data[].memberName").type(JsonFieldType.STRING).description("예약자 이름"),
+							fieldWithPath("data[].status").type(JsonFieldType.STRING).description("예약 상태"),
+							fieldWithPath("data[].createdAt").description("예약 생성일"),
+							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+	}
+
 }

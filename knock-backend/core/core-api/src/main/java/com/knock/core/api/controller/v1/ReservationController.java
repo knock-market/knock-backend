@@ -51,8 +51,9 @@ public class ReservationController {
 	}
 
 	@GetMapping("/api/v1/items/{itemId}/reservations")
-	public ApiResponse<List<ReservationResponseDto>> getReservationsByItem(@PathVariable Long itemId) {
-		List<ReservationResult> results = reservationService.getReservationsByItem(itemId);
+	public ApiResponse<List<ReservationResponseDto>> getReservationsByItem(
+			@AuthenticationPrincipal MemberPrincipal principal, @PathVariable Long itemId) {
+		List<ReservationResult> results = reservationService.getReservationsByItem(principal.getMemberId(), itemId);
 		List<ReservationResponseDto> response = results.stream().map(ReservationResponseDto::from).toList();
 		return ApiResponse.success(response);
 	}

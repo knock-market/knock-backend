@@ -1,5 +1,6 @@
 package com.knock.core.domain.reservation;
 
+import com.knock.core.domain.notification.NotificationService;
 import com.knock.core.domain.reservation.dto.ReservationCreateData;
 import com.knock.core.domain.reservation.dto.ReservationResult;
 import com.knock.core.enums.ReservationStatus;
@@ -27,6 +28,9 @@ import static com.knock.core.support.TestFixtures.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class ReservationServiceTest {
@@ -42,6 +46,9 @@ class ReservationServiceTest {
 
 	@Mock
 	private MemberRepository memberRepository;
+
+	@Mock
+	private NotificationService notificationService;
 
 	@Nested
 	@DisplayName("예약 생성")
@@ -68,6 +75,7 @@ class ReservationServiceTest {
 
 			// then
 			assertThat(result).isEqualTo(TEST_RESERVATION_ID);
+			verify(notificationService).createNotification(any());
 		}
 
 		@Test
@@ -85,6 +93,7 @@ class ReservationServiceTest {
 			// when & then
 			assertThatThrownBy(() -> reservationService.createReservation(data)).isInstanceOf(CoreException.class)
 				.hasFieldOrPropertyWithValue("errorType", ErrorType.RESERVATION_ALREADY_EXISTS);
+			verify(notificationService, never()).createNotification(any());
 		}
 
 	}
@@ -104,12 +113,14 @@ class ReservationServiceTest {
 
 			given(reservationRepository.findByIdWithItemAndMember(TEST_RESERVATION_ID))
 				.willReturn(Optional.of(reservation));
+			given(reservationRepository.findByItemIdForUpdate(TEST_ITEM_ID)).willReturn(List.of(reservation));
 
 			// when
 			reservationService.approveReservation(TEST_MEMBER_ID, TEST_RESERVATION_ID);
 
 			// then
 			assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.APPROVED);
+			verify(notificationService).createNotification(any());
 		}
 
 		@Test
@@ -128,6 +139,26 @@ class ReservationServiceTest {
 			assertThatThrownBy(() -> reservationService.approveReservation(TEST_MEMBER_ID_2, TEST_RESERVATION_ID))
 				.isInstanceOf(CoreException.class)
 				.hasFieldOrPropertyWithValue("errorType", ErrorType.FORBIDDEN);
+		}
+
+		@Test
+		@DisplayName("실패 - 이미 승인된 예약 존재")
+		void fail_alreadyApprovedExists() {
+			// given
+			Member owner = createMember(TEST_MEMBER_ID);
+			Member buyer = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
+			Member otherBuyer = createMember(3L, "other@test.com");
+			Item item = createItem(TEST_ITEM_ID, createGroup(), owner);
+			Reservation target = createReservation(TEST_RESERVATION_ID, item, buyer);
+			Reservation approved = createReservation(2L, item, otherBuyer, ReservationStatus.APPROVED);
+
+			given(reservationRepository.findByIdWithItemAndMember(TEST_RESERVATION_ID)).willReturn(Optional.of(target));
+			given(reservationRepository.findByItemIdForUpdate(TEST_ITEM_ID)).willReturn(List.of(approved, target));
+
+			// when & then
+			assertThatThrownBy(() -> reservationService.approveReservation(TEST_MEMBER_ID, TEST_RESERVATION_ID))
+				.isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.RESERVATION_ALREADY_EXISTS);
 		}
 
 	}
@@ -153,6 +184,7 @@ class ReservationServiceTest {
 
 			// then
 			assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.COMPLETED);
+			verify(notificationService).createNotification(any());
 		}
 
 		@Test
@@ -172,6 +204,7 @@ class ReservationServiceTest {
 
 			// then
 			assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.COMPLETED);
+			verify(notificationService).createNotification(any());
 		}
 
 	}
@@ -197,6 +230,7 @@ class ReservationServiceTest {
 
 			// then
 			assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.CANCELED);
+			verify(notificationService).createNotification(any());
 		}
 
 	}
@@ -213,13 +247,28 @@ class ReservationServiceTest {
 			Item item = createItem(TEST_ITEM_ID, createGroup(), member);
 			Reservation reservation = createReservation(TEST_RESERVATION_ID, item, member);
 
+			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
 			given(reservationRepository.findByItemId(TEST_ITEM_ID)).willReturn(List.of(reservation));
 
 			// when
-			List<ReservationResult> results = reservationService.getReservationsByItem(TEST_ITEM_ID);
+			List<ReservationResult> results = reservationService.getReservationsByItem(TEST_MEMBER_ID, TEST_ITEM_ID);
 
 			// then
 			assertThat(results).hasSize(1);
+		}
+
+		@Test
+		@DisplayName("상품별 예약 조회 실패 - 권한 없음")
+		void getReservationsByItem_fail_forbidden() {
+			// given
+			Member owner = createMember(TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, createGroup(), owner);
+			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
+
+			// when & then
+			assertThatThrownBy(() -> reservationService.getReservationsByItem(TEST_MEMBER_ID_2, TEST_ITEM_ID))
+				.isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.FORBIDDEN);
 		}
 
 		@Test

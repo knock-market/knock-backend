@@ -22,6 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
@@ -69,6 +70,22 @@ class GroupControllerTest extends RestDocsTest {
 							fieldWithPath("data.inviteCode").type(JsonFieldType.STRING).description("초대 코드"),
 							fieldWithPath("data.description").type(JsonFieldType.STRING).description("생성된 그룹 배경"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+	}
+
+	@Test
+	@DisplayName("그룹 생성 실패 - 유효성 검증")
+	void createGroup_fail_validation() {
+		// given
+		GroupCreateRequestDto request = new GroupCreateRequestDto("   ", TEST_GROUP_DESCRIPTION, TEST_IMAGE_URL);
+
+		// when & then
+		restDocGiven().contentType(ContentType.JSON)
+			.body(request)
+			.post("/api/v1/groups")
+			.then()
+			.status(HttpStatus.BAD_REQUEST);
+
+		verifyNoInteractions(groupService);
 	}
 
 	@Test

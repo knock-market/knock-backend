@@ -13,6 +13,7 @@ import com.knock.core.domain.group.dto.GroupInviteCodeResult;
 import com.knock.core.domain.group.dto.GroupJoinData;
 import com.knock.core.domain.group.dto.GroupResult;
 import com.knock.core.support.response.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ public class GroupController {
 
 	@PostMapping("/api/v1/groups")
 	public ApiResponse<GroupCreateResponseDto> createGroup(@AuthenticationPrincipal MemberPrincipal principal,
-			@RequestBody GroupCreateRequestDto request) {
+			@Valid @RequestBody GroupCreateRequestDto request) {
 		GroupResult result = groupService.createGroup(principal.getMemberId(), GroupCreateData.of(request));
 		return ApiResponse.success(GroupCreateResponseDto.from(result));
 	}
@@ -44,7 +45,7 @@ public class GroupController {
 
 	@PostMapping("/api/v1/groups/join")
 	public ApiResponse<GroupIdResponseDto> joinGroup(@AuthenticationPrincipal MemberPrincipal principal,
-			@RequestBody GroupJoinRequestDto request) {
+			@Valid @RequestBody GroupJoinRequestDto request) {
 		Long groupId = groupService.joinGroup(principal.getMemberId(), GroupJoinData.of(request));
 		return ApiResponse.success(new GroupIdResponseDto(groupId));
 	}

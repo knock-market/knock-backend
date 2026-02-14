@@ -21,6 +21,7 @@ import static com.knock.core.support.TestConstants.*;
 import static com.knock.test.api.RestDocsUtils.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -72,6 +73,23 @@ class MemberControllerTest extends RestDocsTest {
 								.optional(),
 							fieldWithPath("data.provider").type(JsonFieldType.STRING).description("가입 경로"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+	}
+
+	@Test
+	@DisplayName("회원가입 실패 - 유효성 검증")
+	void signup_fail_validation() {
+		// given
+		MemberSignupRequestDto request = new MemberSignupRequestDto("invalid-email", TEST_NAME, TEST_PASSWORD,
+				TEST_NICKNAME, null);
+
+		// when & then
+		restDocGiven().contentType(ContentType.JSON)
+			.body(request)
+			.post("/api/v1/members")
+			.then()
+			.status(HttpStatus.BAD_REQUEST);
+
+		verifyNoInteractions(memberService);
 	}
 
 	@Test
