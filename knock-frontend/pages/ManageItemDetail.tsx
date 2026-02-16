@@ -100,13 +100,11 @@ const ManageItemDetail: React.FC = () => {
 
   const handleConfirmAction = async () => {
     try {
-      if (activeModal === 'RESERVATION' && selectedReservationId) {
+      if (activeModal === 'RESERVATION' && selectedReservationId !== null) {
         await reservationsApi.approve(selectedReservationId);
         setToastMessage('Reservation approved');
         await refreshReservations();
-      }
-
-      if (activeModal === 'COMPLETE') {
+      } else if (activeModal === 'COMPLETE') {
         const approved = reservations.find((reservation) => reservation.status === ReservationStatus.APPROVED);
         if (!approved) {
           alert('No approved reservation found.');
@@ -115,9 +113,7 @@ const ManageItemDetail: React.FC = () => {
         await reservationsApi.complete(approved.id);
         setToastMessage('Transaction completed');
         await refreshReservations();
-      }
-
-      if (activeModal === 'DELETE' && id) {
+      } else if (activeModal === 'DELETE' && id) {
         await itemsApi.deleteItem(id);
         navigate('/manage-items');
         return;
