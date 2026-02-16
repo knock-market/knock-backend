@@ -10,6 +10,8 @@ import { CATEGORY_LABELS } from '../constants';
 const ItemDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const itemId = id ? Number(id) : NaN;
+  const hasValidItemId = Number.isInteger(itemId) && itemId > 0;
 
   const [item, setItem] = useState<ItemResponseDto | null>(null);
   const [hasRequested, setHasRequested] = useState(false);
@@ -21,21 +23,29 @@ const ItemDetail = () => {
 
   useEffect(() => {
     const load = async () => {
-      if (!id) return;
+      if (!hasValidItemId) {
+        setItem(null);
+        setHasRequested(false);
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(true);
       try {
-        const data = await itemsApi.getItem(id);
+        const data = await itemsApi.getItem(itemId);
         setItem(data);
         setHasRequested(data.status !== ItemStatus.ON_SALE);
       } catch (error) {
         console.error('Failed to fetch item', error);
+        setItem(null);
+        setHasRequested(false);
       } finally {
         setIsLoading(false);
       }
     };
 
     load();
-  }, [id]);
+  }, [itemId, hasValidItemId]);
 
   if (isLoading) {
     return <ItemDetailSkeleton />;
@@ -49,11 +59,11 @@ const ItemDetail = () => {
   };
 
   const confirmReservation = async () => {
-    if (!id) return;
+    if (!hasValidItemId) return;
 
     setIsSubmitting(true);
     try {
-      await reservationsApi.create(Number(id));
+      await reservationsApi.create(itemId);
       setHasRequested(true);
       alert('Reservation request sent to the seller!');
     } catch (error) {
@@ -66,10 +76,10 @@ const ItemDetail = () => {
   };
 
   const toggleLike = async () => {
-    if (!id) return;
+    if (!hasValidItemId) return;
 
     try {
-      const result = await bookmarksApi.toggle(id);
+      const result = await bookmarksApi.toggle(itemId);
       setIsLiked(result.toggleOn);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to update bookmark.';
