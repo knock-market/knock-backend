@@ -71,6 +71,15 @@ const CreateItem: React.FC = () => {
       return;
     }
 
+    const parsedPrice = Number(price);
+    if (transactionType === 'sale') {
+      const isInvalidSalePrice = !price.trim() || !Number.isFinite(parsedPrice) || !Number.isInteger(parsedPrice) || parsedPrice <= 0;
+      if (isInvalidSalePrice) {
+        alert('Please enter a valid sale price greater than 0.');
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     try {
       await itemsApi.createItem({
@@ -79,7 +88,7 @@ const CreateItem: React.FC = () => {
         category,
         groupId: Number(groupId),
         itemType: transactionType === 'sale' ? 'SELL' : 'GIVE',
-        price: transactionType === 'sale' ? Number(price) : 0,
+        price: transactionType === 'sale' ? parsedPrice : 0,
         imageUrls,
       });
       alert('Item posted successfully!');
@@ -226,6 +235,7 @@ const CreateItem: React.FC = () => {
               <input
                 type="number"
                 min="1"
+                step="1"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="1000"
