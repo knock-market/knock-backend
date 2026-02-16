@@ -74,7 +74,7 @@ public class ReservationService {
 		Reservation target = reservations.stream()
 			.filter(each -> each.getId().equals(reservationId))
 			.findFirst()
-			.orElse(reservation);
+			.orElseThrow(() -> new CoreException(ErrorType.RESERVATION_NOT_FOUND));
 
 		if (target.getStatus() != ReservationStatus.WAITING) {
 			throw new CoreException(ErrorType.VALIDATION_ERROR);
