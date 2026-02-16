@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
@@ -88,6 +89,21 @@ class NotificationControllerTest extends RestDocsTest {
 					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
 							fieldWithPath("data").type(JsonFieldType.NULL).description("데이터"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+	}
+
+	@Test
+	@DisplayName("알림 전체 읽음 처리 성공")
+	void markAllAsRead_success() {
+		// when & then
+		restDocGiven().patch("/api/v1/notifications/read-all")
+			.then()
+			.status(HttpStatus.OK)
+			.apply(document("api/v1/notifications/read-all", requestPreprocessor(), responsePreprocessor(),
+					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
+							fieldWithPath("data").type(JsonFieldType.NULL).description("데이터"),
+							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+
+		verify(notificationService).markAllAsRead(anyLong());
 	}
 
 	@Test

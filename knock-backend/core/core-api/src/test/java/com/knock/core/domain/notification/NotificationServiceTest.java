@@ -172,4 +172,20 @@ class NotificationServiceTest {
 
 	}
 
+	@Nested
+	@DisplayName("알림 전체 읽음 처리")
+	class MarkAllAsRead {
+
+		@Test
+		@DisplayName("성공")
+		void success() {
+			// when
+			notificationService.markAllAsRead(TEST_MEMBER_ID);
+
+			// then
+			verify(notificationRepository).markAllAsReadByMemberId(TEST_MEMBER_ID);
+		}
+
+	}
+
 }

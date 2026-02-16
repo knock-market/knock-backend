@@ -34,4 +34,10 @@ public class NotificationController {
 		return ApiResponse.success(null);
 	}
 
+	@PatchMapping("/api/v1/notifications/read-all")
+	public ApiResponse<Void> markAllAsRead(@AuthenticationPrincipal MemberPrincipal principal) {
+		notificationService.markAllAsRead(principal.getMemberId());
+		return ApiResponse.success(null);
+	}
+
 }

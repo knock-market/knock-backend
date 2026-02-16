@@ -243,6 +243,17 @@ include::{snippets}/api/v1/notifications/read/path-parameters.adoc[]
 include::{snippets}/api/v1/notifications/read/http-response.adoc[]
 include::{snippets}/api/v1/notifications/read/response-fields.adoc[]
 
+[[notification-read-all]]
+=== 7.3 Mark All Notifications as Read
+`PATCH /api/v1/notifications/read-all`
+
+==== Request
+include::{snippets}/api/v1/notifications/read-all/http-request.adoc[]
+
+==== Response
+include::{snippets}/api/v1/notifications/read-all/http-response.adoc[]
+include::{snippets}/api/v1/notifications/read-all/response-fields.adoc[]
+
 [[image-api]]
 == 8. Image API
 

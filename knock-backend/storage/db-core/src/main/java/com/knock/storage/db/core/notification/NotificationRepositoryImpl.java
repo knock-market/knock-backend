@@ -28,6 +28,11 @@ public class NotificationRepositoryImpl implements NotificationRepository {
 	}
 
 	@Override
+	public int markAllAsReadByMemberId(Long memberId) {
+		return jpaRepository.markAllAsReadByMemberId(memberId);
+	}
+
+	@Override
 	public void delete(Notification notification) {
 		jpaRepository.delete(notification);
 	}

@@ -108,6 +108,8 @@ export const notificationsApi = {
     getAll: () => get<NotificationResponseDto[]>('/notifications'),
     markAsRead: (id: number | string) =>
         patch<void>(`/notifications/${id}/read`),
+    markAllAsRead: () =>
+        patch<void>('/notifications/read-all'),
 };
 
 // ============== Member Settings API ==============

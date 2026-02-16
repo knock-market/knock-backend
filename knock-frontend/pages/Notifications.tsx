@@ -77,7 +77,7 @@ const Notifications: React.FC = () => {
     if (unreadIds.length === 0) return;
 
     try {
-      await Promise.all(unreadIds.map((id) => notificationsApi.markAsRead(id)));
+      await notificationsApi.markAllAsRead();
       setNotifications((prev) => prev.map((notification) => ({ ...notification, isRead: true })));
     } catch (error) {
       console.error('Failed to mark all notifications as read', error);
