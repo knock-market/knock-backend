@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, ChevronRight, Edit2, Info, Loader2, Trash2 } from 'lucide-react';
 import { itemsApi, reservationsApi } from '../services';
+import ImageWithFallback from '../components/ImageWithFallback';
 import { ItemStatus, ItemWithUI, ReservationResponseDto, ReservationStatus } from '../types';
 
 type ModalType = 'NONE' | 'RESERVATION' | 'COMPLETE' | 'DELETE';
@@ -67,7 +68,7 @@ const ManageItemDetail: React.FC = () => {
 
         setItem({
           ...itemData,
-          image: itemData.imageUrls?.[0] || '',
+          image: itemData.imageUrls?.[0],
           likesCount: 0,
         });
         setReservations(reservationData);
@@ -191,7 +192,7 @@ const ManageItemDetail: React.FC = () => {
       <div className="p-6">
         <div className="flex items-center space-x-4 mb-8">
           <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-100 shadow-sm">
-            <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+            <ImageWithFallback src={item.image} alt={item.title} className="w-full h-full object-cover" />
           </div>
           <div>
             <h2 className="text-xl font-bold text-gray-900 leading-tight">{item.title}</h2>
