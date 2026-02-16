@@ -52,7 +52,12 @@ const ManageItemDetail: React.FC = () => {
 
   useEffect(() => {
     const load = async () => {
-      if (!id) return;
+      if (!id) {
+        setItem(null);
+        setReservations([]);
+        setIsLoading(false);
+        return;
+      }
       setIsLoading(true);
       try {
         const [itemData, reservationData] = await Promise.all([
