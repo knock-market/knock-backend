@@ -26,19 +26,38 @@ const ItemDetail = () => {
       if (!hasValidItemId) {
         setItem(null);
         setHasRequested(false);
+        setIsLiked(false);
         setIsLoading(false);
         return;
       }
 
       setIsLoading(true);
+      setIsLiked(false);
       try {
-        const data = await itemsApi.getItem(itemId);
+        const [itemResult, bookmarkResult] = await Promise.allSettled([
+          itemsApi.getItem(itemId),
+          bookmarksApi.getMyBookmarks(),
+        ]);
+
+        if (itemResult.status === 'rejected') {
+          throw itemResult.reason;
+        }
+
+        const data = itemResult.value;
         setItem(data);
         setHasRequested(data.status !== ItemStatus.ON_SALE);
+
+        if (bookmarkResult.status === 'fulfilled') {
+          const liked = bookmarkResult.value.some((bookmark) => bookmark.itemId === data.id);
+          setIsLiked(liked);
+        } else {
+          console.error('Failed to fetch bookmarks', bookmarkResult.reason);
+        }
       } catch (error) {
         console.error('Failed to fetch item', error);
         setItem(null);
         setHasRequested(false);
+        setIsLiked(false);
       } finally {
         setIsLoading(false);
       }
