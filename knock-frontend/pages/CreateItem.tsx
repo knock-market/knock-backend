@@ -10,7 +10,6 @@ const CreateItem: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [transactionType, setTransactionType] = useState<'free' | 'sale'>('free');
-  const [isAutoReserve, setIsAutoReserve] = useState(true);
   const [price, setPrice] = useState('1000');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -235,28 +234,6 @@ const CreateItem: React.FC = () => {
             </div>
           )}
         </div>
-
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-          <div>
-            <span className="block text-sm font-semibold text-gray-900">First-come-first-served</span>
-            <span className="text-xs text-gray-500">Auto-confirm first requester</span>
-          </div>
-          <button
-            onClick={() => setIsAutoReserve((prev) => !prev)}
-            className={`w-12 h-7 rounded-full transition-colors relative ${isAutoReserve ? 'bg-emerald-500' : 'bg-gray-300'}`}
-          >
-            <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-transform ${isAutoReserve ? 'left-6' : 'left-1'}`}></div>
-          </button>
-        </div>
-
-        {isAutoReserve && (
-          <div className="bg-emerald-50 p-4 rounded-xl flex items-start space-x-3">
-            <div className="bg-emerald-200 text-emerald-700 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold mt-0.5">i</div>
-            <p className="text-xs text-emerald-800 leading-relaxed">
-              The first person to request will be automatically reserved.
-            </p>
-          </div>
-        )}
 
         <div className="pt-4">
           <button
