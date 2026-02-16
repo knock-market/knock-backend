@@ -15,6 +15,7 @@ import com.knock.storage.db.core.member.MemberBlockRepository;
 import com.knock.storage.db.core.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -107,7 +108,15 @@ public class MemberService {
 			return;
 		}
 
-		memberBlockRepository.save(MemberBlock.create(blocker, blocked));
+		try {
+			memberBlockRepository.save(MemberBlock.create(blocker, blocked));
+		}
+		catch (DataIntegrityViolationException e) {
+			if (memberBlockRepository.existsByBlockerIdAndBlockedId(blockerId, blockedId)) {
+				return;
+			}
+			throw e;
+		}
 	}
 
 	@Transactional

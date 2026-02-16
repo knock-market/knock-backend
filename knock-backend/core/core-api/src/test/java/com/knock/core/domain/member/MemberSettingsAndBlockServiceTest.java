@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
@@ -146,6 +147,46 @@ class MemberSettingsAndBlockServiceTest {
 
 			// then
 			verify(memberBlockRepository).save(any(MemberBlock.class));
+		}
+
+		@Test
+		@DisplayName("차단 멱등성 보장 - 동시 요청으로 유니크 제약 위반 발생 시 성공 처리")
+		void blockMember_idempotentOnDuplicateConstraintViolation() {
+			// given
+			Member blocker = createMember(TEST_MEMBER_ID);
+			Member blocked = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
+
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(blocker));
+			given(memberRepository.findById(TEST_MEMBER_ID_2)).willReturn(Optional.of(blocked));
+			given(memberBlockRepository.existsByBlockerIdAndBlockedId(TEST_MEMBER_ID, TEST_MEMBER_ID_2))
+				.willReturn(false, true);
+			given(memberBlockRepository.save(any(MemberBlock.class)))
+				.willThrow(new DataIntegrityViolationException("duplicate key"));
+
+			// when
+			memberService.blockMember(TEST_MEMBER_ID, TEST_MEMBER_ID_2);
+
+			// then
+			verify(memberBlockRepository).save(any(MemberBlock.class));
+		}
+
+		@Test
+		@DisplayName("차단 실패 - 유니크 충돌이 아닌 무결성 예외는 전파")
+		void blockMember_fail_nonDuplicateIntegrityViolation() {
+			// given
+			Member blocker = createMember(TEST_MEMBER_ID);
+			Member blocked = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
+
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(blocker));
+			given(memberRepository.findById(TEST_MEMBER_ID_2)).willReturn(Optional.of(blocked));
+			given(memberBlockRepository.existsByBlockerIdAndBlockedId(TEST_MEMBER_ID, TEST_MEMBER_ID_2))
+				.willReturn(false, false);
+			given(memberBlockRepository.save(any(MemberBlock.class)))
+				.willThrow(new DataIntegrityViolationException("constraint violation"));
+
+			// when & then
+			assertThatThrownBy(() -> memberService.blockMember(TEST_MEMBER_ID, TEST_MEMBER_ID_2))
+				.isInstanceOf(DataIntegrityViolationException.class);
 		}
 
 		@Test
