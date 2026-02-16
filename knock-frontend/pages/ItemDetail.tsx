@@ -32,6 +32,7 @@ const ItemDetail = () => {
       }
 
       setIsLoading(true);
+      setHasRequested(false);
       setIsLiked(false);
       try {
         const [itemResult, bookmarkResult] = await Promise.allSettled([
@@ -45,7 +46,6 @@ const ItemDetail = () => {
 
         const data = itemResult.value;
         setItem(data);
-        setHasRequested(data.status !== ItemStatus.ON_SALE);
 
         if (bookmarkResult.status === 'fulfilled') {
           const liked = bookmarkResult.value.some((bookmark) => bookmark.itemId === data.id);
@@ -72,8 +72,17 @@ const ItemDetail = () => {
 
   if (!item) return <div className="p-8 text-center text-gray-500">Item not found</div>;
 
+  const isUnavailable = item.status !== ItemStatus.ON_SALE;
+  const reserveButtonLabel = hasRequested
+    ? 'Requested'
+    : item.status === ItemStatus.RESERVED
+      ? 'Reserved'
+      : item.status === ItemStatus.SOLD
+        ? 'Sold'
+        : 'Reserve Now';
+
   const handleReserveClick = () => {
-    if (hasRequested || item.status !== ItemStatus.ON_SALE) return;
+    if (hasRequested || isUnavailable) return;
     setShowReserveModal(true);
   };
 
@@ -245,17 +254,17 @@ const ItemDetail = () => {
         </button>
         <button
           onClick={handleReserveClick}
-          disabled={hasRequested || item.status !== ItemStatus.ON_SALE}
-          className={`flex-1 py-4 rounded-xl font-bold text-white flex items-center justify-center space-x-2 transition-all active:scale-[0.98] ${hasRequested || item.status !== ItemStatus.ON_SALE
+          disabled={hasRequested || isUnavailable}
+          className={`flex-1 py-4 rounded-xl font-bold text-white flex items-center justify-center space-x-2 transition-all active:scale-[0.98] ${hasRequested || isUnavailable
             ? 'bg-gray-400 cursor-not-allowed'
             : 'bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-200'}`}
         >
-          {hasRequested || item.status !== ItemStatus.ON_SALE ? (
-            <span>Requested</span>
+          {hasRequested || isUnavailable ? (
+            <span>{reserveButtonLabel}</span>
           ) : (
             <>
               <Clock size={20} />
-              <span>Reserve Now</span>
+              <span>{reserveButtonLabel}</span>
             </>
           )}
         </button>
