@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bookmark, Loader2 } from 'lucide-react';
 import { bookmarksApi } from '../services';
-import { ItemCategory, ItemStatus, ItemType, ItemWithUI, MyBookmarkResponseDto } from '../types';
+import { ItemType, ItemWithUI, MyBookmarkResponseDto } from '../types';
 import ImageWithFallback from '../components/ImageWithFallback';
 
 const Bookmarks: React.FC = () => {
@@ -15,17 +15,20 @@ const Bookmarks: React.FC = () => {
       setIsLoading(true);
       try {
         const bookmarks: MyBookmarkResponseDto[] = await bookmarksApi.getMyBookmarks();
-        const items: ItemWithUI[] = bookmarks.map((bookmark) => ({
-          id: bookmark.itemId,
-          title: bookmark.title,
-          price: bookmark.price,
-          thumbnailUrl: bookmark.thumbnailUrl,
-          image: bookmark.thumbnailUrl,
-          type: bookmark.price === 0 ? ItemType.GIVE : ItemType.SELL,
-          status: ItemStatus.ON_SALE,
-          category: ItemCategory.ETC,
-          postedAtLabel: bookmark.createdAt ? new Date(bookmark.createdAt).toLocaleDateString() : '',
-        }));
+        const items: ItemWithUI[] = bookmarks.map((bookmark) => {
+          const itemCreatedAt = bookmark.itemCreatedAt ?? bookmark.createdAt;
+          return {
+            id: bookmark.itemId,
+            title: bookmark.title,
+            price: bookmark.price,
+            thumbnailUrl: bookmark.thumbnailUrl,
+            image: bookmark.thumbnailUrl,
+            type: bookmark.type,
+            status: bookmark.status,
+            category: bookmark.category,
+            postedAtLabel: itemCreatedAt ? new Date(itemCreatedAt).toLocaleDateString() : '',
+          };
+        });
         setSavedItems(items);
       } catch (error) {
         console.error('Failed to fetch bookmarks', error);
@@ -81,7 +84,7 @@ const Bookmarks: React.FC = () => {
                 </div>
                 <div className="mt-auto">
                   <span className={`font-bold text-sm ${item.type === ItemType.GIVE ? 'text-emerald-600' : 'text-gray-900'}`}>
-                    {item.price === 0 ? 'Free' : `₩${item.price.toLocaleString()}`}
+                    {item.type === ItemType.GIVE ? 'Free' : `₩${item.price.toLocaleString()}`}
                   </span>
                   {item.postedAtLabel && <p className="text-[10px] text-gray-400 mt-1">{item.postedAtLabel}</p>}
                 </div>

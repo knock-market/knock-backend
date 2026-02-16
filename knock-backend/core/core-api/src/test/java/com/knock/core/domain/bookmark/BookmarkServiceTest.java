@@ -2,6 +2,9 @@ package com.knock.core.domain.bookmark;
 
 import com.knock.core.domain.bookmark.dto.BookmarkResult;
 import com.knock.core.domain.bookmark.dto.BookmarkToggleData;
+import com.knock.core.enums.ItemCategory;
+import com.knock.core.enums.ItemStatus;
+import com.knock.core.enums.ItemType;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
 import com.knock.storage.db.core.bookmark.Bookmark;
@@ -167,6 +170,10 @@ class BookmarkServiceTest {
 			// then
 			assertThat(results).hasSize(1);
 			assertThat(results.get(0).itemId()).isEqualTo(TEST_ITEM_ID);
+			assertThat(results.get(0).type()).isEqualTo(ItemType.SELL);
+			assertThat(results.get(0).category()).isEqualTo(ItemCategory.DIGITAL_DEVICE);
+			assertThat(results.get(0).status()).isEqualTo(ItemStatus.ON_SALE);
+			assertThat(results.get(0).itemCreatedAt()).isEqualTo(item.getCreatedAt());
 		}
 
 		@Test

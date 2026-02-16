@@ -48,7 +48,7 @@
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|
 | POST | `/api/v1/items/{itemId}/bookmarks` | 상품 찜하기 (Toggle) | `(None)` | `BookmarkToggleResponseDto` <br> `{ itemId, toggleOn }` | ✅ Implemented |
-| GET | `/api/v1/items/my-bookmarks` | 내 찜 목록 | `(None)` | `List<MyBookmarkResponseDto>` <br> `[{ bookmarkId, itemId, title, price, thumbnailUrl, createdAt }]` | ✅ Implemented |
+| GET | `/api/v1/items/my-bookmarks` | 내 찜 목록 | `(None)` | `List<MyBookmarkResponseDto>` <br> `[{ bookmarkId, itemId, title, price, type, category, status, thumbnailUrl, createdAt, itemCreatedAt }]` | ✅ Implemented |
 
 ## 6. Reservation API
 | Method | URI | Description | Request Body | Response Body | Status |

@@ -86,8 +86,12 @@ class BookmarkControllerTest extends RestDocsTest {
 							fieldWithPath("data[].itemId").type(JsonFieldType.NUMBER).description("상품 ID"),
 							fieldWithPath("data[].title").type(JsonFieldType.STRING).description("상품 제목"),
 							fieldWithPath("data[].price").type(JsonFieldType.NUMBER).description("상품 가격"),
+							fieldWithPath("data[].type").type(JsonFieldType.STRING).description("거래 유형"),
+							fieldWithPath("data[].category").type(JsonFieldType.STRING).description("카테고리"),
+							fieldWithPath("data[].status").type(JsonFieldType.STRING).description("상품 상태"),
 							fieldWithPath("data[].thumbnailUrl").type(JsonFieldType.STRING).description("상품 썸네일 URL"),
 							fieldWithPath("data[].createdAt").description("생성일"),
+							fieldWithPath("data[].itemCreatedAt").description("상품 등록일"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}
 

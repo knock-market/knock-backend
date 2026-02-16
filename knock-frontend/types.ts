@@ -99,8 +99,12 @@ export interface MyBookmarkResponseDto {
   itemId: number;
   title: string;
   price: number;
+  type: ItemType;
+  category: ItemCategory;
+  status: ItemStatus;
   thumbnailUrl?: string;
-  createdAt: string;
+  createdAt?: string;
+  itemCreatedAt?: string;
 }
 
 export interface BookmarkToggleResponseDto {
