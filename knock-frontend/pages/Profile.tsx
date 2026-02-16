@@ -25,6 +25,7 @@ const Profile: React.FC = () => {
   });
   const [mannerTemperature, setMannerTemperature] = useState(36.5);
   const [stats, setStats] = useState<ProfileStats>({ shared: 0, received: 0, active: 0 });
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -63,6 +64,23 @@ const Profile: React.FC = () => {
   if (isLoading) {
     return <ProfileSkeleton />;
   }
+
+  const handleLogout = async () => {
+    if (isLoggingOut) {
+      return;
+    }
+
+    setIsLoggingOut(true);
+    try {
+      await authApi.logout();
+      navigate('/', { replace: true });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to log out.';
+      alert(message);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   const radius = 70;
   const circumference = 2 * Math.PI * radius;
@@ -161,10 +179,11 @@ const Profile: React.FC = () => {
 
         <div className="pt-2">
           <button
-            onClick={() => navigate('/')}
-            className="w-full py-4 text-center text-gray-400 text-sm font-medium hover:text-red-500 transition-colors"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="w-full py-4 text-center text-gray-400 text-sm font-medium hover:text-red-500 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Log Out
+            {isLoggingOut ? 'Logging out...' : 'Log Out'}
           </button>
         </div>
       </div>
