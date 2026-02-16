@@ -4,6 +4,8 @@
 상세한 Request/Response 스니펫은 `./gradlew :core:core-api:asciidoctor` 실행 후 생성되는 HTML 문서를 참고하세요.
 인증 방식은 **세션 쿠키 기반**이며, 소셜 로그인 API는 아직 구현되지 않았습니다.
 
+자세한 내용은 [asciidoc 문서](../knock-backend/core/core-api/src/docs/asciidoc/index.adoc)를 참고하세요.
+
 ## 1. Auth API
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|
