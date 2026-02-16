@@ -1,5 +1,7 @@
 # Knock API Reference
 
+업데이트 기준: 2026-02-16
+
 문서화된 모든 API는 `core-api` 모듈의 테스트를 통해 검증되었습니다.
 상세한 Request/Response 스니펫은 `./gradlew :core:core-api:asciidoctor` 실행 후 생성되는 HTML 문서를 참고하세요.
 인증 방식은 **세션 쿠키 기반**이며, 소셜 로그인 API는 아직 구현되지 않았습니다.
@@ -16,13 +18,13 @@
 ## 2. Member API
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|
-| POST | `/api/v1/members` | 회원가입 | `MemberSignupRequestDto` <br> `{ email, name, password, nickname, profileImageUrl }` | `MemberSignupResponseDto` <br> `{ email, name, nickname, profileImageUrl }` | ✅ Implemented |
+| POST | `/api/v1/members` | 회원가입 | `MemberSignupRequestDto` <br> `{ email, name, password, nickname, profileImageUrl }` | `MemberSignupResponseDto` <br> `{ email, name, nickname, profileImageUrl, provider }` | ✅ Implemented |
 | GET | `/api/v1/members/my` | 내 정보 조회 | `(None)` | `MemberResponseDto` <br> `{ id, email, name, nickname, profileImageUrl, provider, mannerTemperature }` | ✅ Implemented |
 | PUT | `/api/v1/members/my` | 내 정보 수정 | `MemberUpdateRequestDto` <br> `{ nickname, profileImageUrl }` | `ApiResponse` <br> `(void)` | ✅ Implemented |
 | GET | `/api/v1/members/my/settings/notifications` | 내 알림 설정 조회 | `(None)` | `NotificationSettingsResponseDto` <br> `{ push, newItems, chat, marketing, sound }` | ✅ Implemented |
 | PUT | `/api/v1/members/my/settings/notifications` | 내 알림 설정 수정 | `NotificationSettingsUpdateRequestDto` <br> `{ push, newItems, chat, marketing, sound }` | `ApiResponse` <br> `(void)` | ✅ Implemented |
 | GET | `/api/v1/members/my/blocked` | 차단 유저 목록 조회 | `(None)` | `List<BlockedMemberResponseDto>` <br> `[{ id, name, blockedAt }]` | ✅ Implemented |
-| POST | `/api/v1/members/{memberId}/block` | 유저 차단 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
+| POST | `/api/v1/members/{memberId}/block` | 유저 차단 (멱등) | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
 | DELETE | `/api/v1/members/{memberId}/block` | 유저 차단 해제 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
 
 ## 3. Group API
@@ -40,8 +42,8 @@
 |---|---|---|---|---|---|
 | POST | `/api/v1/items` | 상품 등록 | `ItemCreateRequestDto` <br> `{ groupId, title, description, price, itemType, category, imageUrls }` | `ItemIdResponseDto` <br> `{ id }` | ✅ Implemented |
 | GET | `/api/v1/items/{itemId}` | 상품 상세 조회 | `(None)` | `ItemResponseDto` <br> `{ id, title, description, price, type, category, status, imageUrls, writerId, writerNickname, writerProfileImageUrl }` | ✅ Implemented |
-| GET | `/api/v1/groups/{groupId}/items` | 그룹 내 상품 목록 (피드) | `(None)` | `List<ItemSummaryResponseDto>` <br> `[{ id, title, price, type, category, status, thumbnailUrl, writerId }]` | ✅ Implemented |
-| GET | `/api/v1/items/my-selling` | 내 판매 상품 목록 | `(None)` | `List<ItemSummaryResponseDto>` | ✅ Implemented |
+| GET | `/api/v1/groups/{groupId}/items` | 그룹 내 상품 목록 (피드) | `(None)` | `List<ItemSummaryResponseDto>` <br> `[{ id, title, price, type, category, status, thumbnailUrl, writerId, likesCount, postedAt }]` | ✅ Implemented |
+| GET | `/api/v1/items/my-selling` | 내 판매 상품 목록 | `(None)` | `List<ItemSummaryResponseDto>` <br> `[{ id, title, price, type, category, status, thumbnailUrl, writerId, likesCount, postedAt }]` | ✅ Implemented |
 | DELETE | `/api/v1/items/{itemId}` | 내 상품 삭제 (활성 예약은 자동 취소) | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
 
 ## 5. Bookmark API
@@ -66,7 +68,6 @@
 | GET | `/api/v1/notifications` | 알림 목록 조회 | `(None)` | `List<NotificationResponseDto>` <br> `[{ id, notificationType, content, relatedUrl, isRead, createdAt }]` | ✅ Implemented |
 | PATCH | `/api/v1/notifications/{id}/read` | 알림 읽음 처리 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
 | PATCH | `/api/v1/notifications/read-all` | 내 알림 전체 읽음 처리 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
-
 ## 8. Image API
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|

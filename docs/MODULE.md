@@ -159,3 +159,19 @@ tasks.register<Test>("unitTest") {
 val javaVersion = property("javaVersion") as String
 ```
 -   `gradle.properties` 파일에 정의된 변수를 가져와서 사용합니다. 버전을 한곳에서 관리하기 위함입니다.
+
+## 5. 최근 반영사항 (2026-02-16)
+
+아래 변경은 모듈 간 책임 분리를 유지한 채 각 레이어에 반영되었습니다.
+
+- `core:core-api` + `storage:db-core`
+  - 상품 삭제 시 활성 예약(`WAITING`, `APPROVED`) 자동 취소 후 소프트 삭제
+  - 예약 승인 시 `FOR UPDATE` 조회 대상 누락을 예외 처리(`RESERVATION_NOT_FOUND`)
+  - 회원 차단 API 동시 요청 충돌(`DataIntegrityViolationException`) 멱등 처리
+  - 알림 전체 읽음 API 추가: `PATCH /api/v1/notifications/read-all`
+- `core:core-api` (DTO)
+  - 북마크 응답에 `type`, `category`, `status`, `itemCreatedAt` 확장
+- `knock-frontend`
+  - 로그아웃 버튼이 서버 `POST /api/v1/auth/logout` 호출 후 이동하도록 수정
+  - 숫자 라우트 파라미터 검증 강화 (`GroupFeed`, `ItemDetail`, `ManageItemDetail`)
+  - 생성/상세 화면의 잘못된 UI 상태(무한 로딩, 비작동 토글, 잘못된 라벨/북마크 상태) 보정

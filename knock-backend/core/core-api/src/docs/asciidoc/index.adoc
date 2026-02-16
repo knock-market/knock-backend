@@ -162,6 +162,18 @@ include::{snippets}/api/v1/items/list-by-group/response-fields.adoc[]
 include::{snippets}/api/v1/items/my-selling/http-response.adoc[]
 include::{snippets}/api/v1/items/my-selling/response-fields.adoc[]
 
+[[item-delete]]
+=== 4.5 Delete Item
+`DELETE /api/v1/items/{itemId}`
+
+==== Request
+include::{snippets}/api/v1/items/delete/http-request.adoc[]
+include::{snippets}/api/v1/items/delete/path-parameters.adoc[]
+
+==== Response
+include::{snippets}/api/v1/items/delete/http-response.adoc[]
+include::{snippets}/api/v1/items/delete/response-fields.adoc[]
+
 [[bookmark-api]]
 == 5. Bookmark API
 

@@ -105,6 +105,12 @@
 - 예약 등 경쟁 조건이 있는 유스케이스는 DB 락/원자 연산을 활용한다.
   - `PESSIMISTIC_WRITE`
   - 조건부 `INSERT ... WHERE NOT EXISTS ...`
+- 락 기반 검증 시, 잠금 대상에서 누락된 엔티티를 무시하지 않고 즉시 예외로 처리한다.
+  - 예: `approveReservation`에서 `findByItemIdForUpdate` 결과에 대상 예약이 없으면 `RESERVATION_NOT_FOUND`.
+- 유니크 제약을 이용해 멱등성을 보장하는 API는 `save` 시점의 충돌 예외를 정상 시나리오로 흡수할 수 있어야 한다.
+  - 예: `blockMember`는 `DataIntegrityViolationException` 발생 후 실존 여부 재검증으로 멱등 처리.
+- 소프트 삭제와 연계된 도메인 상태 전이는 삭제 전에 명시적으로 처리한다.
+  - 예: `deleteItem` 실행 전 `WAITING`/`APPROVED` 예약을 `CANCELED`로 전환.
 - 비동기 후처리는 `@Async`로 분리하되 예외는 `AsyncExceptionHandler`로 수집한다.
 
 ## 7. 테스트 컨벤션
@@ -147,4 +153,5 @@
 - Repository 인터페이스를 통해 영속성에 접근하는가?
 - 읽기/쓰기 트랜잭션 경계를 명시했는가?
 - 경쟁 조건 가능성이 있으면 락/원자 연산을 반영했는가?
+- 멱등 API에서 `exists -> save` 사이 경쟁 조건(TOCTOU)을 예외 처리 또는 락으로 보완했는가?
 - 테스트(`unit/context/restdocs`)와 문서를 함께 갱신했는가?
