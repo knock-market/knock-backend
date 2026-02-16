@@ -10,6 +10,8 @@ import ImageWithFallback from '../components/ImageWithFallback';
 const GroupFeed: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const groupId = id ? Number(id) : NaN;
+  const hasValidGroupId = Number.isInteger(groupId) && groupId > 0;
 
   const [group, setGroup] = useState<GroupResponseDto | null>(null);
   const [items, setItems] = useState<ItemSummaryResponseDto[]>([]);
@@ -23,10 +25,16 @@ const GroupFeed: React.FC = () => {
 
   useEffect(() => {
     const load = async () => {
-      if (!id) return;
+      if (!hasValidGroupId) {
+        setGroup(null);
+        setItems([]);
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(true);
       try {
-        const [groupResult, itemList] = await Promise.all([groupsApi.getGroup(id), itemsApi.getItems(id)]);
+        const [groupResult, itemList] = await Promise.all([groupsApi.getGroup(groupId), itemsApi.getItems(groupId)]);
         setGroup(groupResult);
         setItems(itemList);
       } catch (error) {
@@ -39,7 +47,7 @@ const GroupFeed: React.FC = () => {
     };
 
     load();
-  }, [id]);
+  }, [groupId, hasValidGroupId]);
 
   const filteredItems = items.filter((item) => {
     if (activeFilter === 'All') return true;
@@ -48,10 +56,10 @@ const GroupFeed: React.FC = () => {
   });
 
   const handleLeaveGroup = async () => {
-    if (!id) return;
+    if (!hasValidGroupId) return;
     setIsLeaving(true);
     try {
-      await groupsApi.leaveGroup(Number(id));
+      await groupsApi.leaveGroup(groupId);
       setShowLeaveConfirm(false);
       navigate('/home');
     } catch (error) {
@@ -74,7 +82,7 @@ const GroupFeed: React.FC = () => {
     <div className="bg-gray-50 min-h-screen pb-24 max-w-md mx-auto relative">
       <div className="fixed bottom-24 left-0 right-0 max-w-md mx-auto z-40 px-6 flex justify-end pointer-events-none">
         <button
-          onClick={() => navigate(`/create?groupId=${id}`)}
+          onClick={() => navigate(`/create?groupId=${groupId}`)}
           className="w-14 h-14 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-lg shadow-emerald-200 transition-all active:scale-90 flex items-center justify-center pointer-events-auto"
           aria-label="Sell Item"
         >
