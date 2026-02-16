@@ -4,6 +4,7 @@ import com.knock.core.domain.item.dto.ItemCreateData;
 import com.knock.core.domain.item.dto.ItemCreateResult;
 import com.knock.core.domain.item.dto.ItemListResult;
 import com.knock.core.domain.item.dto.ItemReadResult;
+import com.knock.core.enums.ReservationStatus;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
 import com.knock.storage.db.core.group.Group;
@@ -12,6 +13,8 @@ import com.knock.storage.db.core.item.Item;
 import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
+import com.knock.storage.db.core.reservation.Reservation;
+import com.knock.storage.db.core.reservation.ReservationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -28,6 +31,8 @@ public class ItemService {
 	private final MemberRepository memberRepository;
 
 	private final GroupRepository groupRepository;
+
+	private final ReservationRepository reservationRepository;
 
 	@Transactional
 	public ItemCreateResult createItem(Long memberId, Long groupId, ItemCreateData data) {
@@ -79,7 +84,20 @@ public class ItemService {
 			throw new CoreException(ErrorType.FORBIDDEN);
 		}
 
+		cancelActiveReservations(itemId);
 		itemRepository.delete(item);
+	}
+
+	private void cancelActiveReservations(Long itemId) {
+		reservationRepository.findByItemId(itemId)
+			.stream()
+			.filter(this::isActiveReservation)
+			.forEach(Reservation::cancel);
+	}
+
+	private boolean isActiveReservation(Reservation reservation) {
+		return reservation.getStatus() == ReservationStatus.WAITING
+				|| reservation.getStatus() == ReservationStatus.APPROVED;
 	}
 
 	// todo : 로직 완성 필요

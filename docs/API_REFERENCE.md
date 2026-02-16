@@ -42,7 +42,7 @@
 | GET | `/api/v1/items/{itemId}` | 상품 상세 조회 | `(None)` | `ItemResponseDto` <br> `{ id, title, description, price, type, category, status, imageUrls, writerId, writerNickname, writerProfileImageUrl }` | ✅ Implemented |
 | GET | `/api/v1/groups/{groupId}/items` | 그룹 내 상품 목록 (피드) | `(None)` | `List<ItemSummaryResponseDto>` <br> `[{ id, title, price, type, category, status, thumbnailUrl, writerId }]` | ✅ Implemented |
 | GET | `/api/v1/items/my-selling` | 내 판매 상품 목록 | `(None)` | `List<ItemSummaryResponseDto>` | ✅ Implemented |
-| DELETE | `/api/v1/items/{itemId}` | 내 상품 삭제 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
+| DELETE | `/api/v1/items/{itemId}` | 내 상품 삭제 (활성 예약은 자동 취소) | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
 
 ## 5. Bookmark API
 | Method | URI | Description | Request Body | Response Body | Status |
