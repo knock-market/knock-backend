@@ -28,7 +28,7 @@
 ## 3. Group API
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|
-| POST | `/api/v1/groups` | 그룹 생성 | `GroupCreateRequestDto` <br> `{ name, description }` | `GroupCreateResponseDto` <br> `{ id, name, description, memberCount, profileImageUrl, inviteCode }` | ✅ Implemented |
+| POST | `/api/v1/groups` | 그룹 생성 | `GroupCreateRequestDto` <br> `{ name, description, imageUrl }` | `GroupCreateResponseDto` <br> `{ id, name, description, memberCount, profileImageUrl, inviteCode }` | ✅ Implemented |
 | POST | `/api/v1/groups/{groupId}/invite-codes` | 초대코드 생성 | `InviteCodeRequestDto` <br> `{ duration }` | `GroupInviteCodeResponseDto` <br> `{ inviteCode, expiresAt }` | ✅ Implemented |
 | POST | `/api/v1/groups/join` | 그룹 가입 (초대코드) | `GroupJoinRequestDto` <br> `{ inviteCode }` | `GroupIdResponseDto` <br> `{ id }` | ✅ Implemented |
 | POST | `/api/v1/groups/{groupId}/leave` | 그룹 탈퇴 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
@@ -65,8 +65,8 @@
 |---|---|---|---|---|---|
 | GET | `/api/v1/notifications` | 알림 목록 조회 | `(None)` | `List<NotificationResponseDto>` <br> `[{ id, notificationType, content, relatedUrl, isRead, createdAt }]` | ✅ Implemented |
 | PATCH | `/api/v1/notifications/{id}/read` | 알림 읽음 처리 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
-
 | PATCH | `/api/v1/notifications/read-all` | 내 알림 전체 읽음 처리 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
+
 ## 8. Image API
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|

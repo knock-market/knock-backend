@@ -44,8 +44,8 @@ export const authApi = {
 export const groupsApi = {
     getMyGroups: () => get<GroupResponseDto[]>('/groups/my'),
     getGroup: (groupId: number | string) => get<GroupResponseDto>(`/groups/${groupId}`),
-    createGroup: (data: { name: string; description?: string; imageUrl?: string; inviteCode?: string }) =>
-        post<GroupCreateResponseDto, { name: string; description?: string; imageUrl?: string; inviteCode?: string }>(
+    createGroup: (data: { name: string; description?: string; imageUrl?: string }) =>
+        post<GroupCreateResponseDto, { name: string; description?: string; imageUrl?: string }>(
             '/groups',
             data
         ),
