@@ -143,8 +143,7 @@ class TradeSocialJourneyIntegrationTest extends ContextTest {
 			.andExpect(jsonPath("$.data.toggleOn").value(false));
 
 		// 데모 모드에서는 제3자도 삭제 가능
-		mockMvc.perform(delete("/api/v1/items/{itemId}", itemId).cookie(strangerCookie))
-			.andExpect(status().isOk());
+		mockMvc.perform(delete("/api/v1/items/{itemId}", itemId).cookie(strangerCookie)).andExpect(status().isOk());
 	}
 
 	@Test
