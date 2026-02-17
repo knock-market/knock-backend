@@ -237,19 +237,21 @@ class ItemServiceTest {
 		}
 
 		@Test
-		@DisplayName("실패 - 권한 없음")
-		void fail_forbidden() {
+		@DisplayName("성공 - 작성자가 아니어도 삭제 가능")
+		void success_nonOwnerCanDelete() {
 			// given
 			Member owner = createMember(TEST_MEMBER_ID);
 			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
 			Item item = createItem(TEST_ITEM_ID, group, owner);
 
 			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
+			given(reservationRepository.findByItemId(TEST_ITEM_ID)).willReturn(List.of());
 
-			// when & then
-			assertThatThrownBy(() -> itemService.deleteItem(TEST_MEMBER_ID_2, TEST_ITEM_ID))
-				.isInstanceOf(CoreException.class)
-				.hasFieldOrPropertyWithValue("errorType", ErrorType.FORBIDDEN);
+			// when
+			itemService.deleteItem(TEST_MEMBER_ID_2, TEST_ITEM_ID);
+
+			// then
+			verify(itemRepository).delete(item);
 		}
 
 	}

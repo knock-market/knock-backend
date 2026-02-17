@@ -80,10 +80,6 @@ public class ItemService {
 	public void deleteItem(Long memberId, Long itemId) {
 		Item item = itemRepository.findById(itemId).orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
 
-		if (!item.getMember().getId().equals(memberId)) {
-			throw new CoreException(ErrorType.FORBIDDEN);
-		}
-
 		cancelActiveReservations(itemId);
 		itemRepository.delete(item);
 	}
