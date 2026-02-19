@@ -13,6 +13,8 @@ public interface ReservationRepository {
 
 	List<Reservation> findByItemId(Long itemId);
 
+	List<Reservation> findByItemIdForUpdate(Long itemId);
+
 	List<Reservation> findByMemberId(Long memberId);
 
 	boolean existsByItemIdAndStatus(Long itemId, ReservationStatus status);

@@ -6,6 +6,7 @@ import com.knock.core.domain.item.dto.ItemListResult;
 import com.knock.core.domain.item.dto.ItemReadResult;
 import com.knock.core.enums.ItemCategory;
 import com.knock.core.enums.ItemType;
+import com.knock.core.enums.ReservationStatus;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
 import com.knock.storage.db.core.group.Group;
@@ -14,6 +15,8 @@ import com.knock.storage.db.core.item.Item;
 import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
+import com.knock.storage.db.core.reservation.Reservation;
+import com.knock.storage.db.core.reservation.ReservationRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -34,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class ItemServiceTest {
@@ -49,6 +53,9 @@ class ItemServiceTest {
 
 	@Mock
 	private GroupRepository groupRepository;
+
+	@Mock
+	private ReservationRepository reservationRepository;
 
 	@Mock
 	private RedisTemplate<String, Object> redisTemplate;
@@ -193,6 +200,58 @@ class ItemServiceTest {
 			// then
 			assertThat(results).hasSize(1);
 			assertThat(results.getFirst().id()).isEqualTo(TEST_ITEM_ID);
+		}
+
+	}
+
+	@Nested
+	@DisplayName("상품 삭제")
+	class DeleteItem {
+
+		@Test
+		@DisplayName("성공")
+		void success() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			Member reserver = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
+			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, group, member);
+			Reservation waitingReservation = createReservation(TEST_RESERVATION_ID, item, reserver);
+			Reservation approvedReservation = createReservation(TEST_RESERVATION_ID + 1, item, reserver,
+					ReservationStatus.APPROVED);
+			Reservation completedReservation = createReservation(TEST_RESERVATION_ID + 2, item, reserver,
+					ReservationStatus.COMPLETED);
+
+			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
+			given(reservationRepository.findByItemId(TEST_ITEM_ID))
+				.willReturn(List.of(waitingReservation, approvedReservation, completedReservation));
+
+			// when
+			itemService.deleteItem(TEST_MEMBER_ID, TEST_ITEM_ID);
+
+			// then
+			assertThat(waitingReservation.getStatus()).isEqualTo(ReservationStatus.CANCELED);
+			assertThat(approvedReservation.getStatus()).isEqualTo(ReservationStatus.CANCELED);
+			assertThat(completedReservation.getStatus()).isEqualTo(ReservationStatus.COMPLETED);
+			verify(itemRepository).delete(item);
+		}
+
+		@Test
+		@DisplayName("성공 - 작성자가 아니어도 삭제 가능")
+		void success_nonOwnerCanDelete() {
+			// given
+			Member owner = createMember(TEST_MEMBER_ID);
+			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, group, owner);
+
+			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
+			given(reservationRepository.findByItemId(TEST_ITEM_ID)).willReturn(List.of());
+
+			// when
+			itemService.deleteItem(TEST_MEMBER_ID_2, TEST_ITEM_ID);
+
+			// then
+			verify(itemRepository).delete(item);
 		}
 
 	}

@@ -1,48 +1,61 @@
 # Knock API Reference
 
+업데이트 기준: 2026-02-16
+
 문서화된 모든 API는 `core-api` 모듈의 테스트를 통해 검증되었습니다.
 상세한 Request/Response 스니펫은 `./gradlew :core:core-api:asciidoctor` 실행 후 생성되는 HTML 문서를 참고하세요.
+인증 방식은 **세션 쿠키 기반**이며, 소셜 로그인 API는 아직 구현되지 않았습니다.
+
+자세한 내용은 [asciidoc 문서](../knock-backend/core/core-api/src/docs/asciidoc/index.adoc)를 참고하세요.
 
 ## 1. Auth API
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|
 | POST | `/api/v1/auth/login` | 일반 이메일 로그인 | `AuthLoginRequestDto` <br> `{ email, password }` | `ApiResponse` <br> `(void)` | ✅ Implemented |
 | POST | `/api/v1/auth/logout` | 로그아웃 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
+| POST | `/api/v1/auth/social/{provider}` | 소셜 로그인 | `(TBD)` | `(TBD)` | ❌ Not Implemented |
 
 ## 2. Member API
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|
-| POST | `/api/v1/members` | 회원가입 | `MemberSignupRequestDto` <br> `{ email, name, password, nickname, profileImageUrl }` | `MemberSignupResponseDto` <br> `{ email, name, nickname, profileImageUrl }` | ✅ Implemented |
-| GET | `/api/v1/members/my` | 내 정보 조회 | `(None)` | `MemberResponseDto` <br> `{ email, name, nickname, profileImageUrl }` | ✅ Implemented |
+| POST | `/api/v1/members` | 회원가입 | `MemberSignupRequestDto` <br> `{ email, name, password, nickname, profileImageUrl }` | `MemberSignupResponseDto` <br> `{ email, name, nickname, profileImageUrl, provider }` | ✅ Implemented |
+| GET | `/api/v1/members/my` | 내 정보 조회 | `(None)` | `MemberResponseDto` <br> `{ id, email, name, nickname, profileImageUrl, provider, mannerTemperature }` | ✅ Implemented |
+| PUT | `/api/v1/members/my` | 내 정보 수정 | `MemberUpdateRequestDto` <br> `{ nickname, profileImageUrl }` | `ApiResponse` <br> `(void)` | ✅ Implemented |
+| GET | `/api/v1/members/my/settings/notifications` | 내 알림 설정 조회 | `(None)` | `NotificationSettingsResponseDto` <br> `{ push, newItems, chat, marketing, sound }` | ✅ Implemented |
+| PUT | `/api/v1/members/my/settings/notifications` | 내 알림 설정 수정 | `NotificationSettingsUpdateRequestDto` <br> `{ push, newItems, chat, marketing, sound }` | `ApiResponse` <br> `(void)` | ✅ Implemented |
+| GET | `/api/v1/members/my/blocked` | 차단 유저 목록 조회 | `(None)` | `List<BlockedMemberResponseDto>` <br> `[{ id, name, blockedAt }]` | ✅ Implemented |
+| POST | `/api/v1/members/{memberId}/block` | 유저 차단 (멱등) | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
+| DELETE | `/api/v1/members/{memberId}/block` | 유저 차단 해제 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
 
 ## 3. Group API
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|
-| POST | `/api/v1/groups` | 그룹 생성 | `GroupCreateRequestDto` <br> `{ name, description }` | `GroupIdResponseDto` <br> `{ id }` | ✅ Implemented |
+| POST | `/api/v1/groups` | 그룹 생성 | `GroupCreateRequestDto` <br> `{ name, description, imageUrl }` | `GroupCreateResponseDto` <br> `{ id, name, description, memberCount, profileImageUrl, inviteCode }` | ✅ Implemented |
 | POST | `/api/v1/groups/{groupId}/invite-codes` | 초대코드 생성 | `InviteCodeRequestDto` <br> `{ duration }` | `GroupInviteCodeResponseDto` <br> `{ inviteCode, expiresAt }` | ✅ Implemented |
 | POST | `/api/v1/groups/join` | 그룹 가입 (초대코드) | `GroupJoinRequestDto` <br> `{ inviteCode }` | `GroupIdResponseDto` <br> `{ id }` | ✅ Implemented |
 | POST | `/api/v1/groups/{groupId}/leave` | 그룹 탈퇴 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
-| GET | `/api/v1/groups/my` | 내 그룹 목록 조회 | `(None)` | `List<GroupResponseDto>` <br> `[{ id, name, description }]` | ✅ Implemented |
-| GET | `/api/v1/groups/{groupId}` | 그룹 상세 조회 | `(None)` | `GroupResponseDto` <br> `{ id, name, description }` | ✅ Implemented |
+| GET | `/api/v1/groups/my` | 내 그룹 목록 조회 | `(None)` | `List<GroupResponseDto>` <br> `[{ id, name, description, memberCount, profileImageUrl }]` | ✅ Implemented |
+| GET | `/api/v1/groups/{groupId}` | 그룹 상세 조회 | `(None)` | `GroupResponseDto` <br> `{ id, name, description, memberCount, profileImageUrl }` | ✅ Implemented |
 
 ## 4. Item API
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|
 | POST | `/api/v1/items` | 상품 등록 | `ItemCreateRequestDto` <br> `{ groupId, title, description, price, itemType, category, imageUrls }` | `ItemIdResponseDto` <br> `{ id }` | ✅ Implemented |
-| GET | `/api/v1/items/{itemId}` | 상품 상세 조회 | `(None)` | `ItemResponseDto` <br> `{ id, title, description, price, type, category, status, imageUrls, writerId }` | ✅ Implemented |
-| GET | `/api/v1/groups/{groupId}/items` | 그룹 내 상품 목록 (피드) | `(None)` | `List<ItemSummaryResponseDto>` <br> `[{ id, title, price, type, category, status, thumbnailUrl, writerId }]` | ✅ Implemented |
-| GET | `/api/v1/items/my-selling` | 내 판매 상품 목록 | `(None)` | `List<ItemSummaryResponseDto>` | ✅ Implemented |
+| GET | `/api/v1/items/{itemId}` | 상품 상세 조회 | `(None)` | `ItemResponseDto` <br> `{ id, title, description, price, type, category, status, imageUrls, writerId, writerNickname, writerProfileImageUrl }` | ✅ Implemented |
+| GET | `/api/v1/groups/{groupId}/items` | 그룹 내 상품 목록 (피드) | `(None)` | `List<ItemSummaryResponseDto>` <br> `[{ id, title, price, type, category, status, thumbnailUrl, writerId, likesCount, postedAt }]` | ✅ Implemented |
+| GET | `/api/v1/items/my-selling` | 내 판매 상품 목록 | `(None)` | `List<ItemSummaryResponseDto>` <br> `[{ id, title, price, type, category, status, thumbnailUrl, writerId, likesCount, postedAt }]` | ✅ Implemented |
+| DELETE | `/api/v1/items/{itemId}` | 내 상품 삭제 (활성 예약은 자동 취소) | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
 
 ## 5. Bookmark API
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|
-| POST | `/api/v1/items/{itemId}/bookmarks` | 상품 찜하기 (Toggle) | `(None)` | `BookmarkToggleResponseDto` <br> `{ itemId, isToggleOn }` | ✅ Implemented |
-| GET | `/api/v1/items/my-bookmarks` | 내 찜 목록 | `(None)` | `List<MyBookmarkResponseDto>` <br> `[{ id, title, price, thumbnailUrl, createdAt }]` | ✅ Implemented |
+| POST | `/api/v1/items/{itemId}/bookmarks` | 상품 찜하기 (Toggle) | `(None)` | `BookmarkToggleResponseDto` <br> `{ itemId, toggleOn }` | ✅ Implemented |
+| GET | `/api/v1/items/my-bookmarks` | 내 찜 목록 | `(None)` | `List<MyBookmarkResponseDto>` <br> `[{ bookmarkId, itemId, title, price, type, category, status, thumbnailUrl, createdAt, itemCreatedAt }]` | ✅ Implemented |
 
 ## 6. Reservation API
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|
-| POST | `/api/v1/reservations` | 예약 신청 (구매 요청) | `ReservationCreateRequestDto` <br> `{ itemId }` | `Long` (reservationId) | ✅ Implemented |
+| POST | `/api/v1/reservations` | 예약 신청 (구매 요청) | `ReservationCreateRequestDto` <br> `{ itemId }` | `ReservationCreateResponseDto` <br> `{ reservationId }` | ✅ Implemented |
 | PATCH | `/api/v1/reservations/{id}/approve` | 예약 승인 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
 | PATCH | `/api/v1/reservations/{id}/complete` | 거래 완료 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
 | PATCH | `/api/v1/reservations/{id}/cancel` | 예약 취소 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
@@ -52,9 +65,9 @@
 ## 7. Notification API
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|
-| GET | `/api/v1/notifications` | 알림 목록 조회 | `(None)` | `List<NotificationResponseDto>` <br> `[{ id, type, content, relatedUrl, isRead, createdAt }]` | ✅ Implemented |
+| GET | `/api/v1/notifications` | 알림 목록 조회 | `(None)` | `List<NotificationResponseDto>` <br> `[{ id, notificationType, content, relatedUrl, isRead, createdAt }]` | ✅ Implemented |
 | PATCH | `/api/v1/notifications/{id}/read` | 알림 읽음 처리 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
-
+| PATCH | `/api/v1/notifications/read-all` | 내 알림 전체 읽음 처리 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
 ## 8. Image API
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|

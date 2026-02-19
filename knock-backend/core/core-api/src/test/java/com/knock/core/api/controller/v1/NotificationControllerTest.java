@@ -5,6 +5,8 @@ import com.knock.core.api.controller.ApiControllerAdvice;
 import com.knock.core.domain.notification.NotificationService;
 import com.knock.core.domain.notification.dto.NotificationResult;
 import com.knock.core.enums.NotificationType;
+import com.knock.core.support.error.CoreException;
+import com.knock.core.support.error.ErrorType;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.notification.Notification;
 import com.knock.test.api.RestDocsTest;
@@ -22,7 +24,9 @@ import static com.knock.core.support.TestFixtures.createMember;
 import static com.knock.test.api.RestDocsUtils.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
@@ -85,6 +89,34 @@ class NotificationControllerTest extends RestDocsTest {
 					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
 							fieldWithPath("data").type(JsonFieldType.NULL).description("데이터"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+	}
+
+	@Test
+	@DisplayName("알림 전체 읽음 처리 성공")
+	void markAllAsRead_success() {
+		// when & then
+		restDocGiven().patch("/api/v1/notifications/read-all")
+			.then()
+			.status(HttpStatus.OK)
+			.apply(document("api/v1/notifications/read-all", requestPreprocessor(), responsePreprocessor(),
+					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
+							fieldWithPath("data").type(JsonFieldType.NULL).description("데이터"),
+							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+
+		verify(notificationService).markAllAsRead(anyLong());
+	}
+
+	@Test
+	@DisplayName("알림 읽음 처리 실패 - 권한 없음")
+	void markAsRead_fail_forbidden() {
+		// given
+		doThrow(new CoreException(ErrorType.FORBIDDEN)).when(notificationService).markAsRead(anyLong(), anyLong());
+
+		// when & then
+		restDocGiven().pathParam("id", TEST_NOTIFICATION_ID)
+			.patch("/api/v1/notifications/{id}/read")
+			.then()
+			.status(HttpStatus.FORBIDDEN);
 	}
 
 }

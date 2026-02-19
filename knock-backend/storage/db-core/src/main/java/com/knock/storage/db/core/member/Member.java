@@ -43,6 +43,21 @@ public class Member extends BaseEntity {
 	@Column(name = "manner_temperature")
 	private Double mannerTemperature;
 
+	@Column(name = "notification_push_enabled", nullable = false)
+	private boolean notificationPushEnabled;
+
+	@Column(name = "notification_new_items_enabled", nullable = false)
+	private boolean notificationNewItemsEnabled;
+
+	@Column(name = "notification_chat_enabled", nullable = false)
+	private boolean notificationChatEnabled;
+
+	@Column(name = "notification_marketing_enabled", nullable = false)
+	private boolean notificationMarketingEnabled;
+
+	@Column(name = "notification_sound_enabled", nullable = false)
+	private boolean notificationSoundEnabled;
+
 	@Builder
 	public Member(String email, String password, String name, String nickname, String profileImageUrl, String provider,
 			String providerId) {
@@ -54,6 +69,11 @@ public class Member extends BaseEntity {
 		this.provider = provider;
 		this.providerId = providerId;
 		this.mannerTemperature = 36.5;
+		this.notificationPushEnabled = true;
+		this.notificationNewItemsEnabled = true;
+		this.notificationChatEnabled = true;
+		this.notificationMarketingEnabled = false;
+		this.notificationSoundEnabled = true;
 	}
 
 	public static Member create(String email, String name, String password, String nickname, String provider) {
@@ -73,6 +93,15 @@ public class Member extends BaseEntity {
 
 	public void updateMannerTemperature(double score) {
 		this.mannerTemperature = score;
+	}
+
+	public void updateNotificationSettings(boolean pushEnabled, boolean newItemsEnabled, boolean chatEnabled,
+			boolean marketingEnabled, boolean soundEnabled) {
+		this.notificationPushEnabled = pushEnabled;
+		this.notificationNewItemsEnabled = newItemsEnabled;
+		this.notificationChatEnabled = chatEnabled;
+		this.notificationMarketingEnabled = marketingEnabled;
+		this.notificationSoundEnabled = soundEnabled;
 	}
 
 }

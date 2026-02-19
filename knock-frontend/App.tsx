@@ -3,6 +3,7 @@ import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
 import GroupFeed from './pages/GroupFeed';
+import JoinGroup from './pages/JoinGroup';
 import ItemDetail from './pages/ItemDetail';
 import CreateItem from './pages/CreateItem';
 import CreateGroup from './pages/CreateGroup';
@@ -49,6 +50,7 @@ const App: React.FC = () => {
           <Route path="/home" element={<Home />} />
           <Route path="/groups" element={<Home />} />
           <Route path="/group/:id" element={<GroupFeed />} />
+          <Route path="/join/:code" element={<JoinGroup />} />
           <Route path="/item/:id" element={<ItemDetail />} />
           <Route path="/create" element={<CreateItem />} />
           <Route path="/create-group" element={<CreateGroup />} />

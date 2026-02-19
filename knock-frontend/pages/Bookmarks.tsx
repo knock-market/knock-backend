@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bookmark, Package, Loader2 } from 'lucide-react';
+import { Bookmark, Loader2 } from 'lucide-react';
 import { bookmarksApi } from '../services';
-import { MOCK_ITEMS } from '../constants';
-import { ItemType, MyBookmarkResponseDto, ItemWithUI, ItemCategory } from '../types';
+import { ItemType, ItemWithUI, MyBookmarkResponseDto } from '../types';
 import ImageWithFallback from '../components/ImageWithFallback';
 
 const Bookmarks: React.FC = () => {
@@ -12,29 +11,34 @@ const Bookmarks: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true);
-    bookmarksApi.getMyBookmarks()
-      .then((res: any) => {
-        const bookmarks: MyBookmarkResponseDto[] = res.data || [];
-        // Map API response to ItemWithUI format
-        const items: ItemWithUI[] = bookmarks.map(b => ({
-          id: b.id,
-          title: b.title,
-          price: b.price,
-          thumbnailUrl: b.thumbnailUrl,
-          image: b.thumbnailUrl,
-          type: b.price === 0 ? ItemType.GIVE : ItemType.SELL,
-          status: 'AVAILABLE' as any,
-          category: ItemCategory.ETC,
-          postedAt: b.createdAt ? new Date(b.createdAt).toLocaleDateString() : ''
-        }));
+    const load = async () => {
+      setIsLoading(true);
+      try {
+        const bookmarks: MyBookmarkResponseDto[] = await bookmarksApi.getMyBookmarks();
+        const items: ItemWithUI[] = bookmarks.map((bookmark) => {
+          const itemCreatedAt = bookmark.itemCreatedAt ?? bookmark.createdAt;
+          return {
+            id: bookmark.itemId,
+            title: bookmark.title,
+            price: bookmark.price,
+            thumbnailUrl: bookmark.thumbnailUrl,
+            image: bookmark.thumbnailUrl,
+            type: bookmark.type,
+            status: bookmark.status,
+            category: bookmark.category,
+            postedAtLabel: itemCreatedAt ? new Date(itemCreatedAt).toLocaleDateString() : '',
+          };
+        });
         setSavedItems(items);
-      })
-      .catch(() => {
-        // Fallback to mock data
-        setSavedItems([MOCK_ITEMS[0], MOCK_ITEMS[2]]);
-      })
-      .finally(() => setIsLoading(false));
+      } catch (error) {
+        console.error('Failed to fetch bookmarks', error);
+        setSavedItems([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    load();
   }, []);
 
   if (isLoading) {
@@ -75,14 +79,14 @@ const Bookmarks: React.FC = () => {
 
               <div className="flex-1 flex flex-col justify-center py-1">
                 <div className="mb-1">
-                  <span className="text-[10px] text-gray-400 font-medium mb-1 block">{item.groupName || 'Bookmarked'}</span>
+                  <span className="text-[10px] text-gray-400 font-medium mb-1 block">Bookmarked</span>
                   <h3 className="font-bold text-gray-900 text-sm line-clamp-2 leading-snug">{item.title}</h3>
                 </div>
                 <div className="mt-auto">
                   <span className={`font-bold text-sm ${item.type === ItemType.GIVE ? 'text-emerald-600' : 'text-gray-900'}`}>
-                    {item.price === 0 ? 'Free' : `₩${item.price.toLocaleString()}`}
+                    {item.type === ItemType.GIVE ? 'Free' : `₩${item.price.toLocaleString()}`}
                   </span>
-                  {item.postedAt && <p className="text-[10px] text-gray-400 mt-1">{item.postedAt}</p>}
+                  {item.postedAtLabel && <p className="text-[10px] text-gray-400 mt-1">{item.postedAtLabel}</p>}
                 </div>
               </div>
             </div>

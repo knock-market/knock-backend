@@ -29,8 +29,6 @@ subprojects {
     apply(plugin = "java-library")
     apply(plugin = "org.springframework.boot")
     apply(plugin = "io.spring.dependency-management")
-    apply(plugin = "org.asciidoctor.jvm.convert")
-
 
     dependencyManagement {
         imports {
@@ -42,12 +40,16 @@ subprojects {
         testImplementation("org.springframework.boot:spring-boot-starter-test")
     }
 
-    tasks.getByName("bootJar") {
+    tasks.named("bootJar") {
         enabled = false
     }
 
-    tasks.getByName("jar") {
+    tasks.named("jar") {
         enabled = true
+    }
+
+    tasks.named("bootRun") {
+        enabled = false
     }
 
     java.sourceCompatibility = JavaVersion.VERSION_21
@@ -92,7 +94,4 @@ subprojects {
         }
     }
 
-    tasks.getByName("asciidoctor") {
-        dependsOn("restDocsTest")
-    }
 }

@@ -3,6 +3,7 @@ package com.knock.core.api.controller.v1;
 import com.knock.auth.MemberPrincipal;
 import com.knock.core.api.controller.ApiControllerAdvice;
 import com.knock.core.api.controller.v1.request.MemberSignupRequestDto;
+import com.knock.core.api.controller.v1.request.MemberUpdateRequestDto;
 import com.knock.core.domain.member.MemberService;
 import com.knock.core.domain.member.dto.MemberResult;
 import com.knock.core.domain.member.dto.MemberSignupResult;
@@ -19,6 +20,8 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import static com.knock.core.support.TestConstants.*;
 import static com.knock.test.api.RestDocsUtils.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -73,10 +76,28 @@ class MemberControllerTest extends RestDocsTest {
 	}
 
 	@Test
+	@DisplayName("회원가입 실패 - 유효성 검증")
+	void signup_fail_validation() {
+		// given
+		MemberSignupRequestDto request = new MemberSignupRequestDto("invalid-email", TEST_NAME, TEST_PASSWORD,
+				TEST_NICKNAME, null);
+
+		// when & then
+		restDocGiven().contentType(ContentType.JSON)
+			.body(request)
+			.post("/api/v1/members")
+			.then()
+			.status(HttpStatus.BAD_REQUEST);
+
+		verifyNoInteractions(memberService);
+	}
+
+	@Test
 	@DisplayName("내 정보 조회 성공")
 	void getMyMember_success() {
 		// given
-		MemberResult result = new MemberResult(TEST_EMAIL, TEST_NAME, TEST_NICKNAME, null, TEST_PROVIDER);
+		MemberResult result = new MemberResult(TEST_MEMBER_ID, TEST_EMAIL, TEST_NAME, TEST_NICKNAME, null,
+				TEST_PROVIDER, 36.5);
 		given(memberService.getMember(any())).willReturn(result);
 
 		restDocGiven().get("/api/v1/members/my")
@@ -84,6 +105,7 @@ class MemberControllerTest extends RestDocsTest {
 			.status(HttpStatus.OK)
 			.apply(document("api/v1/members/my", requestPreprocessor(), responsePreprocessor(),
 					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
+							fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("ID"),
 							fieldWithPath("data.email").type(JsonFieldType.STRING).description("이메일"),
 							fieldWithPath("data.name").type(JsonFieldType.STRING).description("이름"),
 							fieldWithPath("data.nickname").type(JsonFieldType.STRING).description("닉네임"),
@@ -91,6 +113,7 @@ class MemberControllerTest extends RestDocsTest {
 								.description("프로필 이미지 URL")
 								.optional(),
 							fieldWithPath("data.provider").type(JsonFieldType.STRING).description("가입 경로"),
+							fieldWithPath("data.mannerTemperature").type(JsonFieldType.NUMBER).description("매너 온도"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}
 
@@ -109,6 +132,29 @@ class MemberControllerTest extends RestDocsTest {
 							fieldWithPath("error.code").type(JsonFieldType.STRING).description("에러 코드"),
 							fieldWithPath("error.message").type(JsonFieldType.STRING).description("에러 메시지"),
 							fieldWithPath("error.data").type(JsonFieldType.NULL).description("추가 에러 데이터").optional())));
+	}
+
+	@Test
+	@DisplayName("내 정보 수정 성공")
+	void updateMyMember_success() {
+		// given
+		MemberUpdateRequestDto request = new MemberUpdateRequestDto(TEST_NICKNAME, TEST_IMAGE_URL);
+		doNothing().when(memberService).updateProfile(any(), any(), any());
+
+		// when & then
+		restDocGiven().contentType(ContentType.JSON)
+			.body(request)
+			.put("/api/v1/members/my")
+			.then()
+			.status(HttpStatus.OK)
+			.apply(document("api/v1/members/update", requestPreprocessor(), responsePreprocessor(),
+					relaxedRequestFields(fieldWithPath("nickname").type(JsonFieldType.STRING).description("닉네임"),
+							fieldWithPath("profileImageUrl").type(JsonFieldType.STRING)
+								.description("프로필 이미지 URL")
+								.optional()),
+					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
+							fieldWithPath("data").type(JsonFieldType.NULL).description("데이터"),
+							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}
 
 }

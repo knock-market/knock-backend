@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Keyboard, X, ArrowRight, Loader2, User } from 'lucide-react';
-import { groupsApi, authApi } from '../services';
+import { authApi, groupsApi } from '../services';
 import { HomeSkeleton } from '../components/Skeletons';
 import ImageWithFallback from '../components/ImageWithFallback';
+import { GroupResponseDto } from '../types';
 
 const GREETINGS = [
   { title: (name: string) => `Welcome back, ${name}! 👋`, subtitle: "See what's happening in your circles today." },
   { title: (name: string) => `Hey ${name}! ✨`, subtitle: "Let's check out what's new." },
-  { title: (name: string) => `Good to see you, ${name}! 🎉`, subtitle: "Your circles are waiting." },
+  { title: (name: string) => `Good to see you, ${name}! 🎉`, subtitle: 'Your circles are waiting.' },
 ];
 
 const Home: React.FC = () => {
@@ -17,8 +18,8 @@ const Home: React.FC = () => {
   const [joinCode, setJoinCode] = useState('');
   const [isJoining, setIsJoining] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [groups, setGroups] = useState<any[]>([]);
-  const [userName, setUserName] = useState('');
+  const [groups, setGroups] = useState<GroupResponseDto[]>([]);
+  const [userName, setUserName] = useState('User');
 
   const greeting = useMemo(() => {
     const index = Math.floor(Math.random() * GREETINGS.length);
@@ -26,41 +27,40 @@ const Home: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    setIsLoading(true);
-
-    Promise.all([
-      groupsApi.getMyGroups(),
-      authApi.getMe()
-    ])
-      .then(([groupsRes, userRes]: any[]) => {
-        setGroups(groupsRes.data || []);
-        const userData = userRes.data;
-        const firstName = (userData?.name || userData?.nickname || 'User').split(' ')[0];
+    const load = async () => {
+      setIsLoading(true);
+      try {
+        const [groupList, me] = await Promise.all([groupsApi.getMyGroups(), authApi.getMe()]);
+        setGroups(groupList);
+        const firstName = (me.name || me.nickname || 'User').split(' ')[0];
         setUserName(firstName);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch data", err);
-        setUserName('User');
-      })
-      .finally(() => {
+      } catch (error) {
+        console.error('Failed to fetch home data', error);
+      } finally {
         setIsLoading(false);
-      });
+      }
+    };
+
+    load();
   }, []);
 
-  const handleJoinSubmit = (e: React.FormEvent) => {
+  const handleJoinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!joinCode.trim()) return;
+    const inviteCode = joinCode.trim();
+    if (!inviteCode) return;
 
     setIsJoining(true);
-
-    // Simulate API verification delay
-    setTimeout(() => {
-      setIsJoining(false);
+    try {
+      const joined = await groupsApi.joinGroup(inviteCode);
       setShowJoinModal(false);
       setJoinCode('');
-      // For demo purposes, we navigate to the first group as if we just joined it
-      navigate('/group/g1');
-    }, 1500);
+      navigate(`/group/${joined.id}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to join group.';
+      alert(message);
+    } finally {
+      setIsJoining(false);
+    }
   };
 
   if (isLoading) {
@@ -69,7 +69,6 @@ const Home: React.FC = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen pb-24 max-w-md mx-auto relative">
-      {/* Floating Action Button for Create Item */}
       <div className="fixed bottom-24 left-0 right-0 max-w-md mx-auto z-40 px-6 flex justify-end pointer-events-none">
         <button
           onClick={() => navigate('/create')}
@@ -80,7 +79,6 @@ const Home: React.FC = () => {
         </button>
       </div>
 
-      {/* Join Code Modal */}
       {showJoinModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div
@@ -100,9 +98,7 @@ const Home: React.FC = () => {
                 <Keyboard size={24} />
               </div>
               <h2 className="text-xl font-bold text-gray-900">Enter Invite Code</h2>
-              <p className="text-sm text-gray-500 mt-1">
-                Paste the code shared by your group admin.
-              </p>
+              <p className="text-sm text-gray-500 mt-1">Paste the code shared by your group admin.</p>
             </div>
 
             <form onSubmit={handleJoinSubmit}>
@@ -140,18 +136,12 @@ const Home: React.FC = () => {
         </div>
       )}
 
-      {/* Header */}
       <div className="bg-white px-6 pt-12 pb-6 sticky top-0 z-10 shadow-sm">
-        <div className="flex justify-between items-center mb-1">
-          <h1 className="text-2xl font-bold text-gray-900">
-            {greeting.title(userName)}
-          </h1>
-        </div>
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">{greeting.title(userName)}</h1>
         <p className="text-gray-500 text-sm">{greeting.subtitle}</p>
       </div>
 
       <div className="p-6 space-y-8">
-        {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-4">
           <button
             onClick={() => navigate('/create-group')}
@@ -174,7 +164,6 @@ const Home: React.FC = () => {
           </button>
         </div>
 
-        {/* Groups List */}
         <div>
           <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Joined Communities</h2>
           <div className="space-y-4">
@@ -185,38 +174,16 @@ const Home: React.FC = () => {
                   onClick={() => navigate(`/group/${group.id}`)}
                   className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center space-x-4 hover:shadow-md transition-all cursor-pointer active:scale-[0.99]"
                 >
-                  <div className="relative">
-                    <ImageWithFallback
-                      src={group.profileImageUrl}
-                      alt={group.name}
-                      className="w-16 h-16 rounded-xl object-cover"
-                    />
-                    {group.id === 'my-group' && (
-                      <div className="absolute -bottom-1 -right-1 bg-white p-0.5 rounded-full">
-                        <div className="bg-emerald-500 text-white rounded-full p-0.5">
-                          <User size={10} />
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                  <ImageWithFallback
+                    src={group.profileImageUrl}
+                    alt={group.name}
+                    className="w-16 h-16 rounded-xl object-cover"
+                  />
                   <div className="flex-1">
-                    <div className="flex justify-between items-start">
-                      <h3 className="font-bold text-gray-900">{group.name}</h3>
-                      {group.id === 'my-group' ? (
-                        <span className="text-[10px] bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full font-medium">
-                          Personal
-                        </span>
-                      ) : (
-                        (group.activeListings || 0) > 0 && (
-                          <span className="text-[10px] bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full font-medium">
-                            Active
-                          </span>
-                        )
-                      )}
-                    </div>
+                    <h3 className="font-bold text-gray-900">{group.name}</h3>
                     <p className="text-sm text-gray-500 flex items-center mt-1">
-                      <span className={`w-2 h-2 rounded-full mr-2 ${group.id === 'my-group' ? 'bg-purple-300' : 'bg-gray-300'}`}></span>
-                      {group.memberCount} members
+                      <span className="w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
+                      {group.memberCount ?? 0} members
                     </p>
                   </div>
                   <div className="text-gray-300">
@@ -232,7 +199,7 @@ const Home: React.FC = () => {
                 <h3 className="font-bold text-gray-900 mb-1">No groups yet</h3>
                 <p className="text-sm text-gray-500 mb-6">Join a community to start trading!</p>
                 <button
-                  onClick={() => navigate('/onboarding')}
+                  onClick={() => setShowJoinModal(true)}
                   className="px-6 py-2 bg-emerald-500 text-white text-sm font-bold rounded-full shadow-lg shadow-emerald-100"
                 >
                   Join First Group
@@ -240,15 +207,6 @@ const Home: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
-
-        {/* Info Card */}
-        <div className="bg-emerald-50 rounded-2xl p-6 text-center border border-emerald-100">
-          <h3 className="font-bold text-gray-900 mb-2">Can't find your group?</h3>
-          <p className="text-sm text-gray-600 mb-4">Start your own community for your office or school circle today.</p>
-          <button className="text-emerald-600 font-semibold text-sm hover:underline">
-            Learn how it works
-          </button>
         </div>
       </div>
     </div>

@@ -11,6 +11,8 @@ public interface NotificationRepository {
 
 	List<Notification> findByMemberId(Long memberId);
 
+	int markAllAsReadByMemberId(Long memberId);
+
 	void delete(Notification notification);
 
 }

@@ -1,10 +1,13 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Lock, ArrowRight } from 'lucide-react';
-import { authApi } from '../services';
 
 const Onboarding: React.FC = () => {
   const navigate = useNavigate();
+  const handleSocialLogin = (provider: string) => {
+    alert(`${provider} login is not available yet. Please use email login.`);
+    navigate('/login');
+  };
 
   return (
     <div className="flex flex-col h-screen bg-white max-w-md mx-auto relative overflow-hidden">
@@ -46,43 +49,20 @@ const Onboarding: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <button
-              onClick={() => authApi.login('KAKAO')}
+              onClick={() => handleSocialLogin('Kakao')}
               className="bg-[#FEE500] hover:bg-[#FDD800] text-gray-900 font-bold py-3.5 rounded-2xl flex items-center justify-center transition-all active:scale-95 shadow-sm"
             >
               <span className="text-sm">Kakao</span>
             </button>
 
             <button
-              onClick={() => authApi.login('GOOGLE')}
+              onClick={() => handleSocialLogin('Google')}
               className="bg-white border border-gray-100 hover:bg-gray-50 text-gray-700 font-bold py-3.5 rounded-2xl flex items-center justify-center transition-all active:scale-95 shadow-sm"
             >
               <span className="text-sm">Google</span>
             </button>
           </div>
 
-          <button
-            onClick={() => {
-              const testUser = {
-                email: 'test@knock.com',
-                password: 'password',
-              };
-              authApi.emailLogin(testUser)
-                .then(() => navigate('/home'))
-                .catch(() => {
-                  authApi.signup({
-                    ...testUser,
-                    name: 'Test User',
-                    nickname: 'Tester',
-                    profileImageUrl: '',
-                  }).then(() => {
-                    authApi.emailLogin(testUser).then(() => navigate('/home'));
-                  });
-                });
-            }}
-            className="w-full text-gray-400 font-bold py-2 text-xs transition-all hover:text-gray-600"
-          >
-            Dev Login (Auto-generated)
-          </button>
         </div>
 
         <p className="mt-8 text-xs text-center text-gray-400 mb-6">

@@ -1,6 +1,7 @@
 package com.knock.core.api.controller.v1;
 
 import com.knock.auth.MemberPrincipal;
+import com.knock.core.api.controller.v1.request.MemberUpdateRequestDto;
 import com.knock.core.api.controller.v1.request.MemberSignupRequestDto;
 import com.knock.core.api.controller.v1.response.MemberResponseDto;
 import com.knock.core.api.controller.v1.response.MemberSignupResponseDto;
@@ -9,10 +10,12 @@ import com.knock.core.domain.member.dto.MemberResult;
 import com.knock.core.domain.member.dto.MemberSignupData;
 import com.knock.core.domain.member.dto.MemberSignupResult;
 import com.knock.core.support.response.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,7 +26,7 @@ public class MemberController {
 	private final MemberService memberService;
 
 	@PostMapping("/api/v1/members")
-	public ApiResponse<MemberSignupResponseDto> signUpMember(@RequestBody MemberSignupRequestDto request) {
+	public ApiResponse<MemberSignupResponseDto> signUpMember(@Valid @RequestBody MemberSignupRequestDto request) {
 		MemberSignupResult result = memberService.signup(MemberSignupData.of(request));
 		MemberSignupResponseDto response = MemberSignupResponseDto.of(result);
 		return ApiResponse.success(response);
@@ -34,6 +37,13 @@ public class MemberController {
 		MemberResult result = memberService.getMember(principal.getMemberId());
 		MemberResponseDto response = MemberResponseDto.of(result);
 		return ApiResponse.success(response);
+	}
+
+	@PutMapping("/api/v1/members/my")
+	public ApiResponse<?> updateMyMember(@AuthenticationPrincipal MemberPrincipal principal,
+			@Valid @RequestBody MemberUpdateRequestDto request) {
+		memberService.updateProfile(principal.getMemberId(), request.nickname(), request.profileImageUrl());
+		return ApiResponse.success();
 	}
 
 }

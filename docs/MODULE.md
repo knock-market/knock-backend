@@ -45,7 +45,7 @@ graph TD
 | --- | --- | --- | --- |
 | **core** | `core:core-api` | **웹 애플리케이션 (User Interface Layer)**<br>- HTTP 요청 처리 (Controller)<br>- 비즈니스 로직 (Service)<br>- 최종 실행 가능한 jar 생성 (`bootJar`) | `core-enum`, `core-auth`, `db-core`, `memory`, `infra:s3`, `client-example` |
 | | `core:core-enum` | **공통 열거형 (Shared Enums)**<br>- 모듈 간 공유되는 Enum 클래스들<br>- 의존성 순환 방지를 위한 최하위 모듈 | (없음) |
-| | `core:core-auth` | **인증/인가 (Authentication Layer)**<br>- JWT 토큰 발급 및 검증 로직<br>- Spring Security 관련 설정 | `core-enum`, `jjwt` |
+| | `core:core-auth` | **인증/인가 (Authentication Layer)**<br>- 세션 쿠키 기반 로그인/로그아웃 (`SessionAuthService`)<br>- Spring Security 관련 설정 | `storage:db-core`, `storage:memory`, `spring-security` |
 | **storage** | `storage:db-core` | **RDB 데이터 접근 (Persistence Layer)**<br>- JPA Repositories, Entities<br>- DB 설정 및 스키마 관리<br>- 실행 불가능(`jar` enabled, `bootJar` disabled) | `core-enum`, `spring-boot-starter-data-jpa`, `mysql-connector` |
 | | `storage:memory` | **인메모리 저장소 (Cache Layer)**<br>- Redis 설정 및 접근<br>- 임시 토큰 저장 등 | `spring-boot-starter-data-redis` |
 | **infra** | `infra:s3` | **인프라스트럭처 (Infrastructure Layer)**<br>- AWS S3 파일 업로드/다운로드 로직<br>- 외부 인프라스트럭처 연동 담당 | `aws-java-sdk-s3` |
@@ -159,3 +159,19 @@ tasks.register<Test>("unitTest") {
 val javaVersion = property("javaVersion") as String
 ```
 -   `gradle.properties` 파일에 정의된 변수를 가져와서 사용합니다. 버전을 한곳에서 관리하기 위함입니다.
+
+## 5. 최근 반영사항 (2026-02-16)
+
+아래 변경은 모듈 간 책임 분리를 유지한 채 각 레이어에 반영되었습니다.
+
+- `core:core-api` + `storage:db-core`
+  - 상품 삭제 시 활성 예약(`WAITING`, `APPROVED`) 자동 취소 후 소프트 삭제
+  - 예약 승인 시 `FOR UPDATE` 조회 대상 누락을 예외 처리(`RESERVATION_NOT_FOUND`)
+  - 회원 차단 API 동시 요청 충돌(`DataIntegrityViolationException`) 멱등 처리
+  - 알림 전체 읽음 API 추가: `PATCH /api/v1/notifications/read-all`
+- `core:core-api` (DTO)
+  - 북마크 응답에 `type`, `category`, `status`, `itemCreatedAt` 확장
+- `knock-frontend`
+  - 로그아웃 버튼이 서버 `POST /api/v1/auth/logout` 호출 후 이동하도록 수정
+  - 숫자 라우트 파라미터 검증 강화 (`GroupFeed`, `ItemDetail`, `ManageItemDetail`)
+  - 생성/상세 화면의 잘못된 UI 상태(무한 로딩, 비작동 토글, 잘못된 라벨/북마크 상태) 보정

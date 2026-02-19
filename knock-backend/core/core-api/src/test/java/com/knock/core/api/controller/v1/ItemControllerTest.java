@@ -24,6 +24,7 @@ import static com.knock.core.support.TestConstants.*;
 import static com.knock.test.api.RestDocsUtils.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -154,6 +155,24 @@ class ItemControllerTest extends RestDocsTest {
 							fieldWithPath("data[].status").type(JsonFieldType.STRING).description("상품 상태"),
 							fieldWithPath("data[].thumbnailUrl").type(JsonFieldType.STRING).description("썸네일 URL"),
 							fieldWithPath("data[].writerId").type(JsonFieldType.NUMBER).description("판매자 ID"),
+							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+	}
+
+	@Test
+	@DisplayName("상품 삭제 성공")
+	void deleteItem_success() {
+		// given
+		doNothing().when(itemService).deleteItem(anyLong(), anyLong());
+
+		// when & then
+		restDocGiven().pathParam("itemId", TEST_ITEM_ID)
+			.delete("/api/v1/items/{itemId}")
+			.then()
+			.status(HttpStatus.OK)
+			.apply(document("api/v1/items/delete", requestPreprocessor(), responsePreprocessor(),
+					pathParameters(parameterWithName("itemId").description("상품 ID")),
+					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
+							fieldWithPath("data").type(JsonFieldType.NULL).description("데이터"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}
 

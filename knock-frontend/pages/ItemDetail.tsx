@@ -1,17 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { itemsApi, authApi, reservationsApi, bookmarksApi } from '../services';
+import { AlertCircle, ArrowLeft, CheckCircle, Clock, Heart, MapPin, Share } from 'lucide-react';
+import { bookmarksApi, itemsApi, reservationsApi } from '../services';
 import { ItemDetailSkeleton } from '../components/Skeletons';
-import { CURRENT_USER, CATEGORY_LABELS } from '../constants';
-import { ItemStatus, ItemResponseDto, ItemCategory } from '../types';
-import { AlertCircle, ArrowLeft, CheckCircle, Clock, Heart, MapPin, Share, Loader2 } from 'lucide-react';
 import ImageWithFallback from '../components/ImageWithFallback';
+import { ItemCategory, ItemResponseDto, ItemStatus } from '../types';
+import { CATEGORY_LABELS } from '../constants';
 
 const ItemDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const itemId = id ? Number(id) : NaN;
+  const hasValidItemId = Number.isInteger(itemId) && itemId > 0;
+
   const [item, setItem] = useState<ItemResponseDto | null>(null);
-  const [isReserved, setIsReserved] = useState(false);
+  const [hasRequested, setHasRequested] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [showCopyToast, setShowCopyToast] = useState(false);
   const [showReserveModal, setShowReserveModal] = useState(false);
@@ -19,21 +22,49 @@ const ItemDetail = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!id) return;
-    setIsLoading(true);
-    itemsApi.getItem(id)
-      .then((response: any) => {
-        const data = response.data;
-        setItem(data);
-        setIsReserved(data.status === ItemStatus.RESERVED);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch item", err);
-      })
-      .finally(() => {
+    const load = async () => {
+      if (!hasValidItemId) {
+        setItem(null);
+        setHasRequested(false);
+        setIsLiked(false);
         setIsLoading(false);
-      });
-  }, [id]);
+        return;
+      }
+
+      setIsLoading(true);
+      setHasRequested(false);
+      setIsLiked(false);
+      try {
+        const [itemResult, bookmarkResult] = await Promise.allSettled([
+          itemsApi.getItem(itemId),
+          bookmarksApi.getMyBookmarks(),
+        ]);
+
+        if (itemResult.status === 'rejected') {
+          throw itemResult.reason;
+        }
+
+        const data = itemResult.value;
+        setItem(data);
+
+        if (bookmarkResult.status === 'fulfilled') {
+          const liked = bookmarkResult.value.some((bookmark) => bookmark.itemId === data.id);
+          setIsLiked(liked);
+        } else {
+          console.error('Failed to fetch bookmarks', bookmarkResult.reason);
+        }
+      } catch (error) {
+        console.error('Failed to fetch item', error);
+        setItem(null);
+        setHasRequested(false);
+        setIsLiked(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    load();
+  }, [itemId, hasValidItemId]);
 
   if (isLoading) {
     return <ItemDetailSkeleton />;
@@ -41,20 +72,31 @@ const ItemDetail = () => {
 
   if (!item) return <div className="p-8 text-center text-gray-500">Item not found</div>;
 
+  const isUnavailable = item.status !== ItemStatus.ON_SALE;
+  const reserveButtonLabel = hasRequested
+    ? 'Requested'
+    : item.status === ItemStatus.RESERVED
+      ? 'Reserved'
+      : item.status === ItemStatus.SOLD
+        ? 'Sold'
+        : 'Reserve Now';
+
   const handleReserveClick = () => {
-    if (isReserved) return;
+    if (hasRequested || isUnavailable) return;
     setShowReserveModal(true);
   };
 
   const confirmReservation = async () => {
+    if (!hasValidItemId) return;
+
     setIsSubmitting(true);
     try {
-      await reservationsApi.create(Number(id));
-      setIsReserved(true);
-      alert("Reservation request sent to the seller!");
-    } catch (err) {
-      console.error("Reservation failed:", err);
-      alert("Failed to send reservation request.");
+      await reservationsApi.create(itemId);
+      setHasRequested(true);
+      alert('Reservation request sent to the seller!');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to send reservation request.';
+      alert(message);
     } finally {
       setIsSubmitting(false);
       setShowReserveModal(false);
@@ -62,11 +104,14 @@ const ItemDetail = () => {
   };
 
   const toggleLike = async () => {
+    if (!hasValidItemId) return;
+
     try {
-      // bookmarksApi.toggle(Number(id)); // Assuming toggle exists
-      setIsLiked(!isLiked);
-    } catch (err) {
-      console.error("Like toggle failed:", err);
+      const result = await bookmarksApi.toggle(itemId);
+      setIsLiked(result.toggleOn);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to update bookmark.';
+      alert(message);
     }
   };
 
@@ -81,33 +126,28 @@ const ItemDetail = () => {
       } catch (error) {
         console.log('Error sharing:', error);
       }
-    } else {
-      // Fallback for browsers that don't support Web Share API
-      try {
-        await navigator.clipboard.writeText(window.location.href);
-        setShowCopyToast(true);
-        setTimeout(() => setShowCopyToast(false), 2000);
-      } catch (err) {
-        console.error('Failed to copy link:', err);
-      }
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setShowCopyToast(true);
+      setTimeout(() => setShowCopyToast(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy link:', error);
     }
   };
 
   const handleBack = () => {
     if (window.history.state && window.history.state.idx > 0) {
       navigate(-1);
-    } else {
-      navigate('/home');
+      return;
     }
-  };
-
-  const handleProfileClick = () => {
-    navigate('/profile');
+    navigate('/home');
   };
 
   return (
     <div className="bg-white min-h-screen pb-24 max-w-md mx-auto relative">
-      {/* Toast Notification */}
       {showCopyToast && (
         <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-900/90 text-white px-6 py-3 rounded-full text-sm font-medium backdrop-blur-sm z-[60] shadow-xl animate-in fade-in zoom-in duration-200 flex items-center space-x-2">
           <CheckCircle size={16} className="text-emerald-400" />
@@ -115,7 +155,6 @@ const ItemDetail = () => {
         </div>
       )}
 
-      {/* Reservation Confirmation Modal */}
       {showReserveModal && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center px-6">
           <div
@@ -129,7 +168,7 @@ const ItemDetail = () => {
               </div>
               <h2 className="text-xl font-bold text-gray-900 mb-2">Request Reservation?</h2>
               <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-                This will notify the seller that you are interested. They will review and confirm your request.
+                This will notify the seller that you are interested.
               </p>
               <div className="flex space-x-3 w-full">
                 <button
@@ -140,9 +179,10 @@ const ItemDetail = () => {
                 </button>
                 <button
                   onClick={confirmReservation}
-                  className="flex-1 py-3 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 shadow-lg shadow-emerald-200 transition-colors"
+                  disabled={isSubmitting}
+                  className="flex-1 py-3 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 shadow-lg shadow-emerald-200 transition-colors disabled:opacity-60"
                 >
-                  Confirm
+                  {isSubmitting ? 'Submitting...' : 'Confirm'}
                 </button>
               </div>
             </div>
@@ -150,7 +190,6 @@ const ItemDetail = () => {
         </div>
       )}
 
-      {/* Sticky Header Image */}
       <div className="relative h-80 bg-gray-100">
         <ImageWithFallback src={item.imageUrls?.[0]} alt={item.title} className="w-full h-full object-cover" />
         <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start bg-gradient-to-b from-black/30 to-transparent z-20">
@@ -165,21 +204,12 @@ const ItemDetail = () => {
             <Share size={24} />
           </button>
         </div>
-        {/* Dots for slideshow placeholder */}
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2 z-10">
-          <div className="w-2 h-2 bg-white rounded-full"></div>
-          <div className="w-2 h-2 bg-white/50 rounded-full"></div>
-          <div className="w-2 h-2 bg-white/50 rounded-full"></div>
-        </div>
       </div>
 
       <div className="px-6 py-6 rounded-t-3xl -mt-6 bg-white relative z-10">
-        {/* Title & Badge */}
         <div className="flex justify-between items-start mb-2">
           <h1 className="text-2xl font-bold text-gray-900 leading-tight w-3/4">{item.title}</h1>
-          <span className="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full">
-            {item.type}
-          </span>
+          <span className="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full">{item.type}</span>
         </div>
 
         <div className="flex items-center space-x-2 mb-6">
@@ -188,75 +218,53 @@ const ItemDetail = () => {
           <span className="text-sm text-gray-500">{CATEGORY_LABELS[item.category as ItemCategory] || item.category}</span>
         </div>
 
-        {/* Description */}
-        <p className="text-gray-600 leading-relaxed mb-8">
-          {item.description}
-        </p>
+        <p className="text-gray-600 leading-relaxed mb-8">{item.description}</p>
 
-        {/* Location Info Mock */}
         <div className="bg-gray-50 p-4 rounded-xl flex items-start space-x-3 mb-8">
           <MapPin size={20} className="text-gray-400 mt-0.5" />
           <div>
-            <p className="text-sm font-semibold text-gray-900">North Campus Library</p>
-            <p className="text-xs text-gray-500 mt-1">Pick up available until 5 PM today.</p>
+            <p className="text-sm font-semibold text-gray-900">Pickup by arrangement</p>
+            <p className="text-xs text-gray-500 mt-1">Coordinate details after reservation approval.</p>
           </div>
         </div>
 
-        {/* Seller Profile */}
         <div className="border-t border-gray-100 pt-6">
-          <div
-            onClick={handleProfileClick}
-            className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 -mx-2 rounded-xl transition-colors"
-          >
+          <div className="flex items-center justify-between p-2 -mx-2 rounded-xl">
             <div className="flex items-center space-x-3">
-              <ImageWithFallback src={item.writerProfileImageUrl || 'https://ui-avatars.com/api/?name=?&background=e2e8f0&color=94a3b8'} alt="Seller" className="w-12 h-12 rounded-full border border-gray-100" />
+              <ImageWithFallback
+                src={item.writerProfileImageUrl}
+                alt="Seller"
+                className="w-12 h-12 rounded-full border border-gray-100"
+              />
               <div>
                 <p className="font-bold text-gray-900">{item.writerNickname || `Seller #${item.writerId}`}</p>
                 <p className="text-xs text-gray-500">Member</p>
               </div>
             </div>
-            <div className="flex flex-col items-end">
-              <span className="text-[10px] text-gray-400 mt-1">Recently active</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Q&A Section Placeholder */}
-        <div className="mt-8 pt-6 border-t border-gray-100">
-          <div className="flex items-center bg-gray-50 rounded-full px-4 py-2">
-            <input
-              type="text"
-              placeholder="Ask a question..."
-              className="bg-transparent flex-1 text-sm text-gray-900 focus:outline-none placeholder-gray-500"
-            />
-            <button className="text-emerald-600 text-sm font-bold">Post</button>
           </div>
         </div>
       </div>
 
-      {/* Sticky Bottom Action */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-8 flex items-center space-x-4 max-w-md mx-auto z-50">
         <button
-          onClick={() => setIsLiked(!isLiked)}
-          className={`p-3 rounded-full border transition-colors ${isLiked ? 'bg-red-50 border-red-100 text-red-500' : 'border-gray-200 text-gray-400 hover:bg-gray-50'
-            }`}
+          onClick={toggleLike}
+          className={`p-3 rounded-full border transition-colors ${isLiked ? 'bg-red-50 border-red-100 text-red-500' : 'border-gray-200 text-gray-400 hover:bg-gray-50'}`}
         >
-          <Heart size={24} fill={isLiked ? "currentColor" : "none"} />
+          <Heart size={24} fill={isLiked ? 'currentColor' : 'none'} />
         </button>
         <button
           onClick={handleReserveClick}
-          disabled={isReserved && item.status !== ItemStatus.AVAILABLE}
-          className={`flex-1 py-4 rounded-xl font-bold text-white flex items-center justify-center space-x-2 transition-all active:scale-[0.98] ${isReserved
+          disabled={hasRequested || isUnavailable}
+          className={`flex-1 py-4 rounded-xl font-bold text-white flex items-center justify-center space-x-2 transition-all active:scale-[0.98] ${hasRequested || isUnavailable
             ? 'bg-gray-400 cursor-not-allowed'
-            : 'bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-200'
-            }`}
+            : 'bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-200'}`}
         >
-          {isReserved ? (
-            <span>Requested</span>
+          {hasRequested || isUnavailable ? (
+            <span>{reserveButtonLabel}</span>
           ) : (
             <>
               <Clock size={20} />
-              <span>Reserve Now</span>
+              <span>{reserveButtonLabel}</span>
             </>
           )}
         </button>

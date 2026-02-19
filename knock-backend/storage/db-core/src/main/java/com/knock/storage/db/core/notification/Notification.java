@@ -52,8 +52,8 @@ public class Notification extends BaseEntity {
 		this.isRead = true;
 	}
 
-	public boolean isOwner(Long memberId) {
-		return !member.getId().equals(memberId);
+	public boolean isOwnedBy(Long memberId) {
+		return member.getId().equals(memberId);
 	}
 
 }

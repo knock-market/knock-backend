@@ -162,6 +162,18 @@ include::{snippets}/api/v1/items/list-by-group/response-fields.adoc[]
 include::{snippets}/api/v1/items/my-selling/http-response.adoc[]
 include::{snippets}/api/v1/items/my-selling/response-fields.adoc[]
 
+[[item-delete]]
+=== 4.5 Delete Item
+`DELETE /api/v1/items/{itemId}`
+
+==== Request
+include::{snippets}/api/v1/items/delete/http-request.adoc[]
+include::{snippets}/api/v1/items/delete/path-parameters.adoc[]
+
+==== Response
+include::{snippets}/api/v1/items/delete/http-response.adoc[]
+include::{snippets}/api/v1/items/delete/response-fields.adoc[]
+
 [[bookmark-api]]
 == 5. Bookmark API
 
@@ -242,6 +254,17 @@ include::{snippets}/api/v1/notifications/read/path-parameters.adoc[]
 ==== Response
 include::{snippets}/api/v1/notifications/read/http-response.adoc[]
 include::{snippets}/api/v1/notifications/read/response-fields.adoc[]
+
+[[notification-read-all]]
+=== 7.3 Mark All Notifications as Read
+`PATCH /api/v1/notifications/read-all`
+
+==== Request
+include::{snippets}/api/v1/notifications/read-all/http-request.adoc[]
+
+==== Response
+include::{snippets}/api/v1/notifications/read-all/http-response.adoc[]
+include::{snippets}/api/v1/notifications/read-all/response-fields.adoc[]
 
 [[image-api]]
 == 8. Image API

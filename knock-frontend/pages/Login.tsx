@@ -20,9 +20,9 @@ const Login: React.FC = () => {
         try {
             await authApi.emailLogin({ email, password });
             navigate('/home');
-        } catch (err: any) {
+        } catch (err) {
             console.error("Login failed:", err);
-            setError(err.response?.data?.message || 'Invalid email or password. Please try again.');
+            setError(err instanceof Error ? err.message : 'Invalid email or password. Please try again.');
         } finally {
             setIsLoading(false);
         }

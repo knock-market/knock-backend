@@ -52,6 +52,12 @@ public class ItemController {
 		return ApiResponse.success(response);
 	}
 
+	@DeleteMapping("/api/v1/items/{itemId}")
+	public ApiResponse<?> deleteItem(@AuthenticationPrincipal MemberPrincipal principal, @PathVariable Long itemId) {
+		itemService.deleteItem(principal.getMemberId(), itemId);
+		return ApiResponse.success();
+	}
+
 	public record ItemIdResponseDto(Long id) {
 	}
 

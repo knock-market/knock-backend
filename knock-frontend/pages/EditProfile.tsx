@@ -1,17 +1,35 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Camera, Check, Loader2 } from 'lucide-react';
-import { CURRENT_USER } from '../constants';
 import { authApi, imagesApi } from '../services';
+import { DEFAULT_AVATAR } from '../constants';
 
 const EditProfile: React.FC = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [name, setName] = useState(CURRENT_USER.name);
-  const [role, setRole] = useState(CURRENT_USER.role);
-  const [avatarUrl, setAvatarUrl] = useState(CURRENT_USER.avatar);
+
+  const [nickname, setNickname] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState(DEFAULT_AVATAR);
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      setIsLoading(true);
+      try {
+        const me = await authApi.getMe();
+        setNickname(me.nickname || me.name || '');
+        setAvatarUrl(me.profileImageUrl || DEFAULT_AVATAR);
+      } catch (error) {
+        console.error('Failed to load profile data', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    load();
+  }, []);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -19,39 +37,44 @@ const EditProfile: React.FC = () => {
 
     setIsUploading(true);
     try {
-      const res = await imagesApi.upload(file);
-      setAvatarUrl(res.data.imageUrl);
-    } catch (err) {
-      console.error("Upload failed:", err);
-      alert("Failed to upload image.");
+      const uploaded = await imagesApi.upload(file);
+      setAvatarUrl(uploaded.imageUrl);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to upload image.';
+      alert(message);
     } finally {
       setIsUploading(false);
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (!nickname.trim()) {
+      alert('Nickname is required.');
+      return;
+    }
+
     setIsSubmitting(true);
-
-    // Prepare data for API
-    const profileData = {
-      nickname: name,
-      profileImageUrl: avatarUrl
-    };
-
-    // Call hypothetical update API or simulate
-    authApi.updateProfile(profileData)
-      .then(() => {
-        setIsSubmitting(false);
-        navigate(-1);
-      })
-      .catch(() => {
-        // Simulation for now since backend might not be ready
-        setTimeout(() => {
-          setIsSubmitting(false);
-          navigate(-1);
-        }, 1000);
+    try {
+      await authApi.updateProfile({
+        nickname: nickname.trim(),
+        profileImageUrl: avatarUrl,
       });
+      navigate(-1);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to update profile.';
+      alert(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="bg-white min-h-screen flex items-center justify-center max-w-md mx-auto">
+        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white min-h-screen pb-24 max-w-md mx-auto relative">
@@ -63,7 +86,6 @@ const EditProfile: React.FC = () => {
       </div>
 
       <div className="p-6">
-        {/* Avatar Edit */}
         <div className="flex flex-col items-center mb-8">
           <div className="relative">
             <input
@@ -79,11 +101,7 @@ const EditProfile: React.FC = () => {
                   <Loader2 size={24} className="text-white animate-spin" />
                 </div>
               )}
-              <img
-                src={avatarUrl}
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
+              <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
             </div>
             <button
               onClick={() => fileInputRef.current?.click()}
@@ -102,27 +120,15 @@ const EditProfile: React.FC = () => {
           </button>
         </div>
 
-        {/* Form Fields */}
         <div className="space-y-6">
           <div>
             <label className="block text-sm font-bold text-gray-900 mb-2">Display Name</label>
             <input
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
               className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-gray-900 mb-2">Organization / Role</label>
-            <input
-              type="text"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-            />
-            <p className="text-xs text-gray-500 mt-2">This will be displayed on your profile card.</p>
           </div>
         </div>
       </div>
