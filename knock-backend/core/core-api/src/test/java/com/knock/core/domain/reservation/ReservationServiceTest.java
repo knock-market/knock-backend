@@ -6,6 +6,7 @@ import com.knock.core.domain.reservation.dto.ReservationResult;
 import com.knock.core.enums.ReservationStatus;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
+import com.knock.storage.db.core.group.GroupRepository;
 import com.knock.storage.db.core.item.Item;
 import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.Member;
@@ -45,6 +46,9 @@ class ReservationServiceTest {
 	private ItemRepository itemRepository;
 
 	@Mock
+	private GroupRepository groupRepository;
+
+	@Mock
 	private MemberRepository memberRepository;
 
 	@Mock
@@ -65,6 +69,7 @@ class ReservationServiceTest {
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
 			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
+			given(groupRepository.existsMember(item.getGroup().getId(), TEST_MEMBER_ID)).willReturn(true);
 			given(reservationRepository.createIfNotApproved(TEST_ITEM_ID, TEST_MEMBER_ID)).willReturn(1);
 			given(reservationRepository.findByItemIdAndMemberIdAndStatus(TEST_ITEM_ID, TEST_MEMBER_ID,
 					ReservationStatus.WAITING))
@@ -88,11 +93,30 @@ class ReservationServiceTest {
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
 			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
+			given(groupRepository.existsMember(item.getGroup().getId(), TEST_MEMBER_ID)).willReturn(true);
 			given(reservationRepository.createIfNotApproved(TEST_ITEM_ID, TEST_MEMBER_ID)).willReturn(0);
 
 			// when & then
 			assertThatThrownBy(() -> reservationService.createReservation(data)).isInstanceOf(CoreException.class)
 				.hasFieldOrPropertyWithValue("errorType", ErrorType.RESERVATION_ALREADY_EXISTS);
+			verify(notificationService, never()).createNotification(any());
+		}
+
+		@Test
+		@DisplayName("실패 - 그룹 멤버 아님")
+		void fail_notGroupMember() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, createGroup(), member);
+			ReservationCreateData data = new ReservationCreateData(TEST_ITEM_ID, TEST_MEMBER_ID);
+
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
+			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
+			given(groupRepository.existsMember(item.getGroup().getId(), TEST_MEMBER_ID)).willReturn(false);
+
+			// when & then
+			assertThatThrownBy(() -> reservationService.createReservation(data)).isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.FORBIDDEN);
 			verify(notificationService, never()).createNotification(any());
 		}
 
