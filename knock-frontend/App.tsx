@@ -1,5 +1,5 @@
-import React from 'react';
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
 import GroupFeed from './pages/GroupFeed';
@@ -20,6 +20,22 @@ import Signup from './pages/Signup';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import BottomNav from './components/BottomNav';
+import { authApi } from './services';
+
+const PUBLIC_PATHS = new Set([
+  '/',
+  '/login',
+  '/signup',
+  '/terms',
+  '/privacy',
+]);
+
+const isPublicPath = (pathname: string): boolean => {
+  if (PUBLIC_PATHS.has(pathname)) {
+    return true;
+  }
+  return /^\/item\/\d+$/.test(pathname);
+};
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
@@ -39,33 +55,91 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 };
 
+const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const location = useLocation();
+  const [isChecking, setIsChecking] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    if (isPublicPath(location.pathname)) {
+      setIsChecking(false);
+      return;
+    }
+
+    let mounted = true;
+    setIsChecking(true);
+
+    authApi.getMe()
+      .then(() => {
+        if (mounted) {
+          setIsAuthenticated(true);
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setIsAuthenticated(false);
+        }
+      })
+      .finally(() => {
+        if (mounted) {
+          setIsChecking(false);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [location.pathname]);
+
+  if (isPublicPath(location.pathname)) {
+    return <>{children}</>;
+  }
+
+  if (isChecking) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center text-gray-500">
+        Checking session...
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    const next = encodeURIComponent(`${location.pathname}${location.search}`);
+    return <Navigate to={`/login?next=${next}`} replace />;
+  }
+
+  return <>{children}</>;
+};
+
 const App: React.FC = () => {
   return (
     <HashRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Onboarding />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/groups" element={<Home />} />
-          <Route path="/group/:id" element={<GroupFeed />} />
-          <Route path="/join/:code" element={<JoinGroup />} />
-          <Route path="/item/:id" element={<ItemDetail />} />
-          <Route path="/create" element={<CreateItem />} />
-          <Route path="/create-group" element={<CreateGroup />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/edit-profile" element={<EditProfile />} />
-          <Route path="/manage-items" element={<ManageItems />} />
-          <Route path="/manage-item/:id" element={<ManageItemDetail />} />
-          <Route path="/settings/notifications" element={<NotificationSettings />} />
-          <Route path="/settings/blocked" element={<BlockedUsers />} />
-          <Route path="/notifications" element={<Notifications />} />
-          <Route path="/saved" element={<Bookmarks />} />
-          <Route path="/terms" element={<TermsOfService />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-        </Routes>
-      </Layout>
+      <AuthGuard>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Onboarding />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/groups" element={<Home />} />
+            <Route path="/group/:id" element={<GroupFeed />} />
+            <Route path="/join/:code" element={<JoinGroup />} />
+            <Route path="/item/:id" element={<ItemDetail />} />
+            <Route path="/create" element={<CreateItem />} />
+            <Route path="/create-group" element={<CreateGroup />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/edit-profile" element={<EditProfile />} />
+            <Route path="/manage-items" element={<ManageItems />} />
+            <Route path="/manage-item/:id" element={<ManageItemDetail />} />
+            <Route path="/settings/notifications" element={<NotificationSettings />} />
+            <Route path="/settings/blocked" element={<BlockedUsers />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/saved" element={<Bookmarks />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+          </Routes>
+        </Layout>
+      </AuthGuard>
     </HashRouter>
   );
 };

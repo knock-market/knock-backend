@@ -95,6 +95,13 @@ const ItemDetail = () => {
       setHasRequested(true);
       alert('Reservation request sent to the seller!');
     } catch (error) {
+      const status = typeof error === 'object' && error !== null && 'status' in error
+        ? Number((error as { status?: number }).status)
+        : undefined;
+      if (status === 401) {
+        navigate(`/login?next=${encodeURIComponent(`/item/${itemId}`)}`);
+        return;
+      }
       const message = error instanceof Error ? error.message : 'Failed to send reservation request.';
       alert(message);
     } finally {
