@@ -33,7 +33,8 @@ public class ItemController {
 	@GetMapping("/api/v1/items/{itemId}")
 	public ApiResponse<ItemResponseDto> getItem(@AuthenticationPrincipal MemberPrincipal principal,
 			@PathVariable Long itemId) {
-		itemService.increaseViewCount(itemId, principal.getMemberId());
+		Long memberId = principal != null ? principal.getMemberId() : null;
+		itemService.increaseViewCount(itemId, memberId);
 		ItemReadResult result = itemService.getItem(itemId);
 		return ApiResponse.success(ItemResponseDto.from(result));
 	}

@@ -5,11 +5,15 @@ import com.knock.core.support.error.ErrorType;
 import com.knock.core.support.response.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +48,28 @@ public class ApiControllerAdvice {
 
 		return new ResponseEntity<>(ApiResponse.error(ErrorType.VALIDATION_ERROR, errors),
 				ErrorType.VALIDATION_ERROR.getStatus());
+	}
+
+	@ExceptionHandler(ResponseStatusException.class)
+	protected ResponseEntity<ApiResponse<?>> handleResponseStatusException(ResponseStatusException e) {
+		log.warn("ResponseStatusException : {}", e.getMessage());
+
+		HttpStatus status = HttpStatus.valueOf(e.getStatusCode().value());
+		ErrorType errorType = switch (status) {
+			case BAD_REQUEST -> ErrorType.VALIDATION_ERROR;
+			case UNAUTHORIZED -> ErrorType.AUTHENTICATION_FAILED;
+			case FORBIDDEN -> ErrorType.FORBIDDEN;
+			case CONFLICT -> ErrorType.DUPLICATE_EMAIL;
+			default -> ErrorType.DEFAULT_ERROR;
+		};
+
+		return new ResponseEntity<>(ApiResponse.error(errorType, e.getReason()), status);
+	}
+
+	@ExceptionHandler({ NoResourceFoundException.class, NoHandlerFoundException.class })
+	protected ResponseEntity<ApiResponse<?>> handleNotFoundException(Exception e) {
+		log.debug("NotFound : {}", e.getMessage());
+		return new ResponseEntity<>(ApiResponse.error(ErrorType.NOT_FOUND), ErrorType.NOT_FOUND.getStatus());
 	}
 
 	@ExceptionHandler(Exception.class)

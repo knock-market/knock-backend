@@ -2,12 +2,14 @@ package com.knock.core.api.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -28,8 +30,14 @@ public class SecurityConfig {
 				securityContext.securityContextRepository(securityContextRepository);
 				securityContext.requireExplicitSave(true);
 			})
-			.authorizeHttpRequests(
-					auth -> auth.requestMatchers("/**", "/api/v1/members").permitAll().anyRequest().authenticated())
+			.authorizeHttpRequests(auth -> auth
+				.requestMatchers(RegexRequestMatcher.regexMatcher(HttpMethod.GET, "/api/v1/items/\\d+"))
+				.permitAll()
+				.requestMatchers("/api/v1/auth/**", "/api/v1/members", "/actuator/health", "/favicon.ico",
+						"/.well-known/**")
+				.permitAll()
+				.anyRequest()
+				.authenticated())
 			.sessionManagement(session -> session.maximumSessions(1).maxSessionsPreventsLogin(false));
 
 		return http.build();
