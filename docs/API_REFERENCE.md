@@ -13,7 +13,9 @@
 |---|---|---|---|---|---|
 | POST | `/api/v1/auth/login` | 일반 이메일 로그인 | `AuthLoginRequestDto` <br> `{ email, password }` | `ApiResponse` <br> `(void)` | ✅ Implemented |
 | POST | `/api/v1/auth/logout` | 로그아웃 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
-| POST | `/api/v1/auth/social/{provider}` | 소셜 로그인 | `(TBD)` | `(TBD)` | ❌ Not Implemented |
+| GET | `/api/v1/auth/social/google/start` | 구글 OAuth 인가 시작(302 Redirect) | `QueryParam`(Optional) <br> `{ next }` | `302 Location: Google OAuth URL` | ✅ Implemented |
+| GET | `/api/v1/auth/social/google/callback` | 구글 OAuth 콜백 로그인 | `QueryParam` <br> `{ code, state }` | `302 Location: next(있으면) 또는 GOOGLE_LOGIN_SUCCESS_REDIRECT_URI` | ✅ Implemented |
+| POST | `/api/v1/auth/social/kakao` | 카카오 소셜 로그인 | `(TBD)` | `(TBD)` | ❌ Not Implemented |
 
 ## 2. Member API
 | Method | URI | Description | Request Body | Response Body | Status |
