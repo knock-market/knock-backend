@@ -30,14 +30,14 @@ public class SecurityConfig {
 				securityContext.securityContextRepository(securityContextRepository);
 				securityContext.requireExplicitSave(true);
 			})
-			.authorizeHttpRequests(auth -> auth
-				.requestMatchers(RegexRequestMatcher.regexMatcher(HttpMethod.GET, "/api/v1/items/\\d+"))
-				.permitAll()
-				.requestMatchers("/api/v1/auth/**", "/api/v1/members", "/actuator/health", "/favicon.ico",
-						"/.well-known/**")
-				.permitAll()
-				.anyRequest()
-				.authenticated())
+			.authorizeHttpRequests(
+					auth -> auth.requestMatchers(RegexRequestMatcher.regexMatcher(HttpMethod.GET, "/api/v1/items/\\d+"))
+						.permitAll()
+						.requestMatchers("/api/v1/auth/**", "/api/v1/members", "/actuator/health", "/favicon.ico",
+								"/.well-known/**")
+						.permitAll()
+						.anyRequest()
+						.authenticated())
 			.sessionManagement(session -> session.maximumSessions(1).maxSessionsPreventsLogin(false));
 
 		return http.build();
