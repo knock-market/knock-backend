@@ -25,6 +25,20 @@ const patch = <T, D = unknown>(url: string, data?: D, config?: object) =>
     client.patch<T, T, D>(url, data, config);
 const del = <T>(url: string, config?: object) => client.delete<T, T>(url, config);
 
+type ItemCreatePayload = {
+    groupId: number;
+    title: string;
+    description: string;
+    price: number;
+    itemType: 'SELL' | 'GIVE';
+    category: string;
+    imageUrls: string[];
+    tradeLocationName?: string;
+    tradeLocationAddress?: string;
+    tradeLatitude?: number;
+    tradeLongitude?: number;
+};
+
 // ============== Auth API ==============
 export const authApi = {
     emailLogin: (data: { email: string; password: string }) =>
@@ -64,24 +78,9 @@ export const groupsApi = {
 export const itemsApi = {
     getItems: (groupId: number | string) => get<ItemSummaryResponseDto[]>(`/groups/${groupId}/items`),
     getItem: (itemId: number | string) => get<ItemResponseDto>(`/items/${itemId}`),
-    createItem: (data: {
-        groupId: number;
-        title: string;
-        description: string;
-        price: number;
-        itemType: 'SELL' | 'GIVE';
-        category: string;
-        imageUrls: string[];
-    }) => post<{ id: number }, {
-        groupId: number;
-        title: string;
-        description: string;
-        price: number;
-        itemType: 'SELL' | 'GIVE';
-        category: string;
-        imageUrls: string[];
-    }>('/items', data),
+    createItem: (data: ItemCreatePayload) => post<{ id: number }, ItemCreatePayload>('/items', data),
     getMySelling: () => get<ItemSummaryResponseDto[]>('/items/my-selling'),
+    getSellerItems: (memberId: number | string) => get<ItemSummaryResponseDto[]>(`/members/${memberId}/items`),
     deleteItem: (itemId: number | string) => del<void>(`/items/${itemId}`),
 };
 

@@ -36,6 +36,7 @@ public class ItemService {
 
 	@Transactional
 	public ItemCreateResult createItem(Long memberId, Long groupId, ItemCreateData data) {
+		validateTradeLocation(data);
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 		Group group = groupRepository.findGroupByGroupId(groupId)
@@ -43,6 +44,8 @@ public class ItemService {
 
 		Item item = Item.create(group, member, data.title(), data.description(), data.price(), data.type(),
 				data.category());
+		item.updateTradeLocation(normalizeText(data.tradeLocationName()), normalizeText(data.tradeLocationAddress()),
+				data.tradeLatitude(), data.tradeLongitude());
 
 		Item savedItem = itemRepository.save(item, data.imageUrls());
 		return new ItemCreateResult(savedItem.getId());
@@ -76,6 +79,17 @@ public class ItemService {
 		}).toList();
 	}
 
+	@Transactional(readOnly = true)
+	public List<ItemListResult> getSellingItemsByMember(Long memberId) {
+		memberRepository.findById(memberId).orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
+		return itemRepository.findByMemberIdWithLikes(memberId).stream().map(row -> {
+			Item item = (Item) row[0];
+			String thumbnailUrl = (String) row[1];
+			long likesCount = (Long) row[2];
+			return ItemListResult.from(item, thumbnailUrl, likesCount);
+		}).toList();
+	}
+
 	@Transactional
 	public void deleteItem(Long memberId, Long itemId) {
 		Item item = itemRepository.findById(itemId).orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
@@ -94,6 +108,27 @@ public class ItemService {
 	private boolean isActiveReservation(Reservation reservation) {
 		return reservation.getStatus() == ReservationStatus.WAITING
 				|| reservation.getStatus() == ReservationStatus.APPROVED;
+	}
+
+	private void validateTradeLocation(ItemCreateData data) {
+		boolean hasLatitude = data.tradeLatitude() != null;
+		boolean hasLongitude = data.tradeLongitude() != null;
+		if (hasLatitude != hasLongitude) {
+			throw new CoreException(ErrorType.VALIDATION_ERROR);
+		}
+		if (hasLatitude && (data.tradeLatitude() < -90 || data.tradeLatitude() > 90)) {
+			throw new CoreException(ErrorType.VALIDATION_ERROR);
+		}
+		if (hasLongitude && (data.tradeLongitude() < -180 || data.tradeLongitude() > 180)) {
+			throw new CoreException(ErrorType.VALIDATION_ERROR);
+		}
+	}
+
+	private String normalizeText(String value) {
+		if (value == null || value.isBlank()) {
+			return null;
+		}
+		return value.trim();
 	}
 
 	// todo : 로직 완성 필요

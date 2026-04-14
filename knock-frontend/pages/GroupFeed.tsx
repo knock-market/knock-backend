@@ -6,24 +6,22 @@ import { GroupResponseDto, ItemCategory, ItemStatus, ItemSummaryResponseDto, Ite
 import { CATEGORY_LABELS } from '../constants';
 import { GroupFeedSkeleton } from '../components/Skeletons';
 import ImageWithFallback from '../components/ImageWithFallback';
-
+import SellerFilterBar from '../components/SellerFilterBar';
 const GroupFeed: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const groupId = id ? Number(id) : NaN;
   const hasValidGroupId = Number.isInteger(groupId) && groupId > 0;
-
   const [group, setGroup] = useState<GroupResponseDto | null>(null);
   const [items, setItems] = useState<ItemSummaryResponseDto[]>([]);
   const [activeFilter, setActiveFilter] = useState('All');
+  const [activeSellerId, setActiveSellerId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showInfo, setShowInfo] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isLeaving, setIsLeaving] = useState(false);
-
   const filters = useMemo(() => ['All', ...Object.values(ItemCategory), 'Free'], []);
-
   useEffect(() => {
     const load = async () => {
       if (!hasValidGroupId) {
@@ -49,9 +47,7 @@ const GroupFeed: React.FC = () => {
 
     load();
   }, [groupId, hasValidGroupId]);
-
   const deferredSearchTerm = useDeferredValue(searchTerm);
-
   const filteredItems = items.filter((item) => {
     const matchesFilter = activeFilter === 'All'
       || (activeFilter === 'Free' && (item.type === ItemType.GIVE || item.price === 0))
@@ -60,9 +56,9 @@ const GroupFeed: React.FC = () => {
     const matchesSearch = !normalizedSearchTerm
       || item.title.toLowerCase().includes(normalizedSearchTerm)
       || CATEGORY_LABELS[item.category]?.toLowerCase().includes(normalizedSearchTerm);
-    return matchesFilter && matchesSearch;
+    const matchesSeller = activeSellerId === null || item.writerId === activeSellerId;
+    return matchesFilter && matchesSearch && matchesSeller;
   });
-
   const handleLeaveGroup = async () => {
     if (!hasValidGroupId) return;
     setIsLeaving(true);
@@ -77,15 +73,12 @@ const GroupFeed: React.FC = () => {
       setIsLeaving(false);
     }
   };
-
   if (isLoading) {
     return <GroupFeedSkeleton />;
   }
-
   if (!group) {
     return <div className="p-8 text-center text-gray-500">Group not found</div>;
   }
-
   return (
     <div className="bg-gray-50 min-h-screen pb-24 max-w-md mx-auto relative">
       <div className="fixed bottom-24 left-0 right-0 max-w-md mx-auto z-40 px-6 flex justify-end pointer-events-none">
@@ -239,6 +232,8 @@ const GroupFeed: React.FC = () => {
               </button>
             ))}
           </div>
+
+          <SellerFilterBar items={items} activeSellerId={activeSellerId} onChange={setActiveSellerId} />
         </div>
       </div>
 
@@ -277,7 +272,7 @@ const GroupFeed: React.FC = () => {
                   {item.price === 0 ? 'Free' : `₩${item.price.toLocaleString()}`}
                 </span>
                 <div className="mt-2 text-[10px] text-gray-400 flex items-center justify-between">
-                  <span>{item.postedAt || 'Just now'}</span>
+                  <span className="truncate">{item.writerNickname || item.postedAt || 'Just now'}</span>
                   <span>{item.likesCount ?? 0} likes</span>
                 </div>
               </div>

@@ -53,6 +53,13 @@ public class ItemController {
 		return ApiResponse.success(response);
 	}
 
+	@GetMapping("/api/v1/members/{memberId}/items")
+	public ApiResponse<List<ItemSummaryResponseDto>> getSellingItemsByMember(@PathVariable Long memberId) {
+		List<ItemListResult> results = itemService.getSellingItemsByMember(memberId);
+		List<ItemSummaryResponseDto> response = results.stream().map(ItemSummaryResponseDto::from).toList();
+		return ApiResponse.success(response);
+	}
+
 	@DeleteMapping("/api/v1/items/{itemId}")
 	public ApiResponse<?> deleteItem(@AuthenticationPrincipal MemberPrincipal principal, @PathVariable Long itemId) {
 		itemService.deleteItem(principal.getMemberId(), itemId);

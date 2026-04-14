@@ -4,6 +4,7 @@ import { AlertCircle, ArrowLeft, CheckCircle, Clock, Heart, MapPin, Share } from
 import { bookmarksApi, itemsApi, reservationsApi } from '../services';
 import { ItemDetailSkeleton } from '../components/Skeletons';
 import ImageWithFallback from '../components/ImageWithFallback';
+import NaverMap from '../components/NaverMap';
 import { ItemCategory, ItemResponseDto, ItemStatus } from '../types';
 import { CATEGORY_LABELS } from '../constants';
 
@@ -231,16 +232,26 @@ const ItemDetail = () => {
 
         <p className="text-gray-600 leading-relaxed mb-8">{item.description}</p>
 
-        <div className="bg-gray-50 p-4 rounded-lg flex items-start space-x-3 mb-8 border border-gray-100">
-          <MapPin size={20} className="text-gray-400 mt-0.5" />
-          <div>
-            <p className="text-sm font-semibold text-gray-900">Pickup by arrangement</p>
-            <p className="text-xs text-gray-500 mt-1">Coordinate details after reservation approval.</p>
+        <div className="bg-gray-50 p-4 rounded-lg mb-8 border border-gray-100">
+          <div className="flex items-start space-x-3">
+            <MapPin size={20} className="text-emerald-700 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <NaverMap
+                latitude={item.tradeLatitude}
+                longitude={item.tradeLongitude}
+                name={item.tradeLocationName}
+                address={item.tradeLocationAddress}
+              />
+            </div>
           </div>
         </div>
 
         <div className="border-t border-gray-100 pt-6">
-          <div className="flex items-center justify-between p-2 -mx-2 rounded-lg">
+          <button
+            type="button"
+            onClick={() => item.writerId && navigate(`/seller/${item.writerId}`)}
+            className="w-full flex items-center justify-between p-2 -mx-2 rounded-lg hover:bg-gray-50 transition-colors text-left focus-visible:ring-2 focus-visible:ring-emerald-600"
+          >
             <div className="flex items-center space-x-3">
               <ImageWithFallback
                 src={item.writerProfileImageUrl}
@@ -252,7 +263,7 @@ const ItemDetail = () => {
                 <p className="text-xs text-gray-500">Member</p>
               </div>
             </div>
-          </div>
+          </button>
         </div>
       </div>
 

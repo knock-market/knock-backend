@@ -53,7 +53,8 @@ class ItemControllerTest extends RestDocsTest {
 	void createItem_success() {
 		// given
 		ItemCreateRequestDto request = new ItemCreateRequestDto(TEST_GROUP_ID, TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION,
-				TEST_ITEM_PRICE, ItemType.SELL, ItemCategory.DIGITAL_DEVICE, List.of(TEST_IMAGE_URL));
+				TEST_ITEM_PRICE, ItemType.SELL, ItemCategory.DIGITAL_DEVICE, List.of(TEST_IMAGE_URL),
+				TEST_TRADE_LOCATION_NAME, TEST_TRADE_LOCATION_ADDRESS, TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
 		given(itemService.createItem(anyLong(), anyLong(), any())).willReturn(new ItemCreateResult(TEST_ITEM_ID));
 
 		// when & then
@@ -69,7 +70,19 @@ class ItemControllerTest extends RestDocsTest {
 							fieldWithPath("price").type(JsonFieldType.NUMBER).description("가격"),
 							fieldWithPath("itemType").type(JsonFieldType.STRING).description("거래 유형 (SELL, BUY)"),
 							fieldWithPath("category").type(JsonFieldType.STRING).description("카테고리"),
-							fieldWithPath("imageUrls").type(JsonFieldType.ARRAY).description("이미지 URL 목록")),
+							fieldWithPath("imageUrls").type(JsonFieldType.ARRAY).description("이미지 URL 목록"),
+							fieldWithPath("tradeLocationName").type(JsonFieldType.STRING)
+								.description("거래 위치 이름")
+								.optional(),
+							fieldWithPath("tradeLocationAddress").type(JsonFieldType.STRING)
+								.description("거래 위치 주소")
+								.optional(),
+							fieldWithPath("tradeLatitude").type(JsonFieldType.NUMBER)
+								.description("거래 위치 위도")
+								.optional(),
+							fieldWithPath("tradeLongitude").type(JsonFieldType.NUMBER)
+								.description("거래 위치 경도")
+								.optional()),
 					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
 							fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("생성된 상품 ID"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
@@ -81,7 +94,8 @@ class ItemControllerTest extends RestDocsTest {
 		// given
 		ItemReadResult result = new ItemReadResult(TEST_ITEM_ID, TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION,
 				TEST_ITEM_PRICE, ItemType.SELL, ItemCategory.DIGITAL_DEVICE, ItemStatus.ON_SALE,
-				List.of(TEST_IMAGE_URL), TEST_MEMBER_ID, TEST_NICKNAME, TEST_IMAGE_URL);
+				List.of(TEST_IMAGE_URL), TEST_MEMBER_ID, TEST_NICKNAME, TEST_IMAGE_URL, TEST_TRADE_LOCATION_NAME,
+				TEST_TRADE_LOCATION_ADDRESS, TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
 		given(itemService.getItem(anyLong())).willReturn(result);
 
 		// when & then
@@ -101,6 +115,15 @@ class ItemControllerTest extends RestDocsTest {
 							fieldWithPath("data.status").type(JsonFieldType.STRING).description("상품 상태"),
 							fieldWithPath("data.imageUrls").type(JsonFieldType.ARRAY).description("이미지 URL 목록"),
 							fieldWithPath("data.writerId").type(JsonFieldType.NUMBER).description("판매자 ID"),
+							fieldWithPath("data.writerNickname").type(JsonFieldType.STRING).description("판매자 닉네임"),
+							fieldWithPath("data.writerProfileImageUrl").type(JsonFieldType.STRING)
+								.description("판매자 프로필 이미지 URL"),
+							fieldWithPath("data.tradeLocationName").type(JsonFieldType.STRING)
+								.description("거래 위치 이름"),
+							fieldWithPath("data.tradeLocationAddress").type(JsonFieldType.STRING)
+								.description("거래 위치 주소"),
+							fieldWithPath("data.tradeLatitude").type(JsonFieldType.NUMBER).description("거래 위치 위도"),
+							fieldWithPath("data.tradeLongitude").type(JsonFieldType.NUMBER).description("거래 위치 경도"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}
 
@@ -109,8 +132,9 @@ class ItemControllerTest extends RestDocsTest {
 	void getItemsByGroup_success() {
 		// given
 		ItemListResult result = new ItemListResult(TEST_ITEM_ID, TEST_ITEM_TITLE, TEST_ITEM_PRICE, ItemType.SELL,
-				ItemCategory.DIGITAL_DEVICE, ItemStatus.ON_SALE, TEST_IMAGE_URL, TEST_MEMBER_ID, 0L,
-				java.time.LocalDateTime.now());
+				ItemCategory.DIGITAL_DEVICE, ItemStatus.ON_SALE, TEST_IMAGE_URL, TEST_MEMBER_ID, TEST_NICKNAME,
+				TEST_IMAGE_URL, 0L, java.time.LocalDateTime.now(), TEST_TRADE_LOCATION_NAME,
+				TEST_TRADE_LOCATION_ADDRESS, TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
 		given(itemService.getItemsByGroup(anyLong())).willReturn(List.of(result));
 
 		// when & then
@@ -129,6 +153,17 @@ class ItemControllerTest extends RestDocsTest {
 							fieldWithPath("data[].status").type(JsonFieldType.STRING).description("상품 상태"),
 							fieldWithPath("data[].thumbnailUrl").type(JsonFieldType.STRING).description("썸네일 URL"),
 							fieldWithPath("data[].writerId").type(JsonFieldType.NUMBER).description("판매자 ID"),
+							fieldWithPath("data[].writerNickname").type(JsonFieldType.STRING).description("판매자 닉네임"),
+							fieldWithPath("data[].writerProfileImageUrl").type(JsonFieldType.STRING)
+								.description("판매자 프로필 이미지 URL"),
+							fieldWithPath("data[].likesCount").type(JsonFieldType.NUMBER).description("관심 수"),
+							fieldWithPath("data[].postedAt").type(JsonFieldType.STRING).description("등록 일시"),
+							fieldWithPath("data[].tradeLocationName").type(JsonFieldType.STRING)
+								.description("거래 위치 이름"),
+							fieldWithPath("data[].tradeLocationAddress").type(JsonFieldType.STRING)
+								.description("거래 위치 주소"),
+							fieldWithPath("data[].tradeLatitude").type(JsonFieldType.NUMBER).description("거래 위치 위도"),
+							fieldWithPath("data[].tradeLongitude").type(JsonFieldType.NUMBER).description("거래 위치 경도"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}
 
@@ -137,8 +172,9 @@ class ItemControllerTest extends RestDocsTest {
 	void getMySelling_success() {
 		// given
 		ItemListResult result = new ItemListResult(TEST_ITEM_ID, TEST_ITEM_TITLE, TEST_ITEM_PRICE, ItemType.SELL,
-				ItemCategory.DIGITAL_DEVICE, ItemStatus.ON_SALE, TEST_IMAGE_URL, TEST_MEMBER_ID, 0L,
-				java.time.LocalDateTime.now());
+				ItemCategory.DIGITAL_DEVICE, ItemStatus.ON_SALE, TEST_IMAGE_URL, TEST_MEMBER_ID, TEST_NICKNAME,
+				TEST_IMAGE_URL, 0L, java.time.LocalDateTime.now(), TEST_TRADE_LOCATION_NAME,
+				TEST_TRADE_LOCATION_ADDRESS, TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
 		given(itemService.getMySellingItems(anyLong())).willReturn(List.of(result));
 
 		// when & then
@@ -155,6 +191,57 @@ class ItemControllerTest extends RestDocsTest {
 							fieldWithPath("data[].status").type(JsonFieldType.STRING).description("상품 상태"),
 							fieldWithPath("data[].thumbnailUrl").type(JsonFieldType.STRING).description("썸네일 URL"),
 							fieldWithPath("data[].writerId").type(JsonFieldType.NUMBER).description("판매자 ID"),
+							fieldWithPath("data[].writerNickname").type(JsonFieldType.STRING).description("판매자 닉네임"),
+							fieldWithPath("data[].writerProfileImageUrl").type(JsonFieldType.STRING)
+								.description("판매자 프로필 이미지 URL"),
+							fieldWithPath("data[].likesCount").type(JsonFieldType.NUMBER).description("관심 수"),
+							fieldWithPath("data[].postedAt").type(JsonFieldType.STRING).description("등록 일시"),
+							fieldWithPath("data[].tradeLocationName").type(JsonFieldType.STRING)
+								.description("거래 위치 이름"),
+							fieldWithPath("data[].tradeLocationAddress").type(JsonFieldType.STRING)
+								.description("거래 위치 주소"),
+							fieldWithPath("data[].tradeLatitude").type(JsonFieldType.NUMBER).description("거래 위치 위도"),
+							fieldWithPath("data[].tradeLongitude").type(JsonFieldType.NUMBER).description("거래 위치 경도"),
+							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+	}
+
+	@Test
+	@DisplayName("회원 판매 상품 조회 성공")
+	void getSellingItemsByMember_success() {
+		// given
+		ItemListResult result = new ItemListResult(TEST_ITEM_ID, TEST_ITEM_TITLE, TEST_ITEM_PRICE, ItemType.SELL,
+				ItemCategory.DIGITAL_DEVICE, ItemStatus.ON_SALE, TEST_IMAGE_URL, TEST_MEMBER_ID, TEST_NICKNAME,
+				TEST_IMAGE_URL, 0L, java.time.LocalDateTime.now(), TEST_TRADE_LOCATION_NAME,
+				TEST_TRADE_LOCATION_ADDRESS, TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
+		given(itemService.getSellingItemsByMember(anyLong())).willReturn(List.of(result));
+
+		// when & then
+		restDocGiven().pathParam("memberId", TEST_MEMBER_ID)
+			.get("/api/v1/members/{memberId}/items")
+			.then()
+			.status(HttpStatus.OK)
+			.apply(document("api/v1/items/list-by-member", requestPreprocessor(), responsePreprocessor(),
+					pathParameters(parameterWithName("memberId").description("회원 ID")),
+					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
+							fieldWithPath("data[].id").type(JsonFieldType.NUMBER).description("상품 ID"),
+							fieldWithPath("data[].title").type(JsonFieldType.STRING).description("제목"),
+							fieldWithPath("data[].price").type(JsonFieldType.NUMBER).description("가격"),
+							fieldWithPath("data[].type").type(JsonFieldType.STRING).description("거래 유형"),
+							fieldWithPath("data[].category").type(JsonFieldType.STRING).description("카테고리"),
+							fieldWithPath("data[].status").type(JsonFieldType.STRING).description("상품 상태"),
+							fieldWithPath("data[].thumbnailUrl").type(JsonFieldType.STRING).description("썸네일 URL"),
+							fieldWithPath("data[].writerId").type(JsonFieldType.NUMBER).description("판매자 ID"),
+							fieldWithPath("data[].writerNickname").type(JsonFieldType.STRING).description("판매자 닉네임"),
+							fieldWithPath("data[].writerProfileImageUrl").type(JsonFieldType.STRING)
+								.description("판매자 프로필 이미지 URL"),
+							fieldWithPath("data[].likesCount").type(JsonFieldType.NUMBER).description("관심 수"),
+							fieldWithPath("data[].postedAt").type(JsonFieldType.STRING).description("등록 일시"),
+							fieldWithPath("data[].tradeLocationName").type(JsonFieldType.STRING)
+								.description("거래 위치 이름"),
+							fieldWithPath("data[].tradeLocationAddress").type(JsonFieldType.STRING)
+								.description("거래 위치 주소"),
+							fieldWithPath("data[].tradeLatitude").type(JsonFieldType.NUMBER).description("거래 위치 위도"),
+							fieldWithPath("data[].tradeLongitude").type(JsonFieldType.NUMBER).description("거래 위치 경도"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}
 

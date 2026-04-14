@@ -3,12 +3,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Camera, ChevronDown, Loader2, X } from 'lucide-react';
 import { groupsApi, imagesApi, itemsApi } from '../services';
 import { GroupResponseDto, ItemCategory } from '../types';
-
+import TradeLocationFields from '../components/TradeLocationFields';
 const CreateItem: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [transactionType, setTransactionType] = useState<'free' | 'sale'>('free');
   const [price, setPrice] = useState('1000');
   const [title, setTitle] = useState('');
@@ -17,11 +16,13 @@ const CreateItem: React.FC = () => {
   const [groups, setGroups] = useState<GroupResponseDto[]>([]);
   const [groupId, setGroupId] = useState('');
   const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [locationName, setLocationName] = useState('');
+  const [locationAddress, setLocationAddress] = useState('');
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const preSelectedGroupId = new URLSearchParams(location.search).get('groupId');
-
   useEffect(() => {
     const loadGroups = async () => {
       try {
@@ -37,10 +38,8 @@ const CreateItem: React.FC = () => {
         console.error('Failed to fetch groups:', error);
       }
     };
-
     loadGroups();
   }, [preSelectedGroupId]);
-
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -60,7 +59,6 @@ const CreateItem: React.FC = () => {
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
-
   const removeImage = (url: string) => {
     setImageUrls((prev) => prev.filter((value) => value !== url));
   };
@@ -80,6 +78,15 @@ const CreateItem: React.FC = () => {
       }
     }
 
+    const parsedLatitude = latitude.trim() ? Number(latitude) : undefined;
+    const parsedLongitude = longitude.trim() ? Number(longitude) : undefined;
+    const hasOneCoordinate = (parsedLatitude === undefined) !== (parsedLongitude === undefined);
+    const hasInvalidCoordinates = (parsedLatitude !== undefined && (parsedLatitude < -90 || parsedLatitude > 90))
+      || (parsedLongitude !== undefined && (parsedLongitude < -180 || parsedLongitude > 180));
+    if (hasOneCoordinate || hasInvalidCoordinates) {
+      alert('Please enter a valid latitude and longitude pair.');
+      return;
+    }
     setIsSubmitting(true);
     try {
       await itemsApi.createItem({
@@ -90,6 +97,10 @@ const CreateItem: React.FC = () => {
         itemType: transactionType === 'sale' ? 'SELL' : 'GIVE',
         price: transactionType === 'sale' ? parsedPrice : 0,
         imageUrls,
+        tradeLocationName: locationName.trim() || undefined,
+        tradeLocationAddress: locationAddress.trim() || undefined,
+        tradeLatitude: parsedLatitude,
+        tradeLongitude: parsedLongitude,
       });
       alert('Item posted successfully!');
       navigate('/home');
@@ -257,6 +268,17 @@ const CreateItem: React.FC = () => {
             </div>
           )}
         </div>
+
+        <TradeLocationFields
+          locationName={locationName}
+          address={locationAddress}
+          latitude={latitude}
+          longitude={longitude}
+          onLocationNameChange={setLocationName}
+          onAddressChange={setLocationAddress}
+          onLatitudeChange={setLatitude}
+          onLongitudeChange={setLongitude}
+        />
 
         <div className="pt-4">
           <button

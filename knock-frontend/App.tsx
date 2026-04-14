@@ -14,6 +14,7 @@ import NotificationSettings from './pages/NotificationSettings';
 import BlockedUsers from './pages/BlockedUsers';
 import ManageItems from './pages/ManageItems';
 import ManageItemDetail from './pages/ManageItemDetail';
+import SellerPage from './pages/SellerPage';
 import Bookmarks from './pages/Bookmarks';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -34,7 +35,7 @@ const isPublicPath = (pathname: string): boolean => {
   if (PUBLIC_PATHS.has(pathname)) {
     return true;
   }
-  return /^\/item\/\d+$/.test(pathname);
+  return /^\/item\/\d+$/.test(pathname) || /^\/seller\/\d+$/.test(pathname);
 };
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -125,6 +126,7 @@ const App: React.FC = () => {
             <Route path="/group/:id" element={<GroupFeed />} />
             <Route path="/join/:code" element={<JoinGroup />} />
             <Route path="/item/:id" element={<ItemDetail />} />
+            <Route path="/seller/:memberId" element={<SellerPage />} />
             <Route path="/create" element={<CreateItem />} />
             <Route path="/create-group" element={<CreateGroup />} />
             <Route path="/profile" element={<Profile />} />
