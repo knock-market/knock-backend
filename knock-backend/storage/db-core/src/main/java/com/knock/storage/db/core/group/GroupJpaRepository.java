@@ -8,4 +8,6 @@ public interface GroupJpaRepository extends JpaRepository<Group, Long> {
 
 	Optional<Group> findByInviteCode(String inviteCode);
 
+	Optional<Group> findByOwnerIdAndIsPersonalTrue(Long ownerId);
+
 }

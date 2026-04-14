@@ -166,7 +166,10 @@ val javaVersion = property("javaVersion") as String
 
 - `core:core-api` + `storage:db-core`
   - 상품에 거래 위치 필드(`tradeLocationName`, `tradeLocationAddress`, `tradeLatitude`, `tradeLongitude`) 추가
+  - 전체 마켓 상품 목록 API 추가: `GET /api/v1/items`
   - 공개 판매자 상품 목록 API 추가: `GET /api/v1/members/{memberId}/items`
+  - 만료 가능한 판매자 공유 링크 추가: `POST /api/v1/seller-shares`, `GET /api/v1/seller-shares/{token}`
+  - 상품 등록 시 `groupId`가 없으면 회원별 개인 그룹을 내부 저장 경계로 사용
   - 거래 위치 좌표 범위 검증 추가
   - 상품 삭제 시 활성 예약(`WAITING`, `APPROVED`) 자동 취소 후 소프트 삭제
   - 예약 승인 시 `FOR UPDATE` 조회 대상 누락을 예외 처리(`RESERVATION_NOT_FOUND`)
@@ -176,9 +179,10 @@ val javaVersion = property("javaVersion") as String
   - 상품 상세/목록 응답에 판매자 닉네임/프로필 이미지와 거래 위치 필드 확장
   - 북마크 응답에 `type`, `category`, `status`, `itemCreatedAt` 확장
 - `knock-frontend`
-  - 개인 판매 페이지(`/seller/:memberId`) 추가
-  - 그룹 피드에 판매자별 필터 추가
-  - 상품 등록 화면에 거래 위치 입력 추가
+  - 개인 판매 페이지(`/seller/:memberId`, `/shop/:token`) 추가
+  - 홈과 하단 탭에서 그룹 중심 문구 제거
+  - 상품 등록 화면에서 그룹/카테고리 선택 제거
+  - 상품 등록 화면에 Naver Map 검색/지도 선택 기반 거래 위치 입력 추가
   - 상품 상세 화면에 Naver Map 표시 및 검색 링크 fallback 추가
   - 로그아웃 버튼이 서버 `POST /api/v1/auth/logout` 호출 후 이동하도록 수정
   - 숫자 라우트 파라미터 검증 강화 (`GroupFeed`, `ItemDetail`, `ManageItemDetail`)

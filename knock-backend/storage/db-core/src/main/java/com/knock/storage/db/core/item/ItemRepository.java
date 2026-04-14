@@ -13,6 +13,8 @@ public interface ItemRepository {
 
 	List<Object[]> findByMemberIdWithLikes(Long memberId);
 
+	List<Object[]> findAllWithLikes();
+
 	Optional<Item> findByIdWithImages(Long itemId);
 
 	void delete(Item item);

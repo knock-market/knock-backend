@@ -14,6 +14,13 @@ declare global {
         LatLng: new (latitude: number, longitude: number) => unknown;
         Map: new (element: HTMLElement, options: object) => unknown;
         Marker: new (options: object) => unknown;
+        Event: {
+          addListener: (target: unknown, eventName: string, listener: (event: { coord: unknown }) => void) => void;
+        };
+        Service?: {
+          geocode: (options: { query: string }, callback: (status: string, response: unknown) => void) => void;
+          Status: { OK: string };
+        };
       };
     };
   }
@@ -37,7 +44,7 @@ const loadNaverMap = (clientId: string) => {
   return new Promise<void>((resolve, reject) => {
     const script = document.createElement('script');
     script.id = scriptId;
-    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${encodeURIComponent(clientId)}`;
+    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${encodeURIComponent(clientId)}&submodules=geocoder`;
     script.async = true;
     script.onload = () => resolve();
     script.onerror = () => reject(new Error('Naver map script failed'));

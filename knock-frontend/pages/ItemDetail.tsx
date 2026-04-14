@@ -5,8 +5,7 @@ import { bookmarksApi, itemsApi, reservationsApi } from '../services';
 import { ItemDetailSkeleton } from '../components/Skeletons';
 import ImageWithFallback from '../components/ImageWithFallback';
 import NaverMap from '../components/NaverMap';
-import { ItemCategory, ItemResponseDto, ItemStatus } from '../types';
-import { CATEGORY_LABELS } from '../constants';
+import { ItemResponseDto, ItemStatus } from '../types';
 
 const ItemDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -227,7 +226,7 @@ const ItemDetail = () => {
         <div className="flex items-center space-x-2 mb-6">
           <span className="text-sm text-gray-500">Like New</span>
           <span className="text-gray-300">•</span>
-          <span className="text-sm text-gray-500">{CATEGORY_LABELS[item.category as ItemCategory] || item.category}</span>
+          <span className="text-sm text-gray-500">{item.writerNickname || 'Seller shelf'}</span>
         </div>
 
         <p className="text-gray-600 leading-relaxed mb-8">{item.description}</p>

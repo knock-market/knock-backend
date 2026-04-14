@@ -105,8 +105,8 @@ const NotificationSettings: React.FC = () => {
         <div className="py-2">
              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider py-2">Activity</p>
              <Toggle 
-                label="New Items in Groups" 
-                description="Get notified when items are posted in your groups"
+                label="New Seller Items"
+                description="Get notified when followed sellers post items"
                 checked={settings?.newItems ?? false} 
                 onChange={() => toggle('newItems')} 
              />

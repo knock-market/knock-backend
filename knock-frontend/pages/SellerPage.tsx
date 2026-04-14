@@ -1,18 +1,27 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Package, Plus } from 'lucide-react';
+import { ArrowLeft, Copy, Package, Plus } from 'lucide-react';
 import ImageWithFallback from '../components/ImageWithFallback';
-import { authApi, itemsApi } from '../services';
+import { authApi, itemsApi, sellerShareApi } from '../services';
 import { ItemStatus, ItemSummaryResponseDto, ItemType, MemberResponseDto } from '../types';
+
+type SellerMeta = {
+  id: number;
+  nickname: string;
+  profileImageUrl?: string;
+};
 
 const SellerPage = () => {
   const { memberId } = useParams<{ memberId: string }>();
+  const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   const sellerId = memberId ? Number(memberId) : NaN;
-  const hasValidSellerId = Number.isInteger(sellerId) && sellerId > 0;
+  const hasValidSellerId = Boolean(token) || (Number.isInteger(sellerId) && sellerId > 0);
 
   const [items, setItems] = useState<ItemSummaryResponseDto[]>([]);
   const [me, setMe] = useState<MemberResponseDto | null>(null);
+  const [sellerMeta, setSellerMeta] = useState<SellerMeta | null>(null);
+  const [sharePath, setSharePath] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -25,21 +34,38 @@ const SellerPage = () => {
 
       setIsLoading(true);
       const [itemResult, meResult] = await Promise.allSettled([
-        itemsApi.getSellerItems(sellerId),
+        token ? sellerShareApi.getShop(token) : itemsApi.getSellerItems(sellerId),
         authApi.getMe(),
       ]);
 
-      setItems(itemResult.status === 'fulfilled' ? itemResult.value : []);
+      if (itemResult.status === 'fulfilled') {
+        if (Array.isArray(itemResult.value)) {
+          setItems(itemResult.value);
+          setSellerMeta(null);
+        } else {
+          setItems(itemResult.value.items);
+          setSellerMeta({
+            id: itemResult.value.sellerId,
+            nickname: itemResult.value.sellerNickname || itemResult.value.sellerName,
+            profileImageUrl: itemResult.value.sellerProfileImageUrl,
+          });
+        }
+      } else {
+        setItems([]);
+        setSellerMeta(null);
+      }
       setMe(meResult.status === 'fulfilled' ? meResult.value : null);
       setIsLoading(false);
     };
 
     load();
-  }, [hasValidSellerId, sellerId]);
+  }, [hasValidSellerId, sellerId, token]);
 
-  const seller = items.find((item) => item.writerId === sellerId);
-  const isOwnPage = me?.id === sellerId;
-  const sellerName = seller?.writerNickname || (isOwnPage ? me?.nickname : undefined) || `Seller #${sellerId}`;
+  const seller = items.find((item) => item.writerId === sellerId) || items[0];
+  const resolvedSellerId = token ? sellerMeta?.id || seller?.writerId : sellerId;
+  const isOwnPage = me?.id === resolvedSellerId && !token;
+  const sellerName = sellerMeta?.nickname || seller?.writerNickname || (isOwnPage ? me?.nickname : undefined)
+    || `Seller #${resolvedSellerId || sellerId}`;
   const subtitle = isOwnPage
     ? 'Your public selling shelf'
     : 'Items from this seller only';
@@ -47,6 +73,13 @@ const SellerPage = () => {
     () => (item: ItemSummaryResponseDto) => isOwnPage ? `/manage-item/${item.id}` : `/item/${item.id}`,
     [isOwnPage]
   );
+
+  const createShareLink = async () => {
+    const result = await sellerShareApi.create('ONE_DAY');
+    const nextPath = `${window.location.origin}${window.location.pathname}#${result.path}`;
+    setSharePath(nextPath);
+    await navigator.clipboard.writeText(nextPath);
+  };
 
   if (isLoading) {
     return <div className="min-h-screen bg-gray-50 flex items-center justify-center text-gray-500">Loading shelf...</div>;
@@ -76,16 +109,27 @@ const SellerPage = () => {
             <p className={`mt-2 text-sm ${isOwnPage ? 'text-emerald-50' : 'text-gray-500'}`}>{subtitle}</p>
           </div>
           {isOwnPage && (
-            <button
-              type="button"
-              onClick={() => navigate('/create')}
-              className="shrink-0 inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-bold text-emerald-800 shadow-sm focus-visible:ring-2 focus-visible:ring-white"
-            >
-              <Plus size={16} />
-              Add
-            </button>
+            <div className="flex shrink-0 flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => navigate('/create')}
+                className="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-bold text-emerald-800 shadow-sm focus-visible:ring-2 focus-visible:ring-white"
+              >
+                <Plus size={16} />
+                Add
+              </button>
+              <button
+                type="button"
+                onClick={createShareLink}
+                className="inline-flex items-center gap-2 rounded-lg bg-emerald-950/30 px-3 py-2 text-sm font-bold text-white focus-visible:ring-2 focus-visible:ring-white"
+              >
+                <Copy size={16} />
+                Share
+              </button>
+            </div>
           )}
         </div>
+        {sharePath && <p className="mt-3 text-xs text-emerald-50 break-all">Copied: {sharePath}</p>}
       </div>
 
       <div className="p-4 grid grid-cols-2 gap-4">

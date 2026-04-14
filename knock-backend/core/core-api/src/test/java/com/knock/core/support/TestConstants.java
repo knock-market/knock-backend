@@ -56,4 +56,6 @@ public final class TestConstants {
 
 	public static final Double TEST_TRADE_LONGITUDE = 127.02761;
 
+	public static final String TEST_SELLER_SHARE_TOKEN = "seller-share-token";
+
 }

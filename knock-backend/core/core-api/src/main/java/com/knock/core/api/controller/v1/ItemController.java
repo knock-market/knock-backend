@@ -46,6 +46,13 @@ public class ItemController {
 		return ApiResponse.success(response);
 	}
 
+	@GetMapping("/api/v1/items")
+	public ApiResponse<List<ItemSummaryResponseDto>> getMarketplaceItems() {
+		List<ItemListResult> results = itemService.getMarketplaceItems();
+		List<ItemSummaryResponseDto> response = results.stream().map(ItemSummaryResponseDto::from).toList();
+		return ApiResponse.success(response);
+	}
+
 	@GetMapping("/api/v1/items/my-selling")
 	public ApiResponse<List<ItemSummaryResponseDto>> getMySelling(@AuthenticationPrincipal MemberPrincipal principal) {
 		List<ItemListResult> results = itemService.getMySellingItems(principal.getMemberId());

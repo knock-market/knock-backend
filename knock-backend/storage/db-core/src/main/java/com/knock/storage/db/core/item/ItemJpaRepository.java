@@ -25,6 +25,14 @@ public interface ItemJpaRepository extends JpaRepository<Item, Long> {
 			""")
 	List<Object[]> findItemsWithLikesByMemberId(Long memberId);
 
+	@Query("""
+			SELECT i, (SELECT img.imageUrl FROM ItemImage img WHERE img.item = i ORDER BY img.id ASC LIMIT 1),
+			(SELECT COUNT(b) FROM Bookmark b WHERE b.item = i)
+			FROM Item i JOIN FETCH i.member
+			ORDER BY i.createdAt DESC
+			""")
+	List<Object[]> findAllItemsWithLikes();
+
 	@Query("SELECT DISTINCT i FROM Item i JOIN FETCH i.member LEFT JOIN FETCH i.images WHERE i.id = :itemId")
 	Optional<Item> findByIdWithImages(Long itemId);
 

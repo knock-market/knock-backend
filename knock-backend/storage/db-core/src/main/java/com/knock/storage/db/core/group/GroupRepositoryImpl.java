@@ -66,6 +66,11 @@ public class GroupRepositoryImpl implements GroupRepository {
 	}
 
 	@Override
+	public Optional<Group> findPersonalGroupByOwnerId(Long ownerId) {
+		return groupJpaRepository.findByOwnerIdAndIsPersonalTrue(ownerId);
+	}
+
+	@Override
 	public long countMembers(Long groupId) {
 		return groupMemberJpaRepository.countByGroupId(groupId);
 	}

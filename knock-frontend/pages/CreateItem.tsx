@@ -1,20 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, ChevronDown, Loader2, X } from 'lucide-react';
-import { groupsApi, imagesApi, itemsApi } from '../services';
-import { GroupResponseDto, ItemCategory } from '../types';
+import React, { useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Camera, Loader2, X } from 'lucide-react';
+import { imagesApi, itemsApi } from '../services';
 import TradeLocationFields from '../components/TradeLocationFields';
 const CreateItem: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [transactionType, setTransactionType] = useState<'free' | 'sale'>('free');
   const [price, setPrice] = useState('1000');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState<ItemCategory>(ItemCategory.ETC);
-  const [groups, setGroups] = useState<GroupResponseDto[]>([]);
-  const [groupId, setGroupId] = useState('');
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [locationName, setLocationName] = useState('');
   const [locationAddress, setLocationAddress] = useState('');
@@ -22,24 +17,6 @@ const CreateItem: React.FC = () => {
   const [longitude, setLongitude] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const preSelectedGroupId = new URLSearchParams(location.search).get('groupId');
-  useEffect(() => {
-    const loadGroups = async () => {
-      try {
-        const fetchedGroups = await groupsApi.getMyGroups();
-        setGroups(fetchedGroups);
-
-        if (preSelectedGroupId) {
-          setGroupId(preSelectedGroupId);
-        } else if (fetchedGroups.length > 0) {
-          setGroupId(String(fetchedGroups[0].id));
-        }
-      } catch (error) {
-        console.error('Failed to fetch groups:', error);
-      }
-    };
-    loadGroups();
-  }, [preSelectedGroupId]);
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -64,7 +41,7 @@ const CreateItem: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    if (!title.trim() || !description.trim() || !groupId) {
+    if (!title.trim() || !description.trim()) {
       alert('Please fill in required fields.');
       return;
     }
@@ -92,8 +69,7 @@ const CreateItem: React.FC = () => {
       await itemsApi.createItem({
         title: title.trim(),
         description: description.trim(),
-        category,
-        groupId: Number(groupId),
+        category: 'ETC',
         itemType: transactionType === 'sale' ? 'SELL' : 'GIVE',
         price: transactionType === 'sale' ? parsedPrice : 0,
         imageUrls,
@@ -164,29 +140,6 @@ const CreateItem: React.FC = () => {
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Select Group</label>
-          <div className="relative">
-            <select
-              value={groupId}
-              onChange={(e) => setGroupId(e.target.value)}
-              disabled={groups.length === 0}
-              className="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-600 disabled:opacity-50"
-            >
-              {groups.length === 0 ? (
-                <option value="" disabled>No circles joined</option>
-              ) : (
-                groups.map((group) => (
-                  <option key={group.id} value={group.id}>{group.name}</option>
-                ))
-              )}
-            </select>
-            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400">
-              <ChevronDown size={20} />
-            </div>
-          </div>
-        </div>
-
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">Item Name</label>
@@ -207,26 +160,6 @@ const CreateItem: React.FC = () => {
               placeholder="Describe the item and pickup instructions."
               className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-900"
             ></textarea>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
-          <div className="relative">
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value as ItemCategory)}
-              className="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-600"
-            >
-              <option value={ItemCategory.CLOTHING}>Clothing</option>
-              <option value={ItemCategory.FURNITURE}>Furniture</option>
-              <option value={ItemCategory.DIGITAL_DEVICE}>Digital / Electronics</option>
-              <option value={ItemCategory.BOOKS}>Books</option>
-              <option value={ItemCategory.ETC}>Other</option>
-            </select>
-            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400">
-              <ChevronDown size={20} />
-            </div>
           </div>
         </div>
 

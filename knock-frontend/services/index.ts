@@ -14,6 +14,8 @@ import {
     NotificationSettingsResponseDto,
     ReservationCreateResponseDto,
     ReservationResponseDto,
+    SellerShareLinkResponseDto,
+    SellerShopResponseDto,
 } from '../types';
 
 const get = <T>(url: string, config?: object) => client.get<T, T>(url, config);
@@ -26,7 +28,7 @@ const patch = <T, D = unknown>(url: string, data?: D, config?: object) =>
 const del = <T>(url: string, config?: object) => client.delete<T, T>(url, config);
 
 type ItemCreatePayload = {
-    groupId: number;
+    groupId?: number;
     title: string;
     description: string;
     price: number;
@@ -76,12 +78,20 @@ export const groupsApi = {
 
 // ============== Item API ==============
 export const itemsApi = {
+    getMarketplaceItems: () => get<ItemSummaryResponseDto[]>('/items'),
     getItems: (groupId: number | string) => get<ItemSummaryResponseDto[]>(`/groups/${groupId}/items`),
     getItem: (itemId: number | string) => get<ItemResponseDto>(`/items/${itemId}`),
     createItem: (data: ItemCreatePayload) => post<{ id: number }, ItemCreatePayload>('/items', data),
     getMySelling: () => get<ItemSummaryResponseDto[]>('/items/my-selling'),
     getSellerItems: (memberId: number | string) => get<ItemSummaryResponseDto[]>(`/members/${memberId}/items`),
     deleteItem: (itemId: number | string) => del<void>(`/items/${itemId}`),
+};
+
+// ============== Seller Share API ==============
+export const sellerShareApi = {
+    create: (duration: InviteDuration = 'ONE_DAY') =>
+        post<SellerShareLinkResponseDto, { duration: InviteDuration }>('/seller-shares', { duration }),
+    getShop: (token: string) => get<SellerShopResponseDto>(`/seller-shares/${token}`),
 };
 
 // ============== Bookmark API ==============

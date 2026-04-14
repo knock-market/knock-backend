@@ -1,13 +1,13 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Users, Bookmark, User, Bell } from 'lucide-react';
+import { Bookmark, Store, User, Bell } from 'lucide-react';
 
 const BottomNav: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const navItems = [
-    { icon: Users, label: 'Groups', path: '/home' },
+    { icon: Store, label: 'Market', path: '/home' },
     { icon: Bookmark, label: 'Saved', path: '/saved' },
     { icon: Bell, label: 'Notifications', path: '/notifications' },
     { icon: User, label: 'MyPage', path: '/profile' },
@@ -20,14 +20,8 @@ const BottomNav: React.FC = () => {
     >
       {navItems.map((item) => {
         // Active state logic:
-        // /home encompasses the main Groups view.
-        // /group/:id should also highlight Groups
-        // /saved is for Likes.
-        // /notifications is for Notifications.
-        // /profile is for My Page.
-        // /manage-items should highlight My Page.
         const isActive = location.pathname === item.path ||
-          (item.label === 'Groups' && (location.pathname === '/home' || location.pathname === '/groups' || location.pathname.startsWith('/group/'))) ||
+          (item.label === 'Market' && location.pathname === '/home') ||
           (item.label === 'MyPage' && location.pathname === '/manage-items');
 
         return (

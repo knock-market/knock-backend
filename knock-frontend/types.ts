@@ -86,6 +86,20 @@ export interface ItemSummaryResponseDto {
   tradeLongitude?: number;
 }
 
+export interface SellerShareLinkResponseDto {
+  token: string;
+  path: string;
+  expiresAt?: string;
+}
+
+export interface SellerShopResponseDto {
+  sellerId: number;
+  sellerName: string;
+  sellerNickname: string;
+  sellerProfileImageUrl?: string;
+  items: ItemSummaryResponseDto[];
+}
+
 export interface ItemResponseDto {
   id: number;
   title: string;

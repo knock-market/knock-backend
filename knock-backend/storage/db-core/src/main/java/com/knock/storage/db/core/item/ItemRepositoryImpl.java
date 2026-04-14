@@ -42,6 +42,11 @@ public class ItemRepositoryImpl implements ItemRepository {
 	}
 
 	@Override
+	public List<Object[]> findAllWithLikes() {
+		return itemJpaRepository.findAllItemsWithLikes();
+	}
+
+	@Override
 	public void delete(Item item) {
 		itemJpaRepository.delete(item);
 	}

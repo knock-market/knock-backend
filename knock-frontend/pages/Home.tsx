@@ -1,41 +1,26 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Keyboard, X, ArrowRight, Loader2, User } from 'lucide-react';
-import { authApi, groupsApi } from '../services';
-import { HomeSkeleton } from '../components/Skeletons';
+import { Plus, Store } from 'lucide-react';
 import ImageWithFallback from '../components/ImageWithFallback';
-import { GroupResponseDto } from '../types';
-
-const GREETINGS = [
-  { title: (name: string) => `Welcome back, ${name}`, subtitle: "See what's happening in your circles today." },
-  { title: (name: string) => `Hey ${name}`, subtitle: "Let's check out what's new." },
-  { title: (name: string) => `Good to see you, ${name}`, subtitle: 'Your circles are waiting.' },
-];
+import { authApi, itemsApi } from '../services';
+import { ItemStatus, ItemSummaryResponseDto, ItemType, MemberResponseDto } from '../types';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
-  const [showJoinModal, setShowJoinModal] = useState(false);
-  const [joinCode, setJoinCode] = useState('');
-  const [isJoining, setIsJoining] = useState(false);
+  const [items, setItems] = useState<ItemSummaryResponseDto[]>([]);
+  const [me, setMe] = useState<MemberResponseDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [groups, setGroups] = useState<GroupResponseDto[]>([]);
-  const [userName, setUserName] = useState('User');
-
-  const greeting = useMemo(() => {
-    const index = Math.floor(Math.random() * GREETINGS.length);
-    return GREETINGS[index];
-  }, []);
 
   useEffect(() => {
     const load = async () => {
       setIsLoading(true);
       try {
-        const [groupList, me] = await Promise.all([groupsApi.getMyGroups(), authApi.getMe()]);
-        setGroups(groupList);
-        const firstName = (me.name || me.nickname || 'User').split(' ')[0];
-        setUserName(firstName);
+        const [marketItems, member] = await Promise.all([itemsApi.getMarketplaceItems(), authApi.getMe()]);
+        setItems(marketItems);
+        setMe(member);
       } catch (error) {
-        console.error('Failed to fetch home data', error);
+        console.error('Failed to fetch marketplace data', error);
+        setItems([]);
       } finally {
         setIsLoading(false);
       }
@@ -44,27 +29,8 @@ const Home: React.FC = () => {
     load();
   }, []);
 
-  const handleJoinSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const inviteCode = joinCode.trim();
-    if (!inviteCode) return;
-
-    setIsJoining(true);
-    try {
-      const joined = await groupsApi.joinGroup(inviteCode);
-      setShowJoinModal(false);
-      setJoinCode('');
-      navigate(`/group/${joined.id}`);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to join group.';
-      alert(message);
-    } finally {
-      setIsJoining(false);
-    }
-  };
-
   if (isLoading) {
-    return <HomeSkeleton />;
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center text-gray-500">Loading market...</div>;
   }
 
   return (
@@ -72,144 +38,74 @@ const Home: React.FC = () => {
       <div className="fixed bottom-24 left-0 right-0 max-w-md mx-auto z-40 px-6 flex justify-end pointer-events-none">
         <button
           onClick={() => navigate('/create')}
-          className="w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-lg shadow-emerald-200 transition-colors flex items-center justify-center pointer-events-auto focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2"
-          aria-label="Sell Item"
+          className="w-14 h-14 bg-zinc-900 hover:bg-blue-700 text-white rounded-lg shadow-lg shadow-gray-200 transition-colors flex items-center justify-center pointer-events-auto focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2"
+          aria-label="List an item"
         >
           <Plus size={28} strokeWidth={2.5} />
         </button>
       </div>
 
-      {showJoinModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
-            onClick={() => setShowJoinModal(false)}
-          ></div>
-          <div className="bg-white w-full max-w-sm rounded-lg p-6 relative z-10 shadow-2xl animate-in fade-in zoom-in duration-200">
+      <header className="bg-white px-6 pt-12 pb-6 sticky top-0 z-10 shadow-sm border-b border-gray-100">
+        <p className="text-xs font-bold uppercase tracking-wide text-blue-700">Personal Market</p>
+        <h1 className="mt-2 text-2xl font-bold text-gray-900">Pick from real shelves</h1>
+        <p className="text-gray-600 text-sm mt-2">
+          Browse sellers, open their page, and meet at a mapped pickup point.
+        </p>
+        {me?.id && (
+          <button
+            type="button"
+            onClick={() => navigate(`/seller/${me.id}`)}
+            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700 transition-colors focus-visible:ring-2 focus-visible:ring-blue-700"
+          >
+            <Store size={16} />
+            My seller page
+          </button>
+        )}
+      </header>
+
+      <main className="p-4 grid grid-cols-2 gap-4">
+        {items.length > 0 ? (
+          items.map((item) => (
             <button
-              onClick={() => setShowJoinModal(false)}
-              className="absolute top-4 right-4 p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-emerald-600"
-              aria-label="Close invite code dialog"
+              key={item.id}
+              type="button"
+              onClick={() => navigate(`/seller/${item.writerId}`)}
+              className="text-left bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-colors focus-visible:ring-2 focus-visible:ring-blue-700"
             >
-              <X size={20} />
-            </button>
-
-            <div className="text-center mb-6">
-              <div className="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center mx-auto mb-4 text-emerald-700">
-                <Keyboard size={24} />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900">Enter Invite Code</h2>
-              <p className="text-sm text-gray-500 mt-1">Paste the code shared by your group admin.</p>
-            </div>
-
-            <form onSubmit={handleJoinSubmit}>
-              <input
-                type="text"
-                value={joinCode}
-                onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                placeholder="e.g. KNOCK2024"
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-center text-lg font-mono font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-emerald-600 mb-6 uppercase placeholder:tracking-normal placeholder:font-sans placeholder:font-normal placeholder:text-gray-500"
-                autoFocus
-              />
-
-              <button
-                type="submit"
-                disabled={!joinCode.trim() || isJoining}
-                className={`w-full font-bold py-4 rounded-lg flex items-center justify-center space-x-2 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 ${joinCode.trim()
-                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200 hover:bg-emerald-700'
-                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  }`}
-              >
-                {isJoining ? (
-                  <>
-                    <Loader2 size={20} className="animate-spin" />
-                    <span>Verifying...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Join Group</span>
-                    <ArrowRight size={20} />
-                  </>
+              <div className="relative aspect-square bg-gray-100 overflow-hidden">
+                <ImageWithFallback src={item.thumbnailUrl} alt={item.title} className="w-full h-full object-cover" />
+                {item.status !== ItemStatus.ON_SALE && (
+                  <span className="absolute top-2 left-2 bg-gray-900 text-white text-[10px] font-bold px-2 py-1 rounded-md">
+                    {item.status}
+                  </span>
                 )}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      <div className="bg-white px-6 pt-12 pb-6 sticky top-0 z-10 shadow-sm border-b border-gray-100">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">{greeting.title(userName)}</h1>
-        <p className="text-gray-600 text-sm">{greeting.subtitle}</p>
-      </div>
-
-      <div className="p-6 space-y-8">
-        <div className="grid grid-cols-2 gap-4">
-          <button
-            onClick={() => navigate('/create-group')}
-            className="bg-emerald-600 hover:bg-emerald-700 transition-colors rounded-lg p-6 flex flex-col items-center justify-center text-white shadow-lg shadow-emerald-200 focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2"
-          >
-            <div className="bg-white/20 p-3 rounded-lg mb-3">
-              <Plus size={24} />
-            </div>
-            <span className="font-semibold">Create Group</span>
-          </button>
-
-          <button
-            onClick={() => setShowJoinModal(true)}
-            className="bg-white hover:bg-gray-50 transition-colors rounded-lg p-6 flex flex-col items-center justify-center text-gray-700 border border-gray-200 focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2"
-          >
-            <div className="bg-amber-50 p-3 rounded-lg mb-3 shadow-sm">
-              <Keyboard size={24} className="text-gray-800" />
-            </div>
-            <span className="font-semibold">Join via Code</span>
-          </button>
-        </div>
-
-        <div>
-          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Joined Communities</h2>
-          <div className="space-y-4">
-            {groups.length > 0 ? (
-              groups.map((group) => (
-                <div
-                  key={group.id}
-                  onClick={() => navigate(`/group/${group.id}`)}
-                  className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 flex items-center space-x-4 hover:border-emerald-300 hover:shadow-md transition-colors cursor-pointer"
-                >
-                  <ImageWithFallback
-                    src={group.profileImageUrl}
-                    alt={group.name}
-                    className="w-16 h-16 rounded-lg object-cover"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-bold text-gray-900">{group.name}</h3>
-                    <p className="text-sm text-gray-500 flex items-center mt-1">
-                      <span className="w-2 h-2 rounded-full mr-2 bg-emerald-400"></span>
-                      {group.memberCount ?? 0} members
-                    </p>
-                  </div>
-                  <div className="text-gray-300">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="bg-white rounded-lg p-8 text-center border-2 border-dashed border-gray-200">
-                <div className="w-16 h-16 bg-gray-50 rounded-lg flex items-center justify-center mx-auto mb-4 text-gray-500">
-                  <User size={32} />
-                </div>
-                <h3 className="font-bold text-gray-900 mb-1">No groups yet</h3>
-                <p className="text-sm text-gray-500 mb-6">Join a community to start trading!</p>
-                <button
-                  onClick={() => setShowJoinModal(true)}
-                  className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg shadow-lg shadow-emerald-100 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2"
-                >
-                  Join First Group
-                </button>
               </div>
-            )}
+              <div className="p-3">
+                <p className="text-[10px] font-bold uppercase tracking-wide text-blue-700 truncate">
+                  {item.writerNickname || `Seller #${item.writerId}`}
+                </p>
+                <h2 className="mt-1 font-semibold text-sm text-gray-900 truncate">{item.title}</h2>
+                <p className={`mt-1 text-sm font-bold ${item.type === ItemType.GIVE ? 'text-emerald-700' : 'text-gray-900'}`}>
+                  {item.price === 0 ? 'Free' : `₩${item.price.toLocaleString()}`}
+                </p>
+                <p className="mt-2 text-[10px] text-gray-500 truncate">
+                  {item.tradeLocationName || item.tradeLocationAddress || 'Pickup point pending'}
+                </p>
+              </div>
+            </button>
+          ))
+        ) : (
+          <div className="col-span-2 flex flex-col items-center justify-center py-24 text-center">
+            <div className="w-20 h-20 bg-white rounded-lg flex items-center justify-center text-gray-400 mb-6 border border-gray-100">
+              <Store size={40} strokeWidth={1.5} />
+            </div>
+            <h2 className="text-lg font-bold text-gray-900 mb-2">No shelves yet</h2>
+            <p className="text-sm text-gray-500 max-w-[220px] mx-auto leading-relaxed">
+              List your first item and share your seller page.
+            </p>
           </div>
-        </div>
-      </div>
+        )}
+      </main>
     </div>
   );
 };

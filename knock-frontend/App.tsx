@@ -2,11 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
-import GroupFeed from './pages/GroupFeed';
-import JoinGroup from './pages/JoinGroup';
 import ItemDetail from './pages/ItemDetail';
 import CreateItem from './pages/CreateItem';
-import CreateGroup from './pages/CreateGroup';
 import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
 import EditProfile from './pages/EditProfile';
@@ -35,16 +32,14 @@ const isPublicPath = (pathname: string): boolean => {
   if (PUBLIC_PATHS.has(pathname)) {
     return true;
   }
-  return /^\/item\/\d+$/.test(pathname) || /^\/seller\/\d+$/.test(pathname);
+  return /^\/item\/\d+$/.test(pathname) || /^\/seller\/\d+$/.test(pathname) || /^\/shop\/[A-Za-z0-9_-]+$/.test(pathname);
 };
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
 
-  // Show BottomNav only on these specific main routes and group feed
   const showBottomNav =
-    ['/home', '/groups', '/saved', '/notifications', '/profile', '/manage-items'].includes(location.pathname) ||
-    location.pathname.startsWith('/group/');
+    ['/home', '/saved', '/notifications', '/profile', '/manage-items'].includes(location.pathname);
 
   return (
     <>
@@ -122,13 +117,10 @@ const App: React.FC = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/home" element={<Home />} />
-            <Route path="/groups" element={<Home />} />
-            <Route path="/group/:id" element={<GroupFeed />} />
-            <Route path="/join/:code" element={<JoinGroup />} />
             <Route path="/item/:id" element={<ItemDetail />} />
             <Route path="/seller/:memberId" element={<SellerPage />} />
+            <Route path="/shop/:token" element={<SellerPage />} />
             <Route path="/create" element={<CreateItem />} />
-            <Route path="/create-group" element={<CreateGroup />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/edit-profile" element={<EditProfile />} />
             <Route path="/manage-items" element={<ManageItems />} />
