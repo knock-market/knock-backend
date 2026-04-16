@@ -1,5 +1,5 @@
 import React, { useDeferredValue, useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, LogOut, Package, Plus, Search, SlidersHorizontal, X } from 'lucide-react';
 import { groupsApi, itemsApi } from '../services';
 import { GroupResponseDto, ItemCategory, ItemStatus, ItemSummaryResponseDto, ItemType } from '../types';
@@ -245,10 +245,10 @@ const GroupFeed: React.FC = () => {
       <div className="p-4 grid grid-cols-2 gap-4">
         {filteredItems.length > 0 ? (
           filteredItems.map((item) => (
-            <div
+            <Link
               key={item.id}
-              onClick={() => navigate(`/item/${item.id}`)}
-              className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200 hover:border-emerald-300 hover:shadow-md transition-colors cursor-pointer group"
+              to={`/item/${item.id}`}
+              className="block bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200 hover:border-emerald-300 hover:shadow-md transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
             >
               <div className="relative aspect-square overflow-hidden bg-gray-100">
                 <ImageWithFallback
@@ -281,7 +281,7 @@ const GroupFeed: React.FC = () => {
                   <span>{item.likesCount ?? 0} likes</span>
                 </div>
               </div>
-            </div>
+            </Link>
           ))
         ) : (
           <div className="col-span-2 flex flex-col items-center justify-center py-24 text-center">
