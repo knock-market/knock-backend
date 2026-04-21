@@ -10,6 +10,8 @@ public interface MemberRepository {
 
 	Optional<Member> findByEmail(String email);
 
+	Optional<Member> findByProviderAndProviderId(String provider, String providerId);
+
 	boolean existsByEmail(String email);
 
 	boolean existsById(Long id);

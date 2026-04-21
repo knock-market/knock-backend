@@ -21,3 +21,7 @@ storage:
   redis:
     host: localhost
     port: 6379
+
+GOOGLE_CLIENT_ID: test-google-client-id
+GOOGLE_CLIENT_SECRET: test-google-client-secret
+GOOGLE_REDIRECT_URI: http://localhost:8080/api/v1/auth/social/google/callback

@@ -7,9 +7,9 @@ import ImageWithFallback from '../components/ImageWithFallback';
 import { GroupResponseDto } from '../types';
 
 const GREETINGS = [
-  { title: (name: string) => `Welcome back, ${name}! 👋`, subtitle: "See what's happening in your circles today." },
-  { title: (name: string) => `Hey ${name}! ✨`, subtitle: "Let's check out what's new." },
-  { title: (name: string) => `Good to see you, ${name}! 🎉`, subtitle: 'Your circles are waiting.' },
+  { title: (name: string) => `Welcome back, ${name}`, subtitle: "See what's happening in your circles today." },
+  { title: (name: string) => `Hey ${name}`, subtitle: "Let's check out what's new." },
+  { title: (name: string) => `Good to see you, ${name}`, subtitle: 'Your circles are waiting.' },
 ];
 
 const Home: React.FC = () => {
@@ -72,7 +72,7 @@ const Home: React.FC = () => {
       <div className="fixed bottom-24 left-0 right-0 max-w-md mx-auto z-40 px-6 flex justify-end pointer-events-none">
         <button
           onClick={() => navigate('/create')}
-          className="w-14 h-14 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-lg shadow-emerald-200 transition-all active:scale-90 flex items-center justify-center pointer-events-auto"
+          className="w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-lg shadow-emerald-200 transition-colors flex items-center justify-center pointer-events-auto focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2"
           aria-label="Sell Item"
         >
           <Plus size={28} strokeWidth={2.5} />
@@ -85,16 +85,17 @@ const Home: React.FC = () => {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
             onClick={() => setShowJoinModal(false)}
           ></div>
-          <div className="bg-white w-full max-w-sm rounded-3xl p-6 relative z-10 shadow-2xl animate-in fade-in zoom-in duration-200">
+          <div className="bg-white w-full max-w-sm rounded-lg p-6 relative z-10 shadow-2xl animate-in fade-in zoom-in duration-200">
             <button
               onClick={() => setShowJoinModal(false)}
-              className="absolute top-4 right-4 p-2 text-gray-400 hover:bg-gray-100 rounded-full transition-colors"
+              className="absolute top-4 right-4 p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-emerald-600"
+              aria-label="Close invite code dialog"
             >
               <X size={20} />
             </button>
 
             <div className="text-center mb-6">
-              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-900">
+              <div className="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center mx-auto mb-4 text-emerald-700">
                 <Keyboard size={24} />
               </div>
               <h2 className="text-xl font-bold text-gray-900">Enter Invite Code</h2>
@@ -107,15 +108,15 @@ const Home: React.FC = () => {
                 value={joinCode}
                 onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
                 placeholder="e.g. KNOCK2024"
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-center text-lg font-mono font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-emerald-500 mb-6 uppercase placeholder:tracking-normal placeholder:font-sans placeholder:font-normal placeholder:text-gray-400"
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-center text-lg font-mono font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-emerald-600 mb-6 uppercase placeholder:tracking-normal placeholder:font-sans placeholder:font-normal placeholder:text-gray-500"
                 autoFocus
               />
 
               <button
                 type="submit"
                 disabled={!joinCode.trim() || isJoining}
-                className={`w-full font-bold py-4 rounded-xl flex items-center justify-center space-x-2 transition-all active:scale-[0.98] ${joinCode.trim()
-                  ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200 hover:bg-emerald-600'
+                className={`w-full font-bold py-4 rounded-lg flex items-center justify-center space-x-2 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 ${joinCode.trim()
+                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200 hover:bg-emerald-700'
                   : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                   }`}
               >
@@ -136,18 +137,18 @@ const Home: React.FC = () => {
         </div>
       )}
 
-      <div className="bg-white px-6 pt-12 pb-6 sticky top-0 z-10 shadow-sm">
+      <div className="bg-white px-6 pt-12 pb-6 sticky top-0 z-10 shadow-sm border-b border-gray-100">
         <h1 className="text-2xl font-bold text-gray-900 mb-1">{greeting.title(userName)}</h1>
-        <p className="text-gray-500 text-sm">{greeting.subtitle}</p>
+        <p className="text-gray-600 text-sm">{greeting.subtitle}</p>
       </div>
 
       <div className="p-6 space-y-8">
         <div className="grid grid-cols-2 gap-4">
           <button
             onClick={() => navigate('/create-group')}
-            className="bg-emerald-400 hover:bg-emerald-500 transition-colors rounded-2xl p-6 flex flex-col items-center justify-center text-white shadow-lg shadow-emerald-200 active:scale-[0.98]"
+            className="bg-emerald-600 hover:bg-emerald-700 transition-colors rounded-lg p-6 flex flex-col items-center justify-center text-white shadow-lg shadow-emerald-200 focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2"
           >
-            <div className="bg-white/20 p-3 rounded-full mb-3">
+            <div className="bg-white/20 p-3 rounded-lg mb-3">
               <Plus size={24} />
             </div>
             <span className="font-semibold">Create Group</span>
@@ -155,9 +156,9 @@ const Home: React.FC = () => {
 
           <button
             onClick={() => setShowJoinModal(true)}
-            className="bg-gray-100 hover:bg-gray-200 transition-colors rounded-2xl p-6 flex flex-col items-center justify-center text-gray-700 active:scale-[0.98]"
+            className="bg-white hover:bg-gray-50 transition-colors rounded-lg p-6 flex flex-col items-center justify-center text-gray-700 border border-gray-200 focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2"
           >
-            <div className="bg-white p-3 rounded-full mb-3 shadow-sm">
+            <div className="bg-amber-50 p-3 rounded-lg mb-3 shadow-sm">
               <Keyboard size={24} className="text-gray-800" />
             </div>
             <span className="font-semibold">Join via Code</span>
@@ -172,17 +173,17 @@ const Home: React.FC = () => {
                 <div
                   key={group.id}
                   onClick={() => navigate(`/group/${group.id}`)}
-                  className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center space-x-4 hover:shadow-md transition-all cursor-pointer active:scale-[0.99]"
+                  className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 flex items-center space-x-4 hover:border-emerald-300 hover:shadow-md transition-colors cursor-pointer"
                 >
                   <ImageWithFallback
                     src={group.profileImageUrl}
                     alt={group.name}
-                    className="w-16 h-16 rounded-xl object-cover"
+                    className="w-16 h-16 rounded-lg object-cover"
                   />
                   <div className="flex-1">
                     <h3 className="font-bold text-gray-900">{group.name}</h3>
                     <p className="text-sm text-gray-500 flex items-center mt-1">
-                      <span className="w-2 h-2 rounded-full mr-2 bg-gray-300"></span>
+                      <span className="w-2 h-2 rounded-full mr-2 bg-emerald-400"></span>
                       {group.memberCount ?? 0} members
                     </p>
                   </div>
@@ -192,15 +193,15 @@ const Home: React.FC = () => {
                 </div>
               ))
             ) : (
-              <div className="bg-white rounded-3xl p-8 text-center border-2 border-dashed border-gray-100">
-                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+              <div className="bg-white rounded-lg p-8 text-center border-2 border-dashed border-gray-200">
+                <div className="w-16 h-16 bg-gray-50 rounded-lg flex items-center justify-center mx-auto mb-4 text-gray-500">
                   <User size={32} />
                 </div>
                 <h3 className="font-bold text-gray-900 mb-1">No groups yet</h3>
                 <p className="text-sm text-gray-500 mb-6">Join a community to start trading!</p>
                 <button
                   onClick={() => setShowJoinModal(true)}
-                  className="px-6 py-2 bg-emerald-500 text-white text-sm font-bold rounded-full shadow-lg shadow-emerald-100"
+                  className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg shadow-lg shadow-emerald-100 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2"
                 >
                   Join First Group
                 </button>

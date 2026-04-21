@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { authApi } from '../services';
+import { buildGoogleAuthStartUrl, resolveAuthNextPath } from '../utils/authRedirect';
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const nextPath = resolveAuthNextPath(new URLSearchParams(location.search).get('next'));
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -19,13 +22,17 @@ const Login: React.FC = () => {
 
         try {
             await authApi.emailLogin({ email, password });
-            navigate('/home');
+            navigate(nextPath, { replace: true });
         } catch (err) {
             console.error("Login failed:", err);
             setError(err instanceof Error ? err.message : 'Invalid email or password. Please try again.');
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleGoogleLogin = () => {
+        window.location.href = buildGoogleAuthStartUrl(nextPath);
     };
 
     return (
@@ -108,6 +115,14 @@ const Login: React.FC = () => {
                         ) : (
                             <span>Log In</span>
                         )}
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={handleGoogleLogin}
+                        className="w-full bg-white border border-gray-200 hover:border-gray-300 text-gray-800 font-semibold py-4 rounded-2xl transition-all active:scale-[0.98]"
+                    >
+                        Continue with Google
                     </button>
                 </form>
 

@@ -95,6 +95,13 @@ const ItemDetail = () => {
       setHasRequested(true);
       alert('Reservation request sent to the seller!');
     } catch (error) {
+      const status = typeof error === 'object' && error !== null && 'status' in error
+        ? Number((error as { status?: number }).status)
+        : undefined;
+      if (status === 401) {
+        navigate(`/login?next=${encodeURIComponent(`/item/${itemId}`)}`);
+        return;
+      }
       const message = error instanceof Error ? error.message : 'Failed to send reservation request.';
       alert(message);
     } finally {
@@ -161,9 +168,9 @@ const ItemDetail = () => {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setShowReserveModal(false)}
           ></div>
-          <div className="bg-white w-full max-w-sm rounded-3xl p-6 relative z-10 shadow-2xl animate-in fade-in zoom-in duration-200">
+          <div className="bg-white w-full max-w-sm rounded-lg p-6 relative z-10 shadow-2xl animate-in fade-in zoom-in duration-200">
             <div className="flex flex-col items-center text-center">
-              <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-4 text-emerald-600">
+              <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4 text-emerald-700">
                 <AlertCircle size={24} strokeWidth={2.5} />
               </div>
               <h2 className="text-xl font-bold text-gray-900 mb-2">Request Reservation?</h2>
@@ -173,14 +180,14 @@ const ItemDetail = () => {
               <div className="flex space-x-3 w-full">
                 <button
                   onClick={() => setShowReserveModal(false)}
-                  className="flex-1 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors"
+                  className="flex-1 py-3 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition-colors focus-visible:ring-2 focus-visible:ring-gray-500"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmReservation}
                   disabled={isSubmitting}
-                  className="flex-1 py-3 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 shadow-lg shadow-emerald-200 transition-colors disabled:opacity-60"
+                  className="flex-1 py-3 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 shadow-lg shadow-emerald-200 transition-colors disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-emerald-700"
                 >
                   {isSubmitting ? 'Submitting...' : 'Confirm'}
                 </button>
@@ -193,12 +200,16 @@ const ItemDetail = () => {
       <div className="relative h-80 bg-gray-100">
         <ImageWithFallback src={item.imageUrls?.[0]} alt={item.title} className="w-full h-full object-cover" />
         <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start bg-gradient-to-b from-black/30 to-transparent z-20">
-          <button onClick={handleBack} className="p-2 bg-white/20 backdrop-blur-md text-white rounded-full hover:bg-white/30 transition-colors">
+          <button
+            onClick={handleBack}
+            className="p-2 bg-white/80 backdrop-blur-md text-gray-900 rounded-lg hover:bg-white transition-colors focus-visible:ring-2 focus-visible:ring-white"
+            aria-label="Go back"
+          >
             <ArrowLeft size={24} />
           </button>
           <button
             onClick={handleShare}
-            className="p-2 bg-white/20 backdrop-blur-md text-white rounded-full hover:bg-white/30 transition-colors"
+            className="p-2 bg-white/80 backdrop-blur-md text-gray-900 rounded-lg hover:bg-white transition-colors focus-visible:ring-2 focus-visible:ring-white"
             aria-label="Share item"
           >
             <Share size={24} />
@@ -206,10 +217,10 @@ const ItemDetail = () => {
         </div>
       </div>
 
-      <div className="px-6 py-6 rounded-t-3xl -mt-6 bg-white relative z-10">
+      <div className="px-6 py-6 rounded-t-lg -mt-6 bg-white relative z-10">
         <div className="flex justify-between items-start mb-2">
           <h1 className="text-2xl font-bold text-gray-900 leading-tight w-3/4">{item.title}</h1>
-          <span className="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full">{item.type}</span>
+          <span className="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-lg">{item.type}</span>
         </div>
 
         <div className="flex items-center space-x-2 mb-6">
@@ -220,7 +231,7 @@ const ItemDetail = () => {
 
         <p className="text-gray-600 leading-relaxed mb-8">{item.description}</p>
 
-        <div className="bg-gray-50 p-4 rounded-xl flex items-start space-x-3 mb-8">
+        <div className="bg-gray-50 p-4 rounded-lg flex items-start space-x-3 mb-8 border border-gray-100">
           <MapPin size={20} className="text-gray-400 mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-gray-900">Pickup by arrangement</p>
@@ -229,12 +240,12 @@ const ItemDetail = () => {
         </div>
 
         <div className="border-t border-gray-100 pt-6">
-          <div className="flex items-center justify-between p-2 -mx-2 rounded-xl">
+          <div className="flex items-center justify-between p-2 -mx-2 rounded-lg">
             <div className="flex items-center space-x-3">
               <ImageWithFallback
                 src={item.writerProfileImageUrl}
                 alt="Seller"
-                className="w-12 h-12 rounded-full border border-gray-100"
+                className="w-12 h-12 rounded-lg border border-gray-100 object-cover"
               />
               <div>
                 <p className="font-bold text-gray-900">{item.writerNickname || `Seller #${item.writerId}`}</p>
@@ -248,16 +259,17 @@ const ItemDetail = () => {
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-8 flex items-center space-x-4 max-w-md mx-auto z-50">
         <button
           onClick={toggleLike}
-          className={`p-3 rounded-full border transition-colors ${isLiked ? 'bg-red-50 border-red-100 text-red-500' : 'border-gray-200 text-gray-400 hover:bg-gray-50'}`}
+          className={`p-3 rounded-lg border transition-colors focus-visible:ring-2 focus-visible:ring-red-500 ${isLiked ? 'bg-red-50 border-red-100 text-red-600' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+          aria-label={isLiked ? 'Remove bookmark' : 'Add bookmark'}
         >
           <Heart size={24} fill={isLiked ? 'currentColor' : 'none'} />
         </button>
         <button
           onClick={handleReserveClick}
           disabled={hasRequested || isUnavailable}
-          className={`flex-1 py-4 rounded-xl font-bold text-white flex items-center justify-center space-x-2 transition-all active:scale-[0.98] ${hasRequested || isUnavailable
+          className={`flex-1 py-4 rounded-lg font-bold text-white flex items-center justify-center space-x-2 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 ${hasRequested || isUnavailable
             ? 'bg-gray-400 cursor-not-allowed'
-            : 'bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-200'}`}
+            : 'bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-200'}`}
         >
           {hasRequested || isUnavailable ? (
             <span>{reserveButtonLabel}</span>

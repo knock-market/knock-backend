@@ -10,6 +10,8 @@ const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
     src,
     fallbackSrc = DEFAULT_FALLBACK,
     alt,
+    loading = 'lazy',
+    decoding = 'async',
     ...props
 }) => {
     const [imgSrc, setImgSrc] = useState(src || fallbackSrc);
@@ -22,7 +24,9 @@ const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
         <img
             {...props}
             src={imgSrc}
-            alt={alt}
+            alt={alt || ''}
+            loading={loading}
+            decoding={decoding}
             onError={() => {
                 setImgSrc(fallbackSrc);
             }}

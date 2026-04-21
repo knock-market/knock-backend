@@ -104,7 +104,11 @@ const CreateItem: React.FC = () => {
   return (
     <div className="bg-white min-h-screen pb-24 max-w-md mx-auto">
       <div className="px-4 py-4 flex items-center border-b border-gray-100 sticky top-0 bg-white z-10">
-        <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+        <button
+          onClick={() => navigate(-1)}
+          className="p-2 -ml-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-emerald-600"
+          aria-label="Go back"
+        >
           <ArrowLeft size={24} />
         </button>
         <h1 className="text-lg font-bold text-gray-900 ml-2">Register Item</h1>
@@ -123,20 +127,24 @@ const CreateItem: React.FC = () => {
           />
           <div className="flex space-x-3 overflow-x-auto no-scrollbar py-2">
             <button
+              type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading || imageUrls.length >= 5}
-              className={`flex-shrink-0 w-20 h-20 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center transition-colors ${isUploading ? 'bg-gray-50 border-gray-200 text-gray-400' : 'border-emerald-300 text-emerald-500 bg-emerald-50 hover:bg-emerald-100'}`}
+              className={`flex-shrink-0 w-20 h-20 rounded-lg border-2 border-dashed flex flex-col items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-emerald-600 ${isUploading ? 'bg-gray-50 border-gray-200 text-gray-400' : 'border-emerald-300 text-emerald-700 bg-emerald-50 hover:bg-emerald-100'}`}
+              aria-label="Add item photos"
             >
               {isUploading ? <Loader2 size={24} className="animate-spin" /> : <Camera size={24} />}
               <span className="text-[10px] font-bold mt-1">{isUploading ? 'Uploading' : 'Add'}</span>
             </button>
 
             {imageUrls.map((url, idx) => (
-              <div key={idx} className="relative flex-shrink-0 w-20 h-20 rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-                <img src={url} alt="Item" className="w-full h-full object-cover" />
+              <div key={idx} className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden shadow-sm border border-gray-100">
+                <img src={url} alt={`Item preview ${idx + 1}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 <button
+                  type="button"
                   onClick={() => removeImage(url)}
-                  className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition-colors"
+                  className="absolute top-1 right-1 bg-black/60 text-white p-1 rounded-lg hover:bg-black/80 transition-colors focus-visible:ring-2 focus-visible:ring-white"
+                  aria-label={`Remove item preview ${idx + 1}`}
                 >
                   <X size={12} />
                 </button>
@@ -152,7 +160,7 @@ const CreateItem: React.FC = () => {
               value={groupId}
               onChange={(e) => setGroupId(e.target.value)}
               disabled={groups.length === 0}
-              className="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
+              className="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-600 disabled:opacity-50"
             >
               {groups.length === 0 ? (
                 <option value="" disabled>No circles joined</option>
@@ -162,7 +170,9 @@ const CreateItem: React.FC = () => {
                 ))
               )}
             </select>
-            <div className="absolute right-4 top-3.5 pointer-events-none w-3 h-3 bg-yellow-400 rounded-sm"></div>
+            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400">
+              <ChevronDown size={20} />
+            </div>
           </div>
         </div>
 
@@ -174,7 +184,7 @@ const CreateItem: React.FC = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="What are you selling?"
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-900"
+              className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-900"
             />
           </div>
           <div>
@@ -184,7 +194,7 @@ const CreateItem: React.FC = () => {
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
               placeholder="Describe the item and pickup instructions."
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-900"
             ></textarea>
           </div>
         </div>
@@ -195,7 +205,7 @@ const CreateItem: React.FC = () => {
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as ItemCategory)}
-              className="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-emerald-600"
             >
               <option value={ItemCategory.CLOTHING}>Clothing</option>
               <option value={ItemCategory.FURNITURE}>Furniture</option>
@@ -213,17 +223,19 @@ const CreateItem: React.FC = () => {
           <label className="block text-sm font-semibold text-gray-700 mb-3">Transaction Type</label>
           <div className="grid grid-cols-2 gap-3">
             <button
+              type="button"
               onClick={() => setTransactionType('free')}
-              className={`py-3 rounded-xl text-sm font-bold transition-all ${transactionType === 'free' ? 'bg-emerald-500 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+              className={`py-3 rounded-lg text-sm font-bold transition-colors focus-visible:ring-2 focus-visible:ring-emerald-600 ${transactionType === 'free' ? 'bg-emerald-600 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
             >
               Free
             </button>
             <button
+              type="button"
               onClick={() => {
                 setTransactionType('sale');
                 setPrice('1000');
               }}
-              className={`py-3 rounded-xl text-sm font-bold transition-all ${transactionType === 'sale' ? 'bg-emerald-500 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+              className={`py-3 rounded-lg text-sm font-bold transition-colors focus-visible:ring-2 focus-visible:ring-emerald-600 ${transactionType === 'sale' ? 'bg-emerald-600 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
             >
               Sale
             </button>
@@ -236,10 +248,11 @@ const CreateItem: React.FC = () => {
                 type="number"
                 min="1"
                 step="1"
+                inputMode="numeric"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="1000"
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-900 font-medium"
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 text-gray-900 font-medium"
               />
             </div>
           )}
@@ -247,9 +260,10 @@ const CreateItem: React.FC = () => {
 
         <div className="pt-4">
           <button
+            type="button"
             onClick={handleSubmit}
             disabled={isSubmitting || isUploading}
-            className={`w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-emerald-200 transition-all active:scale-[0.98] ${isSubmitting || isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-lg shadow-lg shadow-emerald-200 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 ${isSubmitting || isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {isSubmitting ? 'Posting...' : isUploading ? 'Uploading photos...' : 'Post Item'}
           </button>

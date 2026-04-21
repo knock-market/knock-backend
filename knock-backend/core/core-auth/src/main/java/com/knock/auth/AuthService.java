@@ -7,6 +7,10 @@ public interface AuthService {
 
 	void login(SessionAuthService.LoginRequestData data, HttpServletRequest request, HttpServletResponse response);
 
+	String getGoogleAuthorizationUrl(String next, HttpServletRequest request);
+
+	String loginWithGoogle(String code, String state, HttpServletRequest request, HttpServletResponse response);
+
 	void logout(HttpServletRequest request);
 
 }

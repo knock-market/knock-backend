@@ -8,6 +8,7 @@ import com.knock.core.enums.NotificationType;
 import com.knock.core.enums.ReservationStatus;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
+import com.knock.storage.db.core.group.GroupRepository;
 import com.knock.storage.db.core.item.Item;
 import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.MemberRepository;
@@ -29,6 +30,8 @@ public class ReservationService {
 
 	private final ItemRepository itemRepository;
 
+	private final GroupRepository groupRepository;
+
 	private final MemberRepository memberRepository;
 
 	private final NotificationService notificationService;
@@ -38,6 +41,9 @@ public class ReservationService {
 		memberRepository.findById(data.memberId()).orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 		Item item = itemRepository.findById(data.itemId())
 			.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
+		if (!groupRepository.existsMember(item.getGroup().getId(), data.memberId())) {
+			throw new CoreException(ErrorType.FORBIDDEN);
+		}
 
 		int created = reservationRepository.createIfNotApproved(data.itemId(), data.memberId());
 

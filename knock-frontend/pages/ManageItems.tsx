@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronRight, Loader2, Package } from 'lucide-react';
 import { itemsApi } from '../services';
 import { ItemStatus, ItemSummaryResponseDto, ItemWithUI } from '../types';
@@ -51,10 +51,10 @@ const ManageItems: React.FC = () => {
       <div className="p-4 space-y-4">
         {myItems.length > 0 ? (
           myItems.map((item) => (
-            <div
+            <Link
               key={item.id}
-              onClick={() => navigate(`/manage-item/${item.id}`)}
-              className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex space-x-4 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.99]"
+              to={`/manage-item/${item.id}`}
+              className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm flex space-x-4 hover:shadow-md transition-shadow active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
             >
               <div className="w-20 h-20 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 relative">
                 <ImageWithFallback src={item.image || item.thumbnailUrl} alt={item.title} className="w-full h-full object-cover" />
@@ -77,7 +77,7 @@ const ManageItems: React.FC = () => {
                   <ChevronRight size={16} className="text-gray-300" />
                 </div>
               </div>
-            </div>
+            </Link>
           ))
         ) : (
           <div className="flex flex-col items-center justify-center py-24 text-center">
