@@ -2,17 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { authApi } from '../services';
-
-const resolveNextPath = (rawNext: string | null): string => {
-    if (!rawNext) {
-        return '/home';
-    }
-    const next = rawNext.trim();
-    if (!next.startsWith('/') || next.startsWith('//')) {
-        return '/home';
-    }
-    return next;
-};
+import { buildGoogleAuthStartUrl, resolveAuthNextPath } from '../utils/authRedirect';
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
@@ -21,7 +11,7 @@ const Login: React.FC = () => {
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const nextPath = resolveNextPath(new URLSearchParams(location.search).get('next'));
+    const nextPath = resolveAuthNextPath(new URLSearchParams(location.search).get('next'));
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -42,7 +32,7 @@ const Login: React.FC = () => {
     };
 
     const handleGoogleLogin = () => {
-        window.location.href = `/api/v1/auth/social/google/start?next=${encodeURIComponent(nextPath)}`;
+        window.location.href = buildGoogleAuthStartUrl(nextPath);
     };
 
     return (

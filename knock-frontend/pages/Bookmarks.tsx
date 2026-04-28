@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Bookmark, Loader2 } from 'lucide-react';
 import { bookmarksApi } from '../services';
 import { ItemType, ItemWithUI, MyBookmarkResponseDto } from '../types';
 import ImageWithFallback from '../components/ImageWithFallback';
 
 const Bookmarks: React.FC = () => {
-  const navigate = useNavigate();
   const [savedItems, setSavedItems] = useState<ItemWithUI[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -58,10 +57,10 @@ const Bookmarks: React.FC = () => {
       <div className="p-4 space-y-4">
         {savedItems.length > 0 ? (
           savedItems.map((item) => (
-            <div
+            <Link
               key={item.id}
-              onClick={() => navigate(`/item/${item.id}`)}
-              className="bg-white border border-gray-100 rounded-2xl p-3 flex space-x-4 cursor-pointer hover:shadow-md transition-all active:scale-[0.99]"
+              to={`/item/${item.id}`}
+              className="bg-white border border-gray-100 rounded-lg p-3 flex space-x-4 hover:shadow-md transition-all active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
             >
               <div className="relative w-24 h-24 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0">
                 <ImageWithFallback
@@ -89,7 +88,7 @@ const Bookmarks: React.FC = () => {
                   {item.postedAtLabel && <p className="text-[10px] text-gray-400 mt-1">{item.postedAtLabel}</p>}
                 </div>
               </div>
-            </div>
+            </Link>
           ))
         ) : (
           <div className="flex flex-col items-center justify-center py-32 text-center">

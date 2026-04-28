@@ -4,7 +4,7 @@
 
 문서화된 모든 API는 `core-api` 모듈의 테스트를 통해 검증되었습니다.
 상세한 Request/Response 스니펫은 `./gradlew :core:core-api:asciidoctor` 실행 후 생성되는 HTML 문서를 참고하세요.
-인증 방식은 **세션 쿠키 기반**이며, 소셜 로그인 API는 아직 구현되지 않았습니다.
+인증 방식은 **세션 쿠키 기반**이며, Google OAuth 로그인은 구현되어 있고 Kakao 소셜 로그인은 아직 구현되지 않았습니다.
 
 자세한 내용은 [asciidoc 문서](../knock-backend/core/core-api/src/docs/asciidoc/index.adoc)를 참고하세요.
 
@@ -13,9 +13,11 @@
 |---|---|---|---|---|---|
 | POST | `/api/v1/auth/login` | 일반 이메일 로그인 | `AuthLoginRequestDto` <br> `{ email, password }` | `ApiResponse` <br> `(void)` | ✅ Implemented |
 | POST | `/api/v1/auth/logout` | 로그아웃 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
-| GET | `/api/v1/auth/social/google/start` | 구글 OAuth 인가 시작(302 Redirect) | `QueryParam`(Optional) <br> `{ next }` | `302 Location: Google OAuth URL` | ✅ Implemented |
-| GET | `/api/v1/auth/social/google/callback` | 구글 OAuth 콜백 로그인 | `QueryParam` <br> `{ code, state }` | `302 Location: next(있으면) 또는 GOOGLE_LOGIN_SUCCESS_REDIRECT_URI` | ✅ Implemented |
+| GET | `/api/v1/auth/social/google/start` | 구글 OAuth 인가 시작(302 Redirect). `next`가 있으면 서버 세션에 저장 | `QueryParam`(Optional) <br> `{ next }` | `302 Location: Google OAuth URL` | ✅ Implemented |
+| GET | `/api/v1/auth/social/google/callback` | 구글 OAuth 콜백 로그인. `/start`에서 저장한 `next`를 세션에서 소비 | `QueryParam` <br> `{ code, state }` | `302 Location: 저장된 next 또는 GOOGLE_LOGIN_SUCCESS_REDIRECT_URI` | ✅ Implemented |
 | POST | `/api/v1/auth/social/kakao` | 카카오 소셜 로그인 | `(TBD)` | `(TBD)` | ❌ Not Implemented |
+
+> Google OAuth의 `next`는 콜백 URL의 쿼리 파라미터가 아니라 `/api/v1/auth/social/google/start` 요청에서 받은 값을 세션에 저장해 두었다가 콜백에서 사용하는 값입니다. 허용되는 `next`는 `/`로 시작하는 내부 경로이며 `//`, CR, LF 문자를 포함하면 기본 성공 리다이렉트 경로로 대체됩니다.
 
 ## 2. Member API
 | Method | URI | Description | Request Body | Response Body | Status |

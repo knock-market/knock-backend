@@ -192,7 +192,7 @@ public class SessionAuthService implements AuthService {
 		}
 		Object next = session.getAttribute(GOOGLE_OAUTH_NEXT_KEY);
 		session.removeAttribute(GOOGLE_OAUTH_NEXT_KEY);
-		return next instanceof String ? normalizeNextPath((String) next) : null;
+		return next instanceof String nextPath ? normalizeNextPath(nextPath) : null;
 	}
 
 	private void validateGoogleConfigured() {

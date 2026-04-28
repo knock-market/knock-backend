@@ -1,16 +1,21 @@
 import React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Lock, ArrowRight } from 'lucide-react';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { Lock } from 'lucide-react';
+import { buildGoogleAuthStartUrl, buildLoginUrl, resolveAuthNextPath } from '../utils/authRedirect';
 
 const Onboarding: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const nextPath = resolveAuthNextPath(new URLSearchParams(location.search).get('next'));
+  const loginUrl = buildLoginUrl(nextPath);
+
   const handleKakaoLogin = () => {
     alert('Kakao login is not available yet. Please use email login.');
-    navigate('/login');
+    navigate(loginUrl);
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = '/api/v1/auth/social/google/start';
+    window.location.href = buildGoogleAuthStartUrl(nextPath);
   };
 
   return (
@@ -32,7 +37,7 @@ const Onboarding: React.FC = () => {
 
         <div className="w-full space-y-4">
           <button
-            onClick={() => navigate('/login')}
+            onClick={() => navigate(loginUrl)}
             className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-full flex items-center justify-center transition-all active:scale-[0.98] shadow-lg shadow-emerald-200"
           >
             <span>Log In</span>

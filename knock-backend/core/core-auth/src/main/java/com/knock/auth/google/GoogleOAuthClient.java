@@ -1,10 +1,15 @@
 package com.knock.auth.google;
 
+import java.time.Duration;
+
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 @Component
 public class GoogleOAuthClient {
@@ -13,10 +18,21 @@ public class GoogleOAuthClient {
 
 	private static final String USERINFO_ENDPOINT = "https://openidconnect.googleapis.com/v1/userinfo";
 
+	private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(3);
+
+	private static final Duration READ_TIMEOUT = Duration.ofSeconds(5);
+
 	private final RestClient restClient;
 
 	public GoogleOAuthClient(RestClient.Builder restClientBuilder) {
-		this.restClient = restClientBuilder.build();
+		this.restClient = restClientBuilder.requestFactory(createRequestFactory())
+			.defaultStatusHandler(HttpStatusCode::isError, (request, response) -> {
+				throw new RestClientResponseException(
+						"Google OAuth request failed with status " + response.getStatusCode(),
+						response.getStatusCode().value(), response.getStatusText(), response.getHeaders(),
+						response.getBody().readAllBytes(), null);
+			})
+			.build();
 	}
 
 	public GoogleTokenResponse getAccessToken(String code, GoogleOAuthProperties properties) {
@@ -48,6 +64,13 @@ public class GoogleOAuthClient {
 
 	public record GoogleUserInfoResponse(String sub, String email, Boolean email_verified, String name,
 			String picture) {
+	}
+
+	private SimpleClientHttpRequestFactory createRequestFactory() {
+		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+		requestFactory.setConnectTimeout(CONNECT_TIMEOUT);
+		requestFactory.setReadTimeout(READ_TIMEOUT);
+		return requestFactory;
 	}
 
 }
