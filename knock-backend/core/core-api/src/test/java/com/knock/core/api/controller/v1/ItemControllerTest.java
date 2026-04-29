@@ -63,26 +63,18 @@ class ItemControllerTest extends RestDocsTest {
 			.post("/api/v1/items")
 			.then()
 			.status(HttpStatus.OK)
-			.apply(document("api/v1/items/create", requestPreprocessor(), responsePreprocessor(),
-					relaxedRequestFields(fieldWithPath("groupId").type(JsonFieldType.NUMBER).description("그룹 ID"),
-							fieldWithPath("title").type(JsonFieldType.STRING).description("상품 제목"),
-							fieldWithPath("description").type(JsonFieldType.STRING).description("상품 설명"),
-							fieldWithPath("price").type(JsonFieldType.NUMBER).description("가격"),
-							fieldWithPath("itemType").type(JsonFieldType.STRING).description("거래 유형 (SELL, BUY)"),
-							fieldWithPath("category").type(JsonFieldType.STRING).description("카테고리"),
-							fieldWithPath("imageUrls").type(JsonFieldType.ARRAY).description("이미지 URL 목록"),
-							fieldWithPath("tradeLocationName").type(JsonFieldType.STRING)
-								.description("거래 위치 이름")
-								.optional(),
-							fieldWithPath("tradeLocationAddress").type(JsonFieldType.STRING)
-								.description("거래 위치 주소")
-								.optional(),
-							fieldWithPath("tradeLatitude").type(JsonFieldType.NUMBER)
-								.description("거래 위치 위도")
-								.optional(),
-							fieldWithPath("tradeLongitude").type(JsonFieldType.NUMBER)
-								.description("거래 위치 경도")
-								.optional()),
+			.apply(document("api/v1/items/create", requestPreprocessor(), responsePreprocessor(), relaxedRequestFields(
+					fieldWithPath("groupId").type(JsonFieldType.NUMBER).description("그룹 ID"),
+					fieldWithPath("title").type(JsonFieldType.STRING).description("상품 제목"),
+					fieldWithPath("description").type(JsonFieldType.STRING).description("상품 설명"),
+					fieldWithPath("price").type(JsonFieldType.NUMBER).description("가격"),
+					fieldWithPath("itemType").type(JsonFieldType.STRING).description("거래 유형 (SELL, BUY)"),
+					fieldWithPath("category").type(JsonFieldType.STRING).description("카테고리"),
+					fieldWithPath("imageUrls").type(JsonFieldType.ARRAY).description("이미지 URL 목록"),
+					fieldWithPath("tradeLocationName").type(JsonFieldType.STRING).description("거래 위치 이름").optional(),
+					fieldWithPath("tradeLocationAddress").type(JsonFieldType.STRING).description("거래 위치 주소").optional(),
+					fieldWithPath("tradeLatitude").type(JsonFieldType.NUMBER).description("거래 위치 위도").optional(),
+					fieldWithPath("tradeLongitude").type(JsonFieldType.NUMBER).description("거래 위치 경도").optional()),
 					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
 							fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("생성된 상품 ID"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
@@ -118,8 +110,7 @@ class ItemControllerTest extends RestDocsTest {
 							fieldWithPath("data.writerNickname").type(JsonFieldType.STRING).description("판매자 닉네임"),
 							fieldWithPath("data.writerProfileImageUrl").type(JsonFieldType.STRING)
 								.description("판매자 프로필 이미지 URL"),
-							fieldWithPath("data.tradeLocationName").type(JsonFieldType.STRING)
-								.description("거래 위치 이름"),
+							fieldWithPath("data.tradeLocationName").type(JsonFieldType.STRING).description("거래 위치 이름"),
 							fieldWithPath("data.tradeLocationAddress").type(JsonFieldType.STRING)
 								.description("거래 위치 주소"),
 							fieldWithPath("data.tradeLatitude").type(JsonFieldType.NUMBER).description("거래 위치 위도"),

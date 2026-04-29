@@ -12,8 +12,8 @@ public record ItemReadResult(Long id, String title, String description, Long pri
 		ItemCategory category, ItemStatus status, List<String> imageUrls, Long writerId, String writerNickname,
 		String writerProfileImageUrl, String tradeLocationName, String tradeLocationAddress, Double tradeLatitude,
 		Double tradeLongitude) {
-	public ItemReadResult(Long id, String title, String description, Long price, ItemType type,
-			ItemCategory category, ItemStatus status, List<String> imageUrls, Long writerId, String writerNickname,
+	public ItemReadResult(Long id, String title, String description, Long price, ItemType type, ItemCategory category,
+			ItemStatus status, List<String> imageUrls, Long writerId, String writerNickname,
 			String writerProfileImageUrl) {
 		this(id, title, description, price, type, category, status, imageUrls, writerId, writerNickname,
 				writerProfileImageUrl, null, null, null, null);

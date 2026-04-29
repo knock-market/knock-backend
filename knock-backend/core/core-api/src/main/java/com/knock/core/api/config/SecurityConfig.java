@@ -35,7 +35,8 @@ public class SecurityConfig {
 				.permitAll()
 				.requestMatchers(RegexRequestMatcher.regexMatcher(HttpMethod.GET, "/api/v1/members/\\d+/items"))
 				.permitAll()
-				.requestMatchers(RegexRequestMatcher.regexMatcher(HttpMethod.GET, "/api/v1/seller-shares/[A-Za-z0-9_-]+"))
+				.requestMatchers(
+						RegexRequestMatcher.regexMatcher(HttpMethod.GET, "/api/v1/seller-shares/[A-Za-z0-9_-]+"))
 				.permitAll()
 				.requestMatchers("/api/v1/auth/**", "/api/v1/members", "/actuator/health", "/favicon.ico",
 						"/.well-known/**")
