@@ -64,4 +64,26 @@ class ItemRepositoryTest extends CoreDbContextTest {
 		assertThat(items).hasSize(2);
 	}
 
+	@Test
+	@DisplayName("상품 거래 위치 저장 및 조회 성공")
+	void saveAndFindTradeLocation() {
+		// given
+		Member member = memberRepository.save(Member.create("location@test.com", "Name", "Pass", "Nick", "LOCAL"));
+		Group group = groupRepository.save(Group.create("Location Group", "Desc", member));
+		Item item = Item.create("Location Item", "Desc", 1000L, ItemType.SELL, ItemCategory.DIGITAL_DEVICE, group,
+				member);
+		item.updateTradeLocation("학생회관", "서울특별시 성북구 안암로 145", 37.589387, 127.032477);
+
+		// when
+		Item savedItem = itemRepository.save(item, List.of());
+		Optional<Item> foundItem = itemRepository.findById(savedItem.getId());
+
+		// then
+		assertThat(foundItem).isPresent();
+		assertThat(foundItem.get().getTradeLocationName()).isEqualTo("학생회관");
+		assertThat(foundItem.get().getTradeLocationAddress()).isEqualTo("서울특별시 성북구 안암로 145");
+		assertThat(foundItem.get().getTradeLatitude()).isEqualTo(37.589387);
+		assertThat(foundItem.get().getTradeLongitude()).isEqualTo(127.032477);
+	}
+
 }

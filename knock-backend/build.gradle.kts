@@ -71,21 +71,6 @@ subprojects {
         options.release.set(21)
     }
 
-    tasks.test {
-        useJUnitPlatform {
-            excludeTags("develop", "restdocs")
-        }
-        finalizedBy(tasks.named("jacocoTestReport"))
-    }
-
-    tasks.named<JacocoReport>("jacocoTestReport") {
-        dependsOn(tasks.test)
-        reports {
-            xml.required.set(true)
-            html.required.set(true)
-        }
-    }
-
     tasks.register<Test>("unitTest") {
         group = "verification"
         useJUnitPlatform {
@@ -100,7 +85,7 @@ subprojects {
         }
     }
 
-    tasks.register<Test>("restDocsTest") {
+    val restDocsTest = tasks.register<Test>("restDocsTest") {
         group = "verification"
         useJUnitPlatform {
             includeTags("restdocs")
@@ -111,6 +96,23 @@ subprojects {
         group = "verification"
         useJUnitPlatform {
             includeTags("develop")
+        }
+    }
+
+    tasks.test {
+        useJUnitPlatform {
+            excludeTags("develop", "restdocs")
+        }
+    }
+
+    tasks.named<JacocoReport>("jacocoTestReport") {
+        dependsOn(tasks.test, restDocsTest)
+        executionData(fileTree(layout.buildDirectory) {
+            include("jacoco/test.exec", "jacoco/restDocsTest.exec")
+        })
+        reports {
+            xml.required.set(true)
+            html.required.set(true)
         }
     }
 
