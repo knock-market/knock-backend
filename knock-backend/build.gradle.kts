@@ -73,6 +73,7 @@ subprojects {
 
     tasks.register<Test>("unitTest") {
         group = "verification"
+        description = "Runs fast tests without develop, context, and REST Docs tagged tests."
         useJUnitPlatform {
             excludeTags("develop", "context", "restdocs")
         }
@@ -80,6 +81,7 @@ subprojects {
 
     tasks.register<Test>("contextTest") {
         group = "verification"
+        description = "Runs Spring context integration tests."
         useJUnitPlatform {
             includeTags("context")
         }
@@ -87,6 +89,7 @@ subprojects {
 
     val restDocsTest = tasks.register<Test>("restDocsTest") {
         group = "verification"
+        description = "Runs REST Docs tests and produces API documentation snippets."
         useJUnitPlatform {
             includeTags("restdocs")
         }
@@ -94,6 +97,7 @@ subprojects {
 
     tasks.register<Test>("developTest") {
         group = "verification"
+        description = "Runs developer-only tests tagged for local development."
         useJUnitPlatform {
             includeTags("develop")
         }
