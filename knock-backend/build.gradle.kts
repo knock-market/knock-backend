@@ -1,3 +1,5 @@
+import org.gradle.testing.jacoco.tasks.JacocoReport
+
 plugins {
     id("java-library")
     id("org.springframework.boot") apply false
@@ -13,6 +15,14 @@ sonar {
     properties {
         property("sonar.projectKey", "knock-market_knock-backend")
         property("sonar.organization", "knock-market")
+        property(
+            "sonar.coverage.jacoco.xmlReportPaths",
+            subprojects
+                .filter { it.file("src/test").exists() }
+                .joinToString(",") {
+                    it.layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml").get().asFile.absolutePath
+                }
+        )
     }
 }
 
@@ -29,6 +39,7 @@ subprojects {
     apply(plugin = "java-library")
     apply(plugin = "org.springframework.boot")
     apply(plugin = "io.spring.dependency-management")
+    apply(plugin = "jacoco")
 
     dependencyManagement {
         imports {
@@ -64,6 +75,15 @@ subprojects {
         useJUnitPlatform {
             excludeTags("develop", "restdocs")
         }
+        finalizedBy(tasks.named("jacocoTestReport"))
+    }
+
+    tasks.named<JacocoReport>("jacocoTestReport") {
+        dependsOn(tasks.test)
+        reports {
+            xml.required.set(true)
+            html.required.set(true)
+        }
     }
 
     tasks.register<Test>("unitTest") {
@@ -94,4 +114,8 @@ subprojects {
         }
     }
 
+}
+
+tasks.named("sonar") {
+    dependsOn(subprojects.map { it.tasks.named("jacocoTestReport") })
 }
