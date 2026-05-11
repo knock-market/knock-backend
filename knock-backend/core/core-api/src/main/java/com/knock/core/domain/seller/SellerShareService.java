@@ -1,0 +1,78 @@
+package com.knock.core.domain.seller;
+
+import com.knock.core.domain.item.dto.ItemListResult;
+import com.knock.core.domain.seller.dto.SellerShareLinkCreateResult;
+import com.knock.core.domain.seller.dto.SellerShopResult;
+import com.knock.core.enums.InviteDuration;
+import com.knock.core.support.error.CoreException;
+import com.knock.core.support.error.ErrorType;
+import com.knock.storage.db.core.item.Item;
+import com.knock.storage.db.core.item.ItemRepository;
+import com.knock.storage.db.core.member.Member;
+import com.knock.storage.db.core.member.MemberRepository;
+import com.knock.storage.db.core.seller.SellerShareLink;
+import com.knock.storage.db.core.seller.SellerShareLinkRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class SellerShareService {
+
+	private static final int TOKEN_BYTE_LENGTH = 24;
+
+	private final SellerShareLinkRepository sellerShareLinkRepository;
+
+	private final MemberRepository memberRepository;
+
+	private final ItemRepository itemRepository;
+
+	private final SecureRandom secureRandom = new SecureRandom();
+
+	@Transactional
+	public SellerShareLinkCreateResult createShareLink(Long memberId, InviteDuration duration) {
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
+		InviteDuration normalizedDuration = duration == null ? InviteDuration.ONE_DAY : duration;
+		LocalDateTime expiresAt = normalizedDuration.getDuration() == null ? null
+				: LocalDateTime.now().plus(normalizedDuration.getDuration());
+		SellerShareLink saved = sellerShareLinkRepository
+			.save(SellerShareLink.create(member, generateUniqueToken(), expiresAt));
+		return new SellerShareLinkCreateResult(saved.getToken(), saved.getExpiresAt());
+	}
+
+	@Transactional(readOnly = true)
+	public SellerShopResult getSellerShop(String token) {
+		SellerShareLink shareLink = sellerShareLinkRepository.findByToken(token)
+			.orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
+		if (shareLink.isExpired(LocalDateTime.now())) {
+			throw new CoreException(ErrorType.NOT_FOUND);
+		}
+		Member seller = shareLink.getMember();
+		List<ItemListResult> items = itemRepository.findByMemberIdWithLikes(seller.getId()).stream().map(row -> {
+			Item item = (Item) row[0];
+			String thumbnailUrl = (String) row[1];
+			long likesCount = (Long) row[2];
+			return ItemListResult.from(item, thumbnailUrl, likesCount);
+		}).toList();
+		return SellerShopResult.from(seller, items);
+	}
+
+	private String generateUniqueToken() {
+		String token;
+		do {
+			byte[] bytes = new byte[TOKEN_BYTE_LENGTH];
+			secureRandom.nextBytes(bytes);
+			token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+		}
+		while (sellerShareLinkRepository.existsByToken(token));
+		return token;
+	}
+
+}

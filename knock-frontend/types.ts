@@ -76,8 +76,28 @@ export interface ItemSummaryResponseDto {
   status: ItemStatus;
   thumbnailUrl?: string;
   writerId?: number;
+  writerNickname?: string;
+  writerProfileImageUrl?: string;
   likesCount?: number;
   postedAt?: string;
+  tradeLocationName?: string;
+  tradeLocationAddress?: string;
+  tradeLatitude?: number;
+  tradeLongitude?: number;
+}
+
+export interface SellerShareLinkResponseDto {
+  token: string;
+  path: string;
+  expiresAt?: string;
+}
+
+export interface SellerShopResponseDto {
+  sellerId: number;
+  sellerName: string;
+  sellerNickname: string;
+  sellerProfileImageUrl?: string;
+  items: ItemSummaryResponseDto[];
 }
 
 export interface ItemResponseDto {
@@ -92,6 +112,10 @@ export interface ItemResponseDto {
   writerId?: number;
   writerNickname?: string;
   writerProfileImageUrl?: string;
+  tradeLocationName?: string;
+  tradeLocationAddress?: string;
+  tradeLatitude?: number;
+  tradeLongitude?: number;
 }
 
 export interface MyBookmarkResponseDto {

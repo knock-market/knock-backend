@@ -48,4 +48,14 @@ public final class TestConstants {
 
 	public static final String TEST_IMAGE_URL = "https://test.s3.amazonaws.com/test/image.jpg";
 
+	public static final String TEST_TRADE_LOCATION_NAME = "강남역 2번 출구";
+
+	public static final String TEST_TRADE_LOCATION_ADDRESS = "서울 강남구 강남대로 396";
+
+	public static final Double TEST_TRADE_LATITUDE = 37.498095;
+
+	public static final Double TEST_TRADE_LONGITUDE = 127.02761;
+
+	public static final String TEST_SELLER_SHARE_TOKEN = "seller-share-token";
+
 }

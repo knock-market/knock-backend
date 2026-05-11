@@ -72,7 +72,8 @@ class ItemServiceTest {
 			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
 			Item item = createItem(TEST_ITEM_ID, group, member);
 			ItemCreateData data = new ItemCreateData(TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE,
-					ItemType.SELL, ItemCategory.DIGITAL_DEVICE, List.of(TEST_IMAGE_URL));
+					ItemType.SELL, ItemCategory.DIGITAL_DEVICE, List.of(TEST_IMAGE_URL), TEST_TRADE_LOCATION_NAME,
+					TEST_TRADE_LOCATION_ADDRESS, TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
 			given(groupRepository.findGroupByGroupId(TEST_GROUP_ID)).willReturn(Optional.of(group));
@@ -83,6 +84,20 @@ class ItemServiceTest {
 
 			// then
 			assertThat(result.id()).isEqualTo(TEST_ITEM_ID);
+		}
+
+		@Test
+		@DisplayName("실패 - 거래 위치 좌표 범위 초과")
+		void fail_invalidTradeLocation() {
+			// given
+			ItemCreateData data = new ItemCreateData(TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE,
+					ItemType.SELL, ItemCategory.DIGITAL_DEVICE, List.of(), TEST_TRADE_LOCATION_NAME,
+					TEST_TRADE_LOCATION_ADDRESS, 91.0, TEST_TRADE_LONGITUDE);
+
+			// when & then
+			assertThatThrownBy(() -> itemService.createItem(TEST_MEMBER_ID, TEST_GROUP_ID, data))
+				.isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.VALIDATION_ERROR);
 		}
 
 		@Test
@@ -200,6 +215,45 @@ class ItemServiceTest {
 			// then
 			assertThat(results).hasSize(1);
 			assertThat(results.getFirst().id()).isEqualTo(TEST_ITEM_ID);
+		}
+
+	}
+
+	@Nested
+	@DisplayName("회원 판매 상품 조회")
+	class GetSellingItemsByMember {
+
+		@Test
+		@DisplayName("성공")
+		void success() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, group, member);
+
+			List<Object[]> mockResult = new ArrayList<>();
+			mockResult.add(new Object[] { item, TEST_IMAGE_URL, 3L });
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
+			given(itemRepository.findByMemberIdWithLikes(TEST_MEMBER_ID)).willReturn(mockResult);
+
+			// when
+			List<ItemListResult> results = itemService.getSellingItemsByMember(TEST_MEMBER_ID);
+
+			// then
+			assertThat(results).hasSize(1);
+			assertThat(results.getFirst().writerId()).isEqualTo(TEST_MEMBER_ID);
+		}
+
+		@Test
+		@DisplayName("실패 - 회원 없음")
+		void fail_memberNotFound() {
+			// given
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.empty());
+
+			// when & then
+			assertThatThrownBy(() -> itemService.getSellingItemsByMember(TEST_MEMBER_ID))
+				.isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.MEMBER_NOT_FOUND);
 		}
 
 	}

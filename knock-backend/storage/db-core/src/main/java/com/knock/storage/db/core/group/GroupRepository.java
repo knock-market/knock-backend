@@ -25,6 +25,8 @@ public interface GroupRepository {
 
 	Optional<Group> findGroupByGroupId(Long groupId);
 
+	Optional<Group> findPersonalGroupByOwnerId(Long ownerId);
+
 	long countMembers(Long groupId);
 
 }

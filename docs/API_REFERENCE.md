@@ -30,6 +30,9 @@
 | GET | `/api/v1/members/my/blocked` | 차단 유저 목록 조회 | `(None)` | `List<BlockedMemberResponseDto>` <br> `[{ id, name, blockedAt }]` | ✅ Implemented |
 | POST | `/api/v1/members/{memberId}/block` | 유저 차단 (멱등) | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
 | DELETE | `/api/v1/members/{memberId}/block` | 유저 차단 해제 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
+| GET | `/api/v1/members/{memberId}/items` | 특정 회원의 공개 판매 상품 목록 | `(None)` | `List<ItemSummaryResponseDto>` <br> `[{ id, title, price, type, category, status, thumbnailUrl, writerId, writerNickname, writerProfileImageUrl, likesCount, postedAt, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }]` | ✅ Implemented |
+| POST | `/api/v1/seller-shares` | 내 판매 페이지 공유 링크 생성 | `SellerShareLinkCreateRequestDto` <br> `{ duration }` | `SellerShareLinkResponseDto` <br> `{ token, path, expiresAt }` | ✅ Implemented |
+| GET | `/api/v1/seller-shares/{token}` | 공유 링크로 판매 페이지 조회 | `(None)` | `SellerShopResponseDto` <br> `{ sellerId, sellerName, sellerNickname, sellerProfileImageUrl, items }` | ✅ Implemented |
 
 ## 3. Group API
 | Method | URI | Description | Request Body | Response Body | Status |
@@ -44,11 +47,20 @@
 ## 4. Item API
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|
-| POST | `/api/v1/items` | 상품 등록 | `ItemCreateRequestDto` <br> `{ groupId, title, description, price, itemType, category, imageUrls }` | `ItemIdResponseDto` <br> `{ id }` | ✅ Implemented |
-| GET | `/api/v1/items/{itemId}` | 상품 상세 조회 | `(None)` | `ItemResponseDto` <br> `{ id, title, description, price, type, category, status, imageUrls, writerId, writerNickname, writerProfileImageUrl }` | ✅ Implemented |
-| GET | `/api/v1/groups/{groupId}/items` | 그룹 내 상품 목록 (피드) | `(None)` | `List<ItemSummaryResponseDto>` <br> `[{ id, title, price, type, category, status, thumbnailUrl, writerId, likesCount, postedAt }]` | ✅ Implemented |
-| GET | `/api/v1/items/my-selling` | 내 판매 상품 목록 | `(None)` | `List<ItemSummaryResponseDto>` <br> `[{ id, title, price, type, category, status, thumbnailUrl, writerId, likesCount, postedAt }]` | ✅ Implemented |
+| GET | `/api/v1/items` | 전체 마켓 상품 목록 | `(None)` | `List<ItemSummaryResponseDto>` | ✅ Implemented |
+| POST | `/api/v1/items` | 상품 등록 | `ItemCreateRequestDto` <br> `{ groupId?, title, description, price, itemType, category?, imageUrls, tradeLocationName?, tradeLocationAddress?, tradeLatitude?, tradeLongitude? }` | `ItemIdResponseDto` <br> `{ id }` | ✅ Implemented |
+| GET | `/api/v1/items/{itemId}` | 상품 상세 조회 | `(None)` | `ItemResponseDto` <br> `{ id, title, description, price, type, category, status, imageUrls, writerId, writerNickname, writerProfileImageUrl, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }` | ✅ Implemented |
+| GET | `/api/v1/groups/{groupId}/items` | 그룹 내 상품 목록 (피드) | `(None)` | `List<ItemSummaryResponseDto>` <br> `[{ id, title, price, type, category, status, thumbnailUrl, writerId, writerNickname, writerProfileImageUrl, likesCount, postedAt, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }]` | ✅ Implemented |
+| GET | `/api/v1/items/my-selling` | 내 판매 상품 목록 | `(None)` | `List<ItemSummaryResponseDto>` <br> `[{ id, title, price, type, category, status, thumbnailUrl, writerId, writerNickname, writerProfileImageUrl, likesCount, postedAt, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }]` | ✅ Implemented |
 | DELETE | `/api/v1/items/{itemId}` | 내 상품 삭제 (활성 예약은 자동 취소) | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
+
+### Item location field rules
+
+- `tradeLatitude`와 `tradeLongitude`는 둘 다 없거나 둘 다 있어야 합니다.
+- 위도 범위는 `-90..90`, 경도 범위는 `-180..180`입니다.
+- 프론트엔드는 `VITE_NAVER_MAP_CLIENT_ID`가 있으면 등록 화면에서 Naver Map 검색/지도 선택을 사용합니다.
+- `groupId`가 없으면 서버는 판매자의 개인 그룹을 사용합니다.
+- `category`가 없으면 서버는 기본 `ETC`로 저장합니다.
 
 ## 5. Bookmark API
 | Method | URI | Description | Request Body | Response Body | Status |

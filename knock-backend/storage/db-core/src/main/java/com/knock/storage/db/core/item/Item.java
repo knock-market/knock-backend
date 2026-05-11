@@ -60,6 +60,18 @@ public class Item extends BaseEntity {
 	@Column(name = "view_count", nullable = false, columnDefinition = "bigint default 0")
 	private Long viewCount;
 
+	@Column(name = "trade_location_name")
+	private String tradeLocationName;
+
+	@Column(name = "trade_location_address")
+	private String tradeLocationAddress;
+
+	@Column(name = "trade_latitude")
+	private Double tradeLatitude;
+
+	@Column(name = "trade_longitude")
+	private Double tradeLongitude;
+
 	public Item(Group group, Member member, String title, String description, Long price, ItemType type,
 			ItemCategory category) {
 		this.group = group;
@@ -81,6 +93,13 @@ public class Item extends BaseEntity {
 	public static Item create(Group group, Member member, String title, String description, Long price, ItemType type,
 			ItemCategory category) {
 		return new Item(group, member, title, description, price, type, category);
+	}
+
+	public void updateTradeLocation(String locationName, String locationAddress, Double latitude, Double longitude) {
+		this.tradeLocationName = locationName;
+		this.tradeLocationAddress = locationAddress;
+		this.tradeLatitude = latitude;
+		this.tradeLongitude = longitude;
 	}
 
 }
