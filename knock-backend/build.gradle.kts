@@ -49,6 +49,7 @@ subprojects {
 
     dependencies {
         testImplementation("org.springframework.boot:spring-boot-starter-test")
+        testImplementation("org.springframework.security:spring-security-test")
     }
 
     tasks.named("bootJar") {
@@ -108,7 +109,6 @@ subprojects {
             excludeTags("develop", "restdocs")
         }
     }
-
     tasks.named<JacocoReport>("jacocoTestReport") {
         dependsOn(tasks.test, restDocsTest)
         executionData(fileTree(layout.buildDirectory) {
