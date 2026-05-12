@@ -1,6 +1,7 @@
 package com.knock.core.api.controller.v1;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.knock.auth.MemberPrincipal;
 import com.knock.core.domain.group.GroupService;
 import com.knock.core.domain.group.dto.GroupData;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +15,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -41,6 +44,8 @@ class GroupControllerTest {
 		// when & then
 		mockMvc
 			.perform(post("/api/v1/groups").header("X-User-Id", memberId)
+				.with(user(new MemberPrincipal(memberId, "member1@knock.local", "ROLE_USER")))
+				.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))
 			.andDo(print())
@@ -58,6 +63,8 @@ class GroupControllerTest {
 		// when & then
 		mockMvc
 			.perform(post("/api/v1/groups/join").header("X-User-Id", memberId)
+				.with(user(new MemberPrincipal(memberId, "member2@knock.local", "ROLE_USER")))
+				.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request)))
 			.andDo(print())

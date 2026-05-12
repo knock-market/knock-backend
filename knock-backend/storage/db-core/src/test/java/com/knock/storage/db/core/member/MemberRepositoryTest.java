@@ -19,6 +19,8 @@ class MemberRepositoryTest {
 
 	final String EMAIL = "EMAIL-id@example.com";
 
+	final String PASSWORD = "encoded-password";
+
 	final String NAME = "test-name";
 
 	final String NICKNAME = "test-nickname";
@@ -32,6 +34,7 @@ class MemberRepositoryTest {
 		// given
 		Member member = Member.builder()
 			.email(EMAIL)
+			.password(PASSWORD)
 			.name(NAME)
 			.nickname(NICKNAME)
 			.provider(PROVIDER)
@@ -53,6 +56,7 @@ class MemberRepositoryTest {
 		// given
 		Member member = Member.builder()
 			.email(EMAIL)
+			.password(PASSWORD)
 			.name(NAME)
 			.nickname(NICKNAME)
 			.provider(PROVIDER)
