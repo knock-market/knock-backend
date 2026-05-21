@@ -80,46 +80,11 @@ include::{snippets}/api/v1/members/signup/response-fields.adoc[]
 include::{snippets}/api/v1/members/my/http-response.adoc[]
 include::{snippets}/api/v1/members/my/response-fields.adoc[]
 
-[[group-api]]
-== 3. Group API
-
-[[group-create]]
-=== 3.1 Create Group
-`POST /api/v1/groups`
-
-==== Request
-include::{snippets}/api/v1/groups/create/http-request.adoc[]
-include::{snippets}/api/v1/groups/create/request-fields.adoc[]
-
-==== Response
-include::{snippets}/api/v1/groups/create/http-response.adoc[]
-include::{snippets}/api/v1/groups/create/response-fields.adoc[]
-
-[[group-join]]
-=== 3.2 Join Group
-`POST /api/v1/groups/join`
-
-==== Request
-include::{snippets}/api/v1/groups/join/http-request.adoc[]
-include::{snippets}/api/v1/groups/join/request-fields.adoc[]
-
-==== Response
-include::{snippets}/api/v1/groups/join/http-response.adoc[]
-include::{snippets}/api/v1/groups/join/response-fields.adoc[]
-
-[[group-my]]
-=== 3.3 Get My Groups
-`GET /api/v1/groups/my`
-
-==== Response
-include::{snippets}/api/v1/groups/my/http-response.adoc[]
-include::{snippets}/api/v1/groups/my/response-fields.adoc[]
-
 [[item-api]]
-== 4. Item API
+== 3. Item API
 
 [[item-create]]
-=== 4.1 Create Item
+=== 3.1 Create Item
 `POST /api/v1/items`
 
 ==== Request
@@ -131,7 +96,7 @@ include::{snippets}/api/v1/items/create/http-response.adoc[]
 include::{snippets}/api/v1/items/create/response-fields.adoc[]
 
 [[item-get]]
-=== 4.2 Get Item Detail
+=== 3.2 Get Item Detail
 `GET /api/v1/items/{itemId}`
 
 ==== Request
@@ -142,20 +107,8 @@ include::{snippets}/api/v1/items/get/path-parameters.adoc[]
 include::{snippets}/api/v1/items/get/http-response.adoc[]
 include::{snippets}/api/v1/items/get/response-fields.adoc[]
 
-[[item-list-by-group]]
-=== 4.3 List Items by Group
-`GET /api/v1/groups/{groupId}/items`
-
-==== Request
-include::{snippets}/api/v1/items/list-by-group/http-request.adoc[]
-include::{snippets}/api/v1/items/list-by-group/path-parameters.adoc[]
-
-==== Response
-include::{snippets}/api/v1/items/list-by-group/http-response.adoc[]
-include::{snippets}/api/v1/items/list-by-group/response-fields.adoc[]
-
 [[item-my-selling]]
-=== 4.4 My Selling Items
+=== 3.3 My Selling Items
 `GET /api/v1/items/my-selling`
 
 ==== Response
@@ -163,7 +116,7 @@ include::{snippets}/api/v1/items/my-selling/http-response.adoc[]
 include::{snippets}/api/v1/items/my-selling/response-fields.adoc[]
 
 [[item-delete]]
-=== 4.5 Delete Item
+=== 3.4 Delete Item
 `DELETE /api/v1/items/{itemId}`
 
 ==== Request
@@ -175,10 +128,10 @@ include::{snippets}/api/v1/items/delete/http-response.adoc[]
 include::{snippets}/api/v1/items/delete/response-fields.adoc[]
 
 [[bookmark-api]]
-== 5. Bookmark API
+== 4. Bookmark API
 
 [[bookmark-toggle]]
-=== 5.1 Toggle Bookmark
+=== 4.1 Toggle Bookmark
 `POST /api/v1/items/{itemId}/bookmarks`
 
 ==== Request
@@ -190,7 +143,7 @@ include::{snippets}/api/v1/items/bookmarks-toggle/http-response.adoc[]
 include::{snippets}/api/v1/items/bookmarks-toggle/response-fields.adoc[]
 
 [[bookmark-my]]
-=== 5.2 My Bookmarks
+=== 4.2 My Bookmarks
 `GET /api/v1/items/my-bookmarks`
 
 ==== Response
@@ -198,10 +151,10 @@ include::{snippets}/api/v1/items/my-bookmarks/http-response.adoc[]
 include::{snippets}/api/v1/items/my-bookmarks/response-fields.adoc[]
 
 [[reservation-api]]
-== 6. Reservation API
+== 5. Reservation API
 
 [[reservation-create]]
-=== 6.1 Create Reservation
+=== 5.1 Create Reservation
 `POST /api/v1/reservations`
 
 ==== Request
@@ -213,7 +166,7 @@ include::{snippets}/api/v1/reservations/create/http-response.adoc[]
 include::{snippets}/api/v1/reservations/create/response-fields.adoc[]
 
 [[reservation-approve]]
-=== 6.2 Approve Reservation
+=== 5.2 Approve Reservation
 `PATCH /api/v1/reservations/{id}/approve`
 
 ==== Request
@@ -225,7 +178,7 @@ include::{snippets}/api/v1/reservations/approve/http-response.adoc[]
 include::{snippets}/api/v1/reservations/approve/response-fields.adoc[]
 
 [[reservation-my]]
-=== 6.3 My Reservations
+=== 5.3 My Reservations
 `GET /api/v1/reservations/my`
 
 ==== Response
@@ -233,10 +186,10 @@ include::{snippets}/api/v1/reservations/my-list/http-response.adoc[]
 include::{snippets}/api/v1/reservations/my-list/response-fields.adoc[]
 
 [[notification-api]]
-== 7. Notification API
+== 6. Notification API
 
 [[notification-my]]
-=== 7.1 My Notifications
+=== 6.1 My Notifications
 `GET /api/v1/notifications`
 
 ==== Response
@@ -244,7 +197,7 @@ include::{snippets}/api/v1/notifications/my-list/http-response.adoc[]
 include::{snippets}/api/v1/notifications/my-list/response-fields.adoc[]
 
 [[notification-read]]
-=== 7.2 Mark Notification as Read
+=== 6.2 Mark Notification as Read
 `PATCH /api/v1/notifications/{id}/read`
 
 ==== Request
@@ -256,7 +209,7 @@ include::{snippets}/api/v1/notifications/read/http-response.adoc[]
 include::{snippets}/api/v1/notifications/read/response-fields.adoc[]
 
 [[notification-read-all]]
-=== 7.3 Mark All Notifications as Read
+=== 6.3 Mark All Notifications as Read
 `PATCH /api/v1/notifications/read-all`
 
 ==== Request
@@ -267,10 +220,10 @@ include::{snippets}/api/v1/notifications/read-all/http-response.adoc[]
 include::{snippets}/api/v1/notifications/read-all/response-fields.adoc[]
 
 [[image-api]]
-== 8. Image API
+== 7. Image API
 
 [[image-upload]]
-=== 8.1 Upload Image
+=== 7.1 Upload Image
 `POST /api/v1/images/upload`
 
 ==== Response
@@ -278,7 +231,7 @@ include::{snippets}/api/v1/images/upload/http-response.adoc[]
 include::{snippets}/api/v1/images/upload/response-fields.adoc[]
 
 [[image-delete]]
-=== 8.2 Delete Image
+=== 7.2 Delete Image
 `DELETE /api/v1/images`
 
 ==== Request
@@ -288,3 +241,18 @@ include::{snippets}/api/v1/images/delete/query-parameters.adoc[]
 ==== Response
 include::{snippets}/api/v1/images/delete/http-response.adoc[]
 include::{snippets}/api/v1/images/delete/response-fields.adoc[]
+
+[[location-api]]
+== 8. Location API
+
+[[location-search]]
+=== 8.1 Search Pickup Locations
+`GET /api/v1/locations/search?query={query}`
+
+==== Request
+include::{snippets}/api/v1/locations/search/http-request.adoc[]
+include::{snippets}/api/v1/locations/search/query-parameters.adoc[]
+
+==== Response
+include::{snippets}/api/v1/locations/search/http-response.adoc[]
+include::{snippets}/api/v1/locations/search/response-fields.adoc[]
