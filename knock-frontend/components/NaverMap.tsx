@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { getNaverMapClientId, loadNaverMap } from '../utils/naverMap';
 
 type NaverMapProps = {
   latitude?: number;
@@ -7,55 +8,10 @@ type NaverMapProps = {
   address?: string;
 };
 
-declare global {
-  interface Window {
-    naver?: {
-      maps: {
-        LatLng: new (latitude: number, longitude: number) => unknown;
-        Map: new (element: HTMLElement, options: object) => unknown;
-        Marker: new (options: object) => unknown;
-        Event: {
-          addListener: (target: unknown, eventName: string, listener: (event: { coord: unknown }) => void) => void;
-        };
-        Service?: {
-          geocode: (options: { query: string }, callback: (status: string, response: unknown) => void) => void;
-          Status: { OK: string };
-        };
-      };
-    };
-  }
-}
-
-const scriptId = 'naver-map-script';
-
-const loadNaverMap = (clientId: string) => {
-  const existing = document.getElementById(scriptId) as HTMLScriptElement | null;
-  if (existing) {
-    return new Promise<void>((resolve, reject) => {
-      if (window.naver?.maps) {
-        resolve();
-        return;
-      }
-      existing.addEventListener('load', () => resolve(), { once: true });
-      existing.addEventListener('error', () => reject(new Error('Naver map script failed')), { once: true });
-    });
-  }
-
-  return new Promise<void>((resolve, reject) => {
-    const script = document.createElement('script');
-    script.id = scriptId;
-    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${encodeURIComponent(clientId)}&submodules=geocoder`;
-    script.async = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Naver map script failed'));
-    document.head.appendChild(script);
-  });
-};
-
 const NaverMap = ({ latitude, longitude, name, address }: NaverMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [mapUnavailable, setMapUnavailable] = useState(false);
-  const clientId = import.meta.env.VITE_NAVER_MAP_CLIENT_ID as string | undefined;
+  const clientId = getNaverMapClientId();
   const hasCoordinates = Number.isFinite(latitude) && Number.isFinite(longitude);
   const searchQuery = useMemo(() => encodeURIComponent(address || name || 'pickup location'), [address, name]);
   const searchUrl = `https://map.naver.com/p/search/${searchQuery}`;

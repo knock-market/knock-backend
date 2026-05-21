@@ -86,7 +86,7 @@ const ManageItems: React.FC = () => {
             </div>
             <h3 className="text-lg font-bold text-gray-900 mb-2">No listings yet</h3>
             <p className="text-sm text-gray-500 max-w-[200px] mx-auto leading-relaxed">
-              Time to declutter! Post your first item to the community.
+              Post your first item, then share your shelf link.
             </p>
             <button
               onClick={() => navigate('/create')}

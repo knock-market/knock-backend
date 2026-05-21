@@ -111,7 +111,7 @@ const Notifications: React.FC = () => {
           </div>
           <h3 className="text-lg font-bold text-gray-900 mb-2">All caught up!</h3>
           <p className="text-sm text-gray-500 max-w-[200px] mx-auto leading-relaxed">
-            We'll let you know when there are new requests or community updates.
+            We'll let you know when there are new requests or shelf updates.
           </p>
         </div>
       ) : (

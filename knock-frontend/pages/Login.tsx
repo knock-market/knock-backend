@@ -49,7 +49,7 @@ const Login: React.FC = () => {
                 </button>
 
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back!</h1>
-                <p className="text-gray-500 mb-10">Log in to reconnect with your community.</p>
+                <p className="text-gray-500 mb-10">Log in to manage your shelf and share new items.</p>
 
                 {error && (
                     <div className="bg-red-50 border border-red-100 text-red-600 p-4 rounded-2xl mb-6 flex items-start space-x-3 animate-in fade-in slide-in-from-top-2">

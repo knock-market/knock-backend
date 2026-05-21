@@ -36,37 +36,6 @@ export const HomeSkeleton = () => (
   </div>
 );
 
-export const GroupFeedSkeleton = () => (
-    <div className="bg-gray-50 min-h-screen pb-24 max-w-md mx-auto relative">
-        <div className="bg-white p-4 space-y-4 sticky top-0 z-10 border-b border-gray-100">
-            <div className="flex items-center space-x-4">
-                <Pulse className="w-8 h-8 rounded-full" />
-                <div className="flex-1">
-                    <Pulse className="h-5 w-32 rounded mb-1" />
-                    <Pulse className="h-3 w-20 rounded" />
-                </div>
-                <Pulse className="w-8 h-8 rounded-full" />
-            </div>
-            <Pulse className="h-10 w-full rounded-xl" />
-            <div className="flex space-x-2 overflow-hidden">
-                {[1,2,3,4].map(i => <Pulse key={i} className="w-20 h-8 rounded-full" />)}
-            </div>
-        </div>
-        <div className="p-4 grid grid-cols-2 gap-4">
-             {[1,2,3,4,5,6].map(i => (
-                 <div key={i} className="bg-white rounded-2xl overflow-hidden p-2 space-y-2 shadow-sm border border-gray-100">
-                     <Pulse className="w-full aspect-square rounded-xl" />
-                     <Pulse className="h-4 w-3/4 rounded" />
-                     <div className="flex justify-between">
-                        <Pulse className="h-4 w-1/3 rounded" />
-                        <Pulse className="h-3 w-1/4 rounded" />
-                     </div>
-                 </div>
-             ))}
-        </div>
-    </div>
-);
-
 export const ItemDetailSkeleton = () => (
     <div className="bg-white min-h-screen pb-24 max-w-md mx-auto relative">
         <Pulse className="h-80 w-full bg-gray-200" />

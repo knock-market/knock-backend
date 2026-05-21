@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Bookmark, Store, User, Bell } from 'lucide-react';
+import { Store, User, Bell } from 'lucide-react';
 
 const BottomNav: React.FC = () => {
   const navigate = useNavigate();
@@ -8,7 +8,6 @@ const BottomNav: React.FC = () => {
 
   const navItems = [
     { icon: Store, label: 'Market', path: '/home' },
-    { icon: Bookmark, label: 'Saved', path: '/saved' },
     { icon: Bell, label: 'Notifications', path: '/notifications' },
     { icon: User, label: 'MyPage', path: '/profile' },
   ];
@@ -32,7 +31,7 @@ const BottomNav: React.FC = () => {
               }`}
             aria-current={isActive ? 'page' : undefined}
           >
-            <item.icon size={26} strokeWidth={isActive ? 2.5 : 2} fill={isActive && item.label === 'Saved' ? 'currentColor' : 'none'} />
+            <item.icon size={26} strokeWidth={isActive ? 2.5 : 2} />
             <span className={`text-[10px] font-medium ${isActive ? 'font-bold' : ''}`}>
               {item.label}
             </span>

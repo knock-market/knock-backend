@@ -46,10 +46,10 @@ const Home: React.FC = () => {
       </div>
 
       <header className="bg-white px-6 pt-12 pb-6 sticky top-0 z-10 shadow-sm border-b border-gray-100">
-        <p className="text-xs font-bold uppercase tracking-wide text-blue-700">Personal Market</p>
-        <h1 className="mt-2 text-2xl font-bold text-gray-900">Pick from real shelves</h1>
+        <p className="text-xs font-bold uppercase tracking-wide text-blue-700">Personal Shelves</p>
+        <h1 className="mt-2 text-2xl font-bold text-gray-900">Browse seller shelves</h1>
         <p className="text-gray-600 text-sm mt-2">
-          Browse sellers, open their page, and meet at a mapped pickup point.
+          Open a seller page from a shared link, then reserve a pickup.
         </p>
         {me?.id && (
           <button
@@ -69,7 +69,7 @@ const Home: React.FC = () => {
             <button
               key={item.id}
               type="button"
-              onClick={() => navigate(`/seller/${item.writerId}`)}
+              onClick={() => navigate(`/item/${item.id}`)}
               className="text-left bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-colors focus-visible:ring-2 focus-visible:ring-blue-700"
             >
               <div className="relative aspect-square bg-gray-100 overflow-hidden">

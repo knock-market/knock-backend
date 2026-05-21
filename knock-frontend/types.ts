@@ -55,18 +55,6 @@ export interface MemberResponseDto {
   mannerTemperature?: number;
 }
 
-export interface GroupResponseDto {
-  id: number;
-  name: string;
-  description?: string;
-  memberCount?: number;
-  profileImageUrl?: string;
-}
-
-export interface GroupCreateResponseDto extends GroupResponseDto {
-  inviteCode: string;
-}
-
 export interface ItemSummaryResponseDto {
   id: number;
   title: string;
@@ -179,6 +167,15 @@ export interface ImageUploadResultDto {
   s3Key: string;
 }
 
+export interface LocationSearchResponseDto {
+  name: string;
+  address: string;
+  latitude?: number;
+  longitude?: number;
+  naverMapX?: number;
+  naverMapY?: number;
+}
+
 export interface User {
   id: number | string;
   name: string;
@@ -188,17 +185,11 @@ export interface User {
   trustScore?: number;
 }
 
-export interface GroupWithUI extends GroupResponseDto {
-  activeListings?: number;
-  image?: string;
-}
-
 export interface ItemWithUI extends ItemSummaryResponseDto {
   image?: string;
   description?: string;
   postedAtLabel?: string;
   isLiked?: boolean;
-  groupName?: string;
   seller?: User;
   requesters?: User[];
 }

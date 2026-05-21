@@ -8,7 +8,7 @@ import ImageWithFallback from '../components/ImageWithFallback';
 import { DEFAULT_AVATAR } from '../constants';
 
 interface ProfileStats {
-  shared: number;
+  listed: number;
   received: number;
   active: number;
 }
@@ -24,7 +24,7 @@ const Profile: React.FC = () => {
     role: 'Member',
   });
   const [mannerTemperature, setMannerTemperature] = useState(36.5);
-  const [stats, setStats] = useState<ProfileStats>({ shared: 0, received: 0, active: 0 });
+  const [stats, setStats] = useState<ProfileStats>({ listed: 0, received: 0, active: 0 });
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
@@ -43,14 +43,14 @@ const Profile: React.FC = () => {
           name: memberData.name || memberData.nickname,
           avatar: memberData.profileImageUrl || DEFAULT_AVATAR,
           nickname: memberData.nickname,
-          role: 'Member',
+          role: 'Seller',
         });
         setMannerTemperature(memberData.mannerTemperature ?? 36.5);
 
-        const shared = sellingItems.length;
+        const listed = sellingItems.length;
         const active = sellingItems.filter((item) => item.status === ItemStatus.ON_SALE).length;
         const received = reservations.filter((reservation) => reservation.status === ReservationStatus.COMPLETED).length;
-        setStats({ shared, received, active });
+        setStats({ listed, received, active });
       } catch (error) {
         console.error('Failed to fetch profile data', error);
       } finally {
@@ -109,7 +109,7 @@ const Profile: React.FC = () => {
         </div>
 
         <h1 className="text-xl font-bold text-gray-900 leading-tight">{user.name}</h1>
-        <p className="text-sm text-gray-400 mt-1">{user.role || 'Member'}</p>
+        <p className="text-sm text-gray-400 mt-1">{user.role || 'Seller'}</p>
 
         <div className="mt-8 flex flex-col items-center justify-center">
           <div className="relative w-40 h-40">
@@ -138,11 +138,11 @@ const Profile: React.FC = () => {
       <div className="p-6 space-y-6">
         <div className="flex justify-between space-x-3">
           <div className="bg-white flex-1 p-4 rounded-2xl text-center shadow-sm border border-gray-100">
-            <p className="text-[10px] text-gray-400 uppercase font-bold mb-2 tracking-wider">Shared</p>
-            <p className="text-xl font-bold text-gray-900">{stats.shared}</p>
+            <p className="text-[10px] text-gray-400 uppercase font-bold mb-2 tracking-wider">Listed</p>
+            <p className="text-xl font-bold text-gray-900">{stats.listed}</p>
           </div>
           <div className="bg-white flex-1 p-4 rounded-2xl text-center shadow-sm border border-gray-100">
-            <p className="text-[10px] text-gray-400 uppercase font-bold mb-2 tracking-wider">Received</p>
+            <p className="text-[10px] text-gray-400 uppercase font-bold mb-2 tracking-wider">Bought</p>
             <p className="text-xl font-bold text-gray-900">{stats.received}</p>
           </div>
           <div className="bg-white flex-1 p-4 rounded-2xl text-center shadow-sm border border-gray-100">
