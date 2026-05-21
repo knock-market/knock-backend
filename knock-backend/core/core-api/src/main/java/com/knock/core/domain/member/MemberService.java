@@ -6,7 +6,6 @@ import com.knock.core.domain.member.dto.MemberNotificationSettingsUpdateData;
 import com.knock.core.domain.member.dto.MemberResult;
 import com.knock.core.domain.member.dto.MemberSignupData;
 import com.knock.core.domain.member.dto.MemberSignupResult;
-import com.knock.core.domain.member.event.MemberCreatedEvent;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
 import com.knock.storage.db.core.member.Member;
@@ -14,7 +13,6 @@ import com.knock.storage.db.core.member.MemberBlock;
 import com.knock.storage.db.core.member.MemberBlockRepository;
 import com.knock.storage.db.core.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,8 +27,6 @@ public class MemberService {
 	private final MemberRepository memberRepository;
 
 	private final PasswordEncoder passwordEncoder;
-
-	private final ApplicationEventPublisher eventPublisher;
 
 	private final MemberBlockRepository memberBlockRepository;
 
@@ -51,7 +47,6 @@ public class MemberService {
 
 		Member saved = memberRepository.save(member);
 
-		eventPublisher.publishEvent(new MemberCreatedEvent(saved.getId(), saved.getName()));
 		return MemberSignupResult.of(saved);
 	}
 

@@ -1,12 +1,13 @@
 package com.knock.core.domain.reservation;
 
 import com.knock.core.domain.notification.NotificationService;
+import com.knock.core.domain.notification.dto.NotificationCreateData;
 import com.knock.core.domain.reservation.dto.ReservationCreateData;
 import com.knock.core.domain.reservation.dto.ReservationResult;
+import com.knock.core.enums.NotificationType;
 import com.knock.core.enums.ReservationStatus;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
-import com.knock.storage.db.core.group.GroupRepository;
 import com.knock.storage.db.core.item.Item;
 import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.Member;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -28,10 +30,10 @@ import static com.knock.core.support.TestConstants.*;
 import static com.knock.core.support.TestFixtures.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class ReservationServiceTest {
@@ -44,9 +46,6 @@ class ReservationServiceTest {
 
 	@Mock
 	private ItemRepository itemRepository;
-
-	@Mock
-	private GroupRepository groupRepository;
 
 	@Mock
 	private MemberRepository memberRepository;
@@ -69,7 +68,6 @@ class ReservationServiceTest {
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
 			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
-			given(groupRepository.existsMember(item.getGroup().getId(), TEST_MEMBER_ID)).willReturn(true);
 			given(reservationRepository.createIfNotApproved(TEST_ITEM_ID, TEST_MEMBER_ID)).willReturn(1);
 			given(reservationRepository.findByItemIdAndMemberIdAndStatus(TEST_ITEM_ID, TEST_MEMBER_ID,
 					ReservationStatus.WAITING))
@@ -80,7 +78,13 @@ class ReservationServiceTest {
 
 			// then
 			assertThat(result).isEqualTo(TEST_RESERVATION_ID);
-			verify(notificationService).createNotification(any());
+			ArgumentCaptor<NotificationCreateData> notificationCaptor = ArgumentCaptor
+				.forClass(NotificationCreateData.class);
+			verify(notificationService).createNotification(notificationCaptor.capture());
+			NotificationCreateData notification = notificationCaptor.getValue();
+			assertThat(notification.memberId()).isEqualTo(TEST_MEMBER_ID_2);
+			assertThat(notification.notificationType()).isEqualTo(NotificationType.RESERVATION_CREATED);
+			assertThat(notification.content()).contains(member.getNickname(), item.getTitle(), "관심");
 		}
 
 		@Test
@@ -93,30 +97,11 @@ class ReservationServiceTest {
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
 			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
-			given(groupRepository.existsMember(item.getGroup().getId(), TEST_MEMBER_ID)).willReturn(true);
 			given(reservationRepository.createIfNotApproved(TEST_ITEM_ID, TEST_MEMBER_ID)).willReturn(0);
 
 			// when & then
 			assertThatThrownBy(() -> reservationService.createReservation(data)).isInstanceOf(CoreException.class)
 				.hasFieldOrPropertyWithValue("errorType", ErrorType.RESERVATION_ALREADY_EXISTS);
-			verify(notificationService, never()).createNotification(any());
-		}
-
-		@Test
-		@DisplayName("실패 - 그룹 멤버 아님")
-		void fail_notGroupMember() {
-			// given
-			Member member = createMember(TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, createGroup(), member);
-			ReservationCreateData data = new ReservationCreateData(TEST_ITEM_ID, TEST_MEMBER_ID);
-
-			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
-			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
-			given(groupRepository.existsMember(item.getGroup().getId(), TEST_MEMBER_ID)).willReturn(false);
-
-			// when & then
-			assertThatThrownBy(() -> reservationService.createReservation(data)).isInstanceOf(CoreException.class)
-				.hasFieldOrPropertyWithValue("errorType", ErrorType.FORBIDDEN);
 			verify(notificationService, never()).createNotification(any());
 		}
 

@@ -25,11 +25,9 @@ public enum ErrorType {
 	// notification
 	NOTIFICATION_NOT_FOUND(HttpStatus.BAD_REQUEST, ErrorCode.N001, "알림을 찾을 수 없습니다.", LogLevel.WARN),
 
-	// group
-	INVALID_INVITE_CODE(HttpStatus.BAD_REQUEST, ErrorCode.G001, "옳바르지 않은 그룹 초대 코드입니다.", LogLevel.WARN),
-	ALREADY_MEMBER(HttpStatus.BAD_REQUEST, ErrorCode.G002, "이미 참여한 그룹입니다.", LogLevel.WARN),
-	GROUP_NOT_FOUND(HttpStatus.BAD_REQUEST, ErrorCode.G003, "그룹을 찾을 수 없습니다.", LogLevel.WARN),
-	INVITE_CODE_EXPIRED(HttpStatus.BAD_REQUEST, ErrorCode.G004, "초대 코드가 만료되었습니다.", LogLevel.WARN),
+	// location
+	LOCATION_SEARCH_UNAVAILABLE(HttpStatus.BAD_GATEWAY, ErrorCode.L001, "위치 검색을 사용할 수 없습니다.", LogLevel.WARN),
+
 	FORBIDDEN(HttpStatus.FORBIDDEN, ErrorCode.E403, "접근 권한이 없습니다.", LogLevel.WARN),
 
 	// Reservation

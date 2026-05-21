@@ -8,8 +8,6 @@ import com.knock.core.enums.ItemCategory;
 import com.knock.core.enums.ReservationStatus;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
-import com.knock.storage.db.core.group.Group;
-import com.knock.storage.db.core.group.GroupRepository;
 import com.knock.storage.db.core.item.Item;
 import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.Member;
@@ -31,18 +29,15 @@ public class ItemService {
 
 	private final MemberRepository memberRepository;
 
-	private final GroupRepository groupRepository;
-
 	private final ReservationRepository reservationRepository;
 
 	@Transactional
-	public ItemCreateResult createItem(Long memberId, Long groupId, ItemCreateData data) {
+	public ItemCreateResult createItem(Long memberId, ItemCreateData data) {
 		validateTradeLocation(data);
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
-		Group group = findPostingGroup(memberId, groupId);
 
-		Item item = Item.create(group, member, data.title(), data.description(), data.price(), data.type(),
+		Item item = Item.create(member, data.title(), data.description(), data.price(), data.type(),
 				data.category() == null ? ItemCategory.ETC : data.category());
 		item.updateTradeLocation(normalizeText(data.tradeLocationName()), normalizeText(data.tradeLocationAddress()),
 				data.tradeLatitude(), data.tradeLongitude());
@@ -57,16 +52,6 @@ public class ItemService {
 			.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
 
 		return ItemReadResult.from(item, item.getImages());
-	}
-
-	@Transactional(readOnly = true)
-	public List<ItemListResult> getItemsByGroup(Long groupId) {
-		return itemRepository.findByGroupIdWithLikes(groupId).stream().map(row -> {
-			Item item = (Item) row[0];
-			String thumbnailUrl = (String) row[1];
-			long likesCount = (Long) row[2];
-			return ItemListResult.from(item, thumbnailUrl, likesCount);
-		}).toList();
 	}
 
 	@Transactional(readOnly = true)
@@ -118,15 +103,6 @@ public class ItemService {
 	private boolean isActiveReservation(Reservation reservation) {
 		return reservation.getStatus() == ReservationStatus.WAITING
 				|| reservation.getStatus() == ReservationStatus.APPROVED;
-	}
-
-	private Group findPostingGroup(Long memberId, Long groupId) {
-		if (groupId != null) {
-			return groupRepository.findGroupByGroupId(groupId)
-				.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
-		}
-		return groupRepository.findPersonalGroupByOwnerId(memberId)
-			.orElseThrow(() -> new CoreException(ErrorType.GROUP_NOT_FOUND));
 	}
 
 	private void validateTradeLocation(ItemCreateData data) {

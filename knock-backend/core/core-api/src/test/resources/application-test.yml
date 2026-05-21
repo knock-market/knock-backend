@@ -25,3 +25,7 @@ storage:
 GOOGLE_CLIENT_ID: test-google-client-id
 GOOGLE_CLIENT_SECRET: test-google-client-secret
 GOOGLE_REDIRECT_URI: http://localhost:8080/api/v1/auth/social/google/callback
+NAVER_MAP_CLIENT_ID: test-naver-client-id
+NAVER_MAP_CLIENT_SECRET: test-naver-client-secret
+NAVER_SEARCH_CLIENT_ID: test-naver-search-client-id
+NAVER_SEARCH_CLIENT_SECRET: test-naver-search-client-secret

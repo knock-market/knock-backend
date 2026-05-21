@@ -45,6 +45,24 @@ class ItemRepositoryTest extends CoreDbContextTest {
 	}
 
 	@Test
+	@DisplayName("개인 상품은 그룹 없이 저장 및 조회 성공")
+	void saveAndFindPersonalItemWithoutGroup() {
+		// given
+		Member member = memberRepository.save(Member.create("personal@test.com", "Name", "Pass", "Nick", "LOCAL"));
+		Item item = Item.create(member, "Personal Item", "Desc", 1000L, ItemType.SELL, ItemCategory.DIGITAL_DEVICE);
+
+		// when
+		Item savedItem = itemRepository.save(item, List.of());
+		Optional<Item> foundItem = itemRepository.findById(savedItem.getId());
+
+		// then
+		assertThat(foundItem).isPresent();
+		assertThat(foundItem.get().getGroup()).isNull();
+		assertThat(foundItem.get().getMember().getId()).isEqualTo(member.getId());
+		assertThat(foundItem.get().getTitle()).isEqualTo("Personal Item");
+	}
+
+	@Test
 	@DisplayName("그룹별 상품 목록 조회")
 	void findByGroupId() {
 		// given

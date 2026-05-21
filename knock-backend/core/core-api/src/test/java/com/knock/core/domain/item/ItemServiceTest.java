@@ -9,8 +9,6 @@ import com.knock.core.enums.ItemType;
 import com.knock.core.enums.ReservationStatus;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
-import com.knock.storage.db.core.group.Group;
-import com.knock.storage.db.core.group.GroupRepository;
 import com.knock.storage.db.core.item.Item;
 import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.Member;
@@ -52,9 +50,6 @@ class ItemServiceTest {
 	private MemberRepository memberRepository;
 
 	@Mock
-	private GroupRepository groupRepository;
-
-	@Mock
 	private ReservationRepository reservationRepository;
 
 	@Mock
@@ -69,18 +64,16 @@ class ItemServiceTest {
 		void success() {
 			// given
 			Member member = createMember(TEST_MEMBER_ID);
-			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, group, member);
+			Item item = createItem(TEST_ITEM_ID, member);
 			ItemCreateData data = new ItemCreateData(TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE,
 					ItemType.SELL, ItemCategory.DIGITAL_DEVICE, List.of(TEST_IMAGE_URL), TEST_TRADE_LOCATION_NAME,
 					TEST_TRADE_LOCATION_ADDRESS, TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
-			given(groupRepository.findGroupByGroupId(TEST_GROUP_ID)).willReturn(Optional.of(group));
 			given(itemRepository.save(any(Item.class), anyList())).willReturn(item);
 
 			// when
-			ItemCreateResult result = itemService.createItem(TEST_MEMBER_ID, TEST_GROUP_ID, data);
+			ItemCreateResult result = itemService.createItem(TEST_MEMBER_ID, data);
 
 			// then
 			assertThat(result.id()).isEqualTo(TEST_ITEM_ID);
@@ -95,8 +88,7 @@ class ItemServiceTest {
 					TEST_TRADE_LOCATION_ADDRESS, 91.0, TEST_TRADE_LONGITUDE);
 
 			// when & then
-			assertThatThrownBy(() -> itemService.createItem(TEST_MEMBER_ID, TEST_GROUP_ID, data))
-				.isInstanceOf(CoreException.class)
+			assertThatThrownBy(() -> itemService.createItem(TEST_MEMBER_ID, data)).isInstanceOf(CoreException.class)
 				.hasFieldOrPropertyWithValue("errorType", ErrorType.VALIDATION_ERROR);
 		}
 
@@ -109,25 +101,8 @@ class ItemServiceTest {
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.empty());
 
 			// when & then
-			assertThatThrownBy(() -> itemService.createItem(TEST_MEMBER_ID, TEST_GROUP_ID, data))
-				.isInstanceOf(CoreException.class)
+			assertThatThrownBy(() -> itemService.createItem(TEST_MEMBER_ID, data)).isInstanceOf(CoreException.class)
 				.hasFieldOrPropertyWithValue("errorType", ErrorType.MEMBER_NOT_FOUND);
-		}
-
-		@Test
-		@DisplayName("실패 - 그룹 없음")
-		void fail_groupNotFound() {
-			// given
-			Member member = createMember(TEST_MEMBER_ID);
-			ItemCreateData data = new ItemCreateData(TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE,
-					ItemType.SELL, ItemCategory.DIGITAL_DEVICE, List.of());
-			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
-			given(groupRepository.findGroupByGroupId(TEST_GROUP_ID)).willReturn(Optional.empty());
-
-			// when & then
-			assertThatThrownBy(() -> itemService.createItem(TEST_MEMBER_ID, TEST_GROUP_ID, data))
-				.isInstanceOf(CoreException.class)
-				.hasFieldOrPropertyWithValue("errorType", ErrorType.GROUP_NOT_FOUND);
 		}
 
 	}
@@ -141,8 +116,7 @@ class ItemServiceTest {
 		void success() {
 			// given
 			Member member = createMember(TEST_MEMBER_ID);
-			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, group, member);
+			Item item = createItem(TEST_ITEM_ID, member);
 
 			given(itemRepository.findByIdWithImages(TEST_ITEM_ID)).willReturn(Optional.of(item));
 
@@ -168,32 +142,6 @@ class ItemServiceTest {
 	}
 
 	@Nested
-	@DisplayName("그룹별 상품 목록 조회")
-	class GetItemsByGroup {
-
-		@Test
-		@DisplayName("성공")
-		void success() {
-			// given
-			Member member = createMember(TEST_MEMBER_ID);
-			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, group, member);
-
-			List<Object[]> mockResult = new ArrayList<>();
-			mockResult.add(new Object[] { item, TEST_IMAGE_URL, 5L });
-			given(itemRepository.findByGroupIdWithLikes(TEST_GROUP_ID)).willReturn(mockResult);
-
-			// when
-			List<ItemListResult> results = itemService.getItemsByGroup(TEST_GROUP_ID);
-
-			// then
-			assertThat(results).hasSize(1);
-			assertThat(results.getFirst().id()).isEqualTo(TEST_ITEM_ID);
-		}
-
-	}
-
-	@Nested
 	@DisplayName("내 판매 상품 조회")
 	class GetMySellingItems {
 
@@ -202,8 +150,7 @@ class ItemServiceTest {
 		void success() {
 			// given
 			Member member = createMember(TEST_MEMBER_ID);
-			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, group, member);
+			Item item = createItem(TEST_ITEM_ID, member);
 
 			List<Object[]> mockResult = new ArrayList<>();
 			mockResult.add(new Object[] { item, TEST_IMAGE_URL, 3L });
@@ -228,8 +175,7 @@ class ItemServiceTest {
 		void success() {
 			// given
 			Member member = createMember(TEST_MEMBER_ID);
-			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, group, member);
+			Item item = createItem(TEST_ITEM_ID, member);
 
 			List<Object[]> mockResult = new ArrayList<>();
 			mockResult.add(new Object[] { item, TEST_IMAGE_URL, 3L });
@@ -268,8 +214,7 @@ class ItemServiceTest {
 			// given
 			Member member = createMember(TEST_MEMBER_ID);
 			Member reserver = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
-			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, group, member);
+			Item item = createItem(TEST_ITEM_ID, member);
 			Reservation waitingReservation = createReservation(TEST_RESERVATION_ID, item, reserver);
 			Reservation approvedReservation = createReservation(TEST_RESERVATION_ID + 1, item, reserver,
 					ReservationStatus.APPROVED);
@@ -295,8 +240,7 @@ class ItemServiceTest {
 		void success_nonOwnerCanDelete() {
 			// given
 			Member owner = createMember(TEST_MEMBER_ID);
-			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, group, owner);
+			Item item = createItem(TEST_ITEM_ID, owner);
 
 			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
 			given(reservationRepository.findByItemId(TEST_ITEM_ID)).willReturn(List.of());
