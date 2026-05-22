@@ -96,6 +96,29 @@ class LocationSearchServiceTest {
 	}
 
 	@Test
+	@DisplayName("지역 검색 좌표가 없으면 주소 좌표 변환으로 보강")
+	void search_placeName_geocodeWhenLocalCoordinatesMissing() {
+		// given
+		given(properties.isConfigured()).willReturn(true);
+		given(properties.isSearchConfigured()).willReturn(true);
+		given(properties.isMapConfigured()).willReturn(true);
+		given(naverLocationClient.searchLocal("픽업 장소", 10, properties)).willReturn(new NaverLocalSearchResponse(
+				List.of(new NaverLocalPlace(null, "생활,편의", "서울 성동구 성수동2가", null, "not-number", "not-number"))));
+		given(naverLocationClient.geocode("서울 성동구 성수동2가", properties)).willReturn(new NaverGeocodeResponse(
+				List.of(new NaverAddress("서울 성동구 성수동2가", "서울 성동구 성수동2가", "127.056", "37.544"))));
+
+		// when
+		List<LocationSearchResult> results = locationSearchService.search("픽업 장소");
+
+		// then
+		assertThat(results).hasSize(1);
+		assertThat(results.getFirst().name()).isEqualTo("Pickup location");
+		assertThat(results.getFirst().address()).isEqualTo("서울 성동구 성수동2가");
+		assertThat(results.getFirst().latitude()).isEqualTo(37.544);
+		assertThat(results.getFirst().longitude()).isEqualTo(127.056);
+	}
+
+	@Test
 	@DisplayName("주소 검색은 지역 검색 키가 없어도 Geocoding으로 처리")
 	void search_addressWithoutSearchKey_success() {
 		// given
@@ -111,6 +134,24 @@ class LocationSearchServiceTest {
 		// then
 		assertThat(results).hasSize(1);
 		assertThat(results.getFirst().latitude()).isEqualTo(37.544);
+	}
+
+	@Test
+	@DisplayName("주소 검색은 숫자 주소 힌트만 있어도 Geocoding으로 처리")
+	void search_addressNumberHintWithoutSearchKey_success() {
+		// given
+		given(properties.isConfigured()).willReturn(true);
+		given(properties.isSearchConfigured()).willReturn(false);
+		given(properties.isMapConfigured()).willReturn(true);
+		given(naverLocationClient.geocode("37.544,127.056", properties))
+			.willReturn(new NaverGeocodeResponse(List.of(new NaverAddress("", "37.544,127.056", "127.056", "37.544"))));
+
+		// when
+		List<LocationSearchResult> results = locationSearchService.search("37.544,127.056");
+
+		// then
+		assertThat(results).hasSize(1);
+		assertThat(results.getFirst().address()).isEqualTo("37.544,127.056");
 	}
 
 	@Test
@@ -135,6 +176,59 @@ class LocationSearchServiceTest {
 		assertThat(results.getFirst().latitude()).isEqualTo(37.324753);
 		assertThat(results.getFirst().longitude()).isEqualTo(127.107395);
 		assertThat(results.getFirst().naverMapX()).isEqualTo(1271073950.0);
+	}
+
+	@Test
+	@DisplayName("지역 검색 응답이 null이면 주소 검색 결과로 보강")
+	void search_fallbackToGeocode_nullLocalSearchResponse() {
+		// given
+		given(properties.isConfigured()).willReturn(true);
+		given(properties.isSearchConfigured()).willReturn(true);
+		given(properties.isMapConfigured()).willReturn(true);
+		given(naverLocationClient.searchLocal("서울 성동구 아차산로 100", 10, properties)).willReturn(null);
+		given(naverLocationClient.geocode("서울 성동구 아차산로 100", properties)).willReturn(new NaverGeocodeResponse(
+				List.of(new NaverAddress("서울 성동구 아차산로 100", "서울 성동구 성수동2가", "127.056", "37.544"))));
+
+		// when
+		List<LocationSearchResult> results = locationSearchService.search("서울 성동구 아차산로 100");
+
+		// then
+		assertThat(results).hasSize(1);
+		assertThat(results.getFirst().address()).isEqualTo("서울 성동구 아차산로 100");
+	}
+
+	@Test
+	@DisplayName("주소가 없는 지역 검색 결과는 제외")
+	void search_empty_placeWithoutAddress() {
+		// given
+		given(properties.isConfigured()).willReturn(true);
+		given(properties.isSearchConfigured()).willReturn(true);
+		given(properties.isMapConfigured()).willReturn(false);
+		given(naverLocationClient.searchLocal("주소 없음", 10, properties)).willReturn(
+				new NaverLocalSearchResponse(List.of(new NaverLocalPlace("주소 없음", "기타", null, null, null, null))));
+
+		// when
+		List<LocationSearchResult> results = locationSearchService.search("주소 없음");
+
+		// then
+		assertThat(results).isEmpty();
+	}
+
+	@Test
+	@DisplayName("주소 검색 좌표가 유효하지 않으면 빈 결과로 처리")
+	void search_empty_invalidGeocodeCoordinate() {
+		// given
+		given(properties.isConfigured()).willReturn(true);
+		given(properties.isSearchConfigured()).willReturn(false);
+		given(properties.isMapConfigured()).willReturn(true);
+		given(naverLocationClient.geocode("서울 성동구 아차산로 100", properties)).willReturn(
+				new NaverGeocodeResponse(List.of(new NaverAddress("서울 성동구 아차산로 100", "", "not-number", "37.544"))));
+
+		// when
+		List<LocationSearchResult> results = locationSearchService.search("서울 성동구 아차산로 100");
+
+		// then
+		assertThat(results).isEmpty();
 	}
 
 	@Test
@@ -171,6 +265,16 @@ class LocationSearchServiceTest {
 		assertThatThrownBy(() -> locationSearchService.search("abcdefghijklmnopqrst")).isInstanceOf(CoreException.class)
 			.hasFieldOrPropertyWithValue("errorType", ErrorType.LOCATION_SEARCH_UNAVAILABLE);
 		verify(naverLocationClient, never()).geocode(any(), any());
+	}
+
+	@Test
+	@DisplayName("실패 - 검색어가 비어 있거나 너무 길면 검증 오류")
+	void search_fail_invalidQuery() {
+		// when & then
+		assertThatThrownBy(() -> locationSearchService.search(" ")).isInstanceOf(CoreException.class)
+			.hasFieldOrPropertyWithValue("errorType", ErrorType.VALIDATION_ERROR);
+		assertThatThrownBy(() -> locationSearchService.search("a".repeat(101))).isInstanceOf(CoreException.class)
+			.hasFieldOrPropertyWithValue("errorType", ErrorType.VALIDATION_ERROR);
 	}
 
 	@Test

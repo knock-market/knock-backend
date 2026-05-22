@@ -2,6 +2,7 @@ package com.knock.core.domain.location;
 
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -23,8 +24,17 @@ public class NaverLocationClient {
 
 	private final RestClient restClient;
 
+	@Autowired
 	public NaverLocationClient(RestClient.Builder restClientBuilder) {
-		this.restClient = restClientBuilder.requestFactory(createRequestFactory())
+		this(createRestClient(restClientBuilder));
+	}
+
+	NaverLocationClient(RestClient restClient) {
+		this.restClient = restClient;
+	}
+
+	private static RestClient createRestClient(RestClient.Builder restClientBuilder) {
+		return restClientBuilder.requestFactory(createRequestFactory())
 			.defaultStatusHandler(HttpStatusCode::isError, (request, response) -> {
 				throw new RestClientResponseException("Naver location request failed", response.getStatusCode().value(),
 						response.getStatusText(), response.getHeaders(), response.getBody().readAllBytes(), null);
@@ -65,7 +75,7 @@ public class NaverLocationClient {
 	public record NaverAddress(String roadAddress, String jibunAddress, String x, String y) {
 	}
 
-	private SimpleClientHttpRequestFactory createRequestFactory() {
+	private static SimpleClientHttpRequestFactory createRequestFactory() {
 		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
 		requestFactory.setConnectTimeout(CONNECT_TIMEOUT);
 		requestFactory.setReadTimeout(READ_TIMEOUT);
