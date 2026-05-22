@@ -56,10 +56,12 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const [isChecking, setIsChecking] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [checkedPathname, setCheckedPathname] = useState('');
 
   useEffect(() => {
     if (isPublicPath(location.pathname)) {
       setIsChecking(false);
+      setCheckedPathname(location.pathname);
       return;
     }
 
@@ -70,11 +72,13 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       .then(() => {
         if (mounted) {
           setIsAuthenticated(true);
+          setCheckedPathname(location.pathname);
         }
       })
       .catch(() => {
         if (mounted) {
           setIsAuthenticated(false);
+          setCheckedPathname(location.pathname);
         }
       })
       .finally(() => {
@@ -92,7 +96,7 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return <>{children}</>;
   }
 
-  if (isChecking) {
+  if (isChecking || checkedPathname !== location.pathname) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center text-gray-500">
         Checking session...
