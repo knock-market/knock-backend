@@ -86,6 +86,9 @@ public class LocationSearchService {
 		LocationSearchResult baseResult = new LocationSearchResult(cleanTitle(place.title()), address,
 				parseLocalLatitude(place.mapy()), parseLocalLongitude(place.mapx()), parseCoordinate(place.mapx()),
 				parseCoordinate(place.mapy()));
+		if (baseResult.latitude() != null && baseResult.longitude() != null) {
+			return Optional.of(baseResult);
+		}
 		try {
 			return Optional.of(geocodeAddress(address)
 				.map(result -> new LocationSearchResult(baseResult.name(), result.address(), result.latitude(),

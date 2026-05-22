@@ -15,8 +15,11 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 class LocationSearchServiceTest {
 
@@ -49,6 +52,26 @@ class LocationSearchServiceTest {
 		assertThat(results.getFirst().latitude()).isEqualTo(37.544);
 		assertThat(results.getFirst().longitude()).isEqualTo(127.056);
 		assertThat(results.getFirst().naverMapX()).isEqualTo(1270560000.0);
+	}
+
+	@Test
+	@DisplayName("지역 검색 좌표가 있으면 추가 Geocoding 호출 없이 반환")
+	void search_placeName_skipsGeocodeWhenLocalCoordinatesExist() {
+		// given
+		given(properties.isConfigured()).willReturn(true);
+		given(properties.isSearchConfigured()).willReturn(true);
+		given(naverLocationClient.searchLocal("죽전역", 10, properties))
+			.willReturn(new NaverLocalSearchResponse(List.of(new NaverLocalPlace("<b>죽전역</b>", "교통,수송>지하철",
+					"경기 용인시 수지구 죽전동", "경기 용인시 수지구 포은대로 530", "1271073950", "373247530"))));
+
+		// when
+		List<LocationSearchResult> results = locationSearchService.search("죽전역");
+
+		// then
+		assertThat(results).hasSize(1);
+		assertThat(results.getFirst().latitude()).isEqualTo(37.324753);
+		assertThat(results.getFirst().longitude()).isEqualTo(127.107395);
+		verify(naverLocationClient, never()).geocode(any(), any());
 	}
 
 	@Test

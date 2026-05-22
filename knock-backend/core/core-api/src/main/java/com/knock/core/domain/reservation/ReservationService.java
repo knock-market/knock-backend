@@ -40,6 +40,9 @@ public class ReservationService {
 			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 		Item item = itemRepository.findById(data.itemId())
 			.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
+		if (item.getMember().getId().equals(requester.getId())) {
+			throw new CoreException(ErrorType.FORBIDDEN);
+		}
 
 		int created = reservationRepository.createIfNotApproved(data.itemId(), data.memberId());
 

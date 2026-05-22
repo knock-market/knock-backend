@@ -55,17 +55,33 @@ export const loadNaverMap = (clientId: string) => new Promise<void>((resolve, re
 
   const existing = document.getElementById(scriptId) as HTMLScriptElement | null;
   if (existing) {
-    existing.addEventListener('load', () => resolve(), { once: true });
-    existing.addEventListener('error', () => reject(new Error('Naver map script failed')), { once: true });
-    return;
+    const status = existing.dataset.status;
+    if (status === 'loaded' && window.naver?.maps) {
+      resolve();
+      return;
+    }
+    if (status === 'failed') {
+      existing.remove();
+    } else {
+      existing.addEventListener('load', () => resolve(), { once: true });
+      existing.addEventListener('error', () => reject(new Error('Naver map script failed')), { once: true });
+      return;
+    }
   }
 
   const script = document.createElement('script');
   script.id = scriptId;
+  script.dataset.status = 'loading';
   script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${encodeURIComponent(clientId)}&submodules=geocoder`;
   script.async = true;
-  script.onload = () => resolve();
-  script.onerror = () => reject(new Error('Naver map script failed'));
+  script.onload = () => {
+    script.dataset.status = 'loaded';
+    resolve();
+  };
+  script.onerror = () => {
+    script.dataset.status = 'failed';
+    reject(new Error('Naver map script failed'));
+  };
   document.head.appendChild(script);
 });
 

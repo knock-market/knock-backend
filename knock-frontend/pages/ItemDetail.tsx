@@ -109,8 +109,7 @@ const ItemDetail = () => {
       setHasRequested(true);
       alert('Reservation request sent to the seller!');
     } catch (error) {
-      const status = getErrorStatus(error);
-      if (status === 401) {
+      if (isAuthError(error)) {
         navigate(`/login?next=${encodeURIComponent(`/item/${itemId}`)}`);
         return;
       }

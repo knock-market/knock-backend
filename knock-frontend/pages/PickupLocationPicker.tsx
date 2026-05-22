@@ -132,9 +132,9 @@ const PickupLocationPicker = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude: nextLatitude, longitude: nextLongitude } = position.coords;
-        setLocationName((current) => current || 'My current location');
-        setAddress((current) => current || 'Current location');
-        setQuery((current) => current || 'Current location');
+        setLocationName('My current location');
+        setAddress('Current location');
+        setQuery('Current location');
         setStatusMessage('');
         moveMap(nextLatitude, nextLongitude);
       },

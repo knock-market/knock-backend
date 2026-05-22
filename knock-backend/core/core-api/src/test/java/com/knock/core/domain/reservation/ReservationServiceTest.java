@@ -85,6 +85,7 @@ class ReservationServiceTest {
 			assertThat(notification.memberId()).isEqualTo(TEST_MEMBER_ID_2);
 			assertThat(notification.notificationType()).isEqualTo(NotificationType.RESERVATION_CREATED);
 			assertThat(notification.content()).contains(member.getNickname(), item.getTitle(), "관심");
+			assertThat(notification.relatedUrl()).isEqualTo("/items/" + item.getId() + "/reservations");
 		}
 
 		@Test
@@ -92,7 +93,7 @@ class ReservationServiceTest {
 		void fail_alreadyApproved() {
 			// given
 			Member member = createMember(TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, createGroup(), member);
+			Item item = createItem(TEST_ITEM_ID, createGroup(), createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2));
 			ReservationCreateData data = new ReservationCreateData(TEST_ITEM_ID, TEST_MEMBER_ID);
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
@@ -102,6 +103,38 @@ class ReservationServiceTest {
 			// when & then
 			assertThatThrownBy(() -> reservationService.createReservation(data)).isInstanceOf(CoreException.class)
 				.hasFieldOrPropertyWithValue("errorType", ErrorType.RESERVATION_ALREADY_EXISTS);
+			verify(notificationService, never()).createNotification(any());
+		}
+
+		@Test
+		@DisplayName("실패 - 회원 없음")
+		void fail_memberNotFound() {
+			// given
+			ReservationCreateData data = new ReservationCreateData(TEST_ITEM_ID, TEST_MEMBER_ID);
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.empty());
+
+			// when & then
+			assertThatThrownBy(() -> reservationService.createReservation(data)).isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.MEMBER_NOT_FOUND);
+			verify(reservationRepository, never()).createIfNotApproved(any(), any());
+			verify(notificationService, never()).createNotification(any());
+		}
+
+		@Test
+		@DisplayName("실패 - 본인 상품 예약")
+		void fail_selfReservation() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, createGroup(), member);
+			ReservationCreateData data = new ReservationCreateData(TEST_ITEM_ID, TEST_MEMBER_ID);
+
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
+			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
+
+			// when & then
+			assertThatThrownBy(() -> reservationService.createReservation(data)).isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.FORBIDDEN);
+			verify(reservationRepository, never()).createIfNotApproved(any(), any());
 			verify(notificationService, never()).createNotification(any());
 		}
 
