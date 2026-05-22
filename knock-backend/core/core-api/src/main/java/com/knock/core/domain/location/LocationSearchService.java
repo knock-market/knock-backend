@@ -27,6 +27,9 @@ public class LocationSearchService {
 
 	private static final double NAVER_LOCAL_COORDINATE_SCALE = 10_000_000.0;
 
+	private static final List<String> ADDRESS_KEYWORDS = List.of("번지", "대로", "시", "군", "구", "동", "로", "길", "읍", "면",
+			"리");
+
 	private final NaverLocationClient naverLocationClient;
 
 	private final NaverLocationProperties properties;
@@ -136,7 +139,17 @@ public class LocationSearchService {
 	}
 
 	private boolean looksLikeAddress(String query) {
-		return query.matches(".*(시|군|구|동|로|길|번지|대로|읍|면|리|\\d).*");
+		for (int index = 0; index < query.length(); index++) {
+			if (Character.isDigit(query.charAt(index))) {
+				return true;
+			}
+		}
+		for (String keyword : ADDRESS_KEYWORDS) {
+			if (query.contains(keyword)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private Double parseCoordinate(String value) {

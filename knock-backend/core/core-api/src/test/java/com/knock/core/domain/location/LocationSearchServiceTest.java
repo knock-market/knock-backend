@@ -161,6 +161,19 @@ class LocationSearchServiceTest {
 	}
 
 	@Test
+	@DisplayName("실패 - 주소 힌트가 없는 검색어는 지역 검색 키 없이는 외부 API를 호출하지 않음")
+	void search_fail_noAddressHintWithoutSearchKey() {
+		// given
+		given(properties.isConfigured()).willReturn(true);
+		given(properties.isSearchConfigured()).willReturn(false);
+
+		// when & then
+		assertThatThrownBy(() -> locationSearchService.search("abcdefghijklmnopqrst")).isInstanceOf(CoreException.class)
+			.hasFieldOrPropertyWithValue("errorType", ErrorType.LOCATION_SEARCH_UNAVAILABLE);
+		verify(naverLocationClient, never()).geocode(any(), any());
+	}
+
+	@Test
 	@DisplayName("외부 API 오류는 빈 결과로 처리")
 	void search_empty_externalApiError() {
 		// given
