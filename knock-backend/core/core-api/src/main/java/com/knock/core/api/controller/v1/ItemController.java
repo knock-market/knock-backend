@@ -25,8 +25,7 @@ public class ItemController {
 	@PostMapping("/api/v1/items")
 	public ApiResponse<ItemIdResponseDto> createItem(@AuthenticationPrincipal MemberPrincipal principal,
 			@RequestBody ItemCreateRequestDto request) {
-		ItemCreateResult result = itemService.createItem(principal.getMemberId(), request.groupId(),
-				ItemCreateData.of(request));
+		ItemCreateResult result = itemService.createItem(principal.getMemberId(), ItemCreateData.of(request));
 		return ApiResponse.success(new ItemIdResponseDto(result.id()));
 	}
 
@@ -37,13 +36,6 @@ public class ItemController {
 		itemService.increaseViewCount(itemId, memberId);
 		ItemReadResult result = itemService.getItem(itemId);
 		return ApiResponse.success(ItemResponseDto.from(result));
-	}
-
-	@GetMapping("/api/v1/groups/{groupId}/items")
-	public ApiResponse<List<ItemSummaryResponseDto>> getItemsByGroup(@PathVariable Long groupId) {
-		List<ItemListResult> results = itemService.getItemsByGroup(groupId);
-		List<ItemSummaryResponseDto> response = results.stream().map(ItemSummaryResponseDto::from).toList();
-		return ApiResponse.success(response);
 	}
 
 	@GetMapping("/api/v1/items")

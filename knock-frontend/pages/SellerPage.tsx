@@ -67,8 +67,8 @@ const SellerPage = () => {
   const sellerName = sellerMeta?.nickname || seller?.writerNickname || (isOwnPage ? me?.nickname : undefined)
     || `Seller #${resolvedSellerId || sellerId}`;
   const subtitle = isOwnPage
-    ? 'Your public selling shelf'
-    : 'Items from this seller only';
+    ? 'Your public shelf, ready to share'
+    : 'A personal shelf shared by this seller';
   const targetPath = useMemo(
     () => (item: ItemSummaryResponseDto) => isOwnPage ? `/manage-item/${item.id}` : `/item/${item.id}`,
     [isOwnPage]
@@ -103,7 +103,7 @@ const SellerPage = () => {
         <div className="mt-6 flex items-center justify-between gap-4">
           <div>
             <p className={`text-xs font-semibold uppercase tracking-wide ${isOwnPage ? 'text-emerald-100' : 'text-emerald-700'}`}>
-              {isOwnPage ? 'My shop' : 'Seller shop'}
+              {isOwnPage ? 'My shelf' : 'Shared shelf'}
             </p>
             <h1 className="mt-1 text-2xl font-bold leading-tight">{sellerName}</h1>
             <p className={`mt-2 text-sm ${isOwnPage ? 'text-emerald-50' : 'text-gray-500'}`}>{subtitle}</p>
@@ -167,7 +167,7 @@ const SellerPage = () => {
             </div>
             <h2 className="text-lg font-bold text-gray-900 mb-2">No items yet</h2>
             <p className="text-sm text-gray-500 max-w-[220px] mx-auto leading-relaxed">
-              {isOwnPage ? 'Post your first item to open your shelf.' : 'This seller has no public items right now.'}
+              {isOwnPage ? 'Post your first item before sharing your shelf.' : 'This shared shelf has no public items right now.'}
             </p>
           </div>
         )}

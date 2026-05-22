@@ -8,9 +8,9 @@ import com.knock.core.enums.NotificationType;
 import com.knock.core.enums.ReservationStatus;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
-import com.knock.storage.db.core.group.GroupRepository;
 import com.knock.storage.db.core.item.Item;
 import com.knock.storage.db.core.item.ItemRepository;
+import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
 import com.knock.storage.db.core.reservation.Reservation;
 import com.knock.storage.db.core.reservation.ReservationRepository;
@@ -30,18 +30,17 @@ public class ReservationService {
 
 	private final ItemRepository itemRepository;
 
-	private final GroupRepository groupRepository;
-
 	private final MemberRepository memberRepository;
 
 	private final NotificationService notificationService;
 
 	@Transactional
 	public Long createReservation(ReservationCreateData data) {
-		memberRepository.findById(data.memberId()).orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
+		Member requester = memberRepository.findById(data.memberId())
+			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 		Item item = itemRepository.findById(data.itemId())
 			.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
-		if (!groupRepository.existsMember(item.getGroup().getId(), data.memberId())) {
+		if (item.getMember().getId().equals(requester.getId())) {
 			throw new CoreException(ErrorType.FORBIDDEN);
 		}
 
@@ -57,7 +56,8 @@ public class ReservationService {
 			.orElseThrow(() -> new CoreException(ErrorType.RESERVATION_NOT_FOUND));
 
 		notifyCounterparty(item.getMember().getId(), data.memberId(), NotificationType.RESERVATION_CREATED,
-				"'" + item.getTitle() + "' 상품에 예약 요청이 도착했습니다.", "/items/" + item.getId() + "/reservations");
+				requester.getNickname() + "님이 '" + item.getTitle() + "' 상품에 관심을 보냈습니다.",
+				"/items/" + item.getId() + "/reservations");
 		return reservationId;
 	}
 

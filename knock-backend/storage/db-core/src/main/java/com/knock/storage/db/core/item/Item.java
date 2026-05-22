@@ -25,7 +25,7 @@ import java.util.List;
 public class Item extends BaseEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "group_id", nullable = false)
+	@JoinColumn(name = "group_id")
 	private Group group;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -85,9 +85,18 @@ public class Item extends BaseEntity {
 		this.viewCount = 0L;
 	}
 
+	public Item(Member member, String title, String description, Long price, ItemType type, ItemCategory category) {
+		this(null, member, title, description, price, type, category);
+	}
+
 	public static Item create(String title, String description, Long price, ItemType type, ItemCategory category,
 			Group group, Member member) {
 		return new Item(group, member, title, description, price, type, category);
+	}
+
+	public static Item create(Member member, String title, String description, Long price, ItemType type,
+			ItemCategory category) {
+		return new Item(member, title, description, price, type, category);
 	}
 
 	public static Item create(Group group, Member member, String title, String description, Long price, ItemType type,

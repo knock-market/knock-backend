@@ -1,6 +1,7 @@
 # Knock Backend Convention (v1)
 
 작성일: 2026-02-14  
+검수일: 2026-05-12
 대상 프로젝트: `knock-backend`
 
 이 문서는 현재 코드베이스(`core-api`, `core-auth`, `storage/db-core`, `infra/s3`)를 기준으로 정리한 백엔드 개발 컨벤션이다.  
@@ -76,7 +77,7 @@
 예시 패턴:
 
 - `MemberSignupRequestDto -> MemberSignupData -> MemberSignupResult -> MemberSignupResponseDto`
-- `GroupJoinRequestDto -> GroupJoinData -> groupId -> GroupIdResponseDto`
+- `ItemCreateRequestDto -> ItemCreateData -> ItemCreateResult -> ItemIdResponseDto`
 
 ## 4. 응답/예외 컨벤션
 
@@ -131,7 +132,7 @@
 - API 변경 시 아래를 함께 갱신한다.
   - `docs/API_REFERENCE.md`
   - `core-api/src/docs/asciidoc/index.adoc` 및 REST Docs 스니펫
-  - 필요 시 `docs/API_CHANGE_TODO.md`
+  - 필요 시 기능별 변경 메모 또는 이슈
 - 모듈/구조 변경 시 `docs/MODULE.md`를 함께 갱신한다.
 
 ## 9. 현재 코드에서 확인된 예외/개선 권장
@@ -139,7 +140,7 @@
 아래는 즉시 수정 대상이 아니라, 신규 코드 작성 시 우선적으로 개선할 항목이다.
 
 - 일부 Domain DTO가 Controller DTO를 직접 참조한다.
-  - 예: `GroupCreateData.of(GroupCreateRequestDto)`, `ItemCreateData.of(ItemCreateRequestDto)`
+  - 예: `ItemCreateData.of(ItemCreateRequestDto)`
   - 권장: Controller에서 Data를 조립하고 Domain DTO는 API 패키지 의존 제거.
 - 일부 Domain Service/Response DTO가 저장소 엔티티 또는 API 응답 타입에 직접 의존한다.
   - 예: `ReviewService#getReviewList`가 `ReviewResponse` 반환

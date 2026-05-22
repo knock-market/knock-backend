@@ -65,6 +65,13 @@ public final class TestFixtures {
 		return item;
 	}
 
+	public static Item createItem(Long id, Member member) {
+		Item item = Item.create(member, TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE, ItemType.SELL,
+				ItemCategory.DIGITAL_DEVICE);
+		ReflectionTestUtils.setField(item, "id", id);
+		return item;
+	}
+
 	public static Bookmark createBookmark(Long id, Member member, Item item) {
 		Bookmark bookmark = Bookmark.create(member, item);
 		ReflectionTestUtils.setField(bookmark, "id", id);

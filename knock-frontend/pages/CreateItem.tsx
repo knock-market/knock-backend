@@ -1,22 +1,57 @@
-import React, { useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Camera, Loader2, X } from 'lucide-react';
 import { imagesApi, itemsApi } from '../services';
 import TradeLocationFields from '../components/TradeLocationFields';
+
+type CreateItemDraft = {
+  transactionType?: 'free' | 'sale';
+  price?: string;
+  title?: string;
+  description?: string;
+  imageUrls?: string[];
+};
+
+type CreateItemLocationState = {
+  draft?: CreateItemDraft;
+  location?: {
+    locationName?: string;
+    address?: string;
+    latitude?: string;
+    longitude?: string;
+  };
+};
+
+const POST_SUCCESS_REDIRECT_DELAY_MS = 900;
+const POST_SUCCESS_MESSAGE = 'Item posted. Returning to the previous page...';
+
 const CreateItem: React.FC = () => {
   const navigate = useNavigate();
+  const routeLocation = useLocation();
+  const routeState = (routeLocation.state || {}) as CreateItemLocationState;
+  const draft = routeState.draft || {};
+  const selectedLocation = routeState.location || {};
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [transactionType, setTransactionType] = useState<'free' | 'sale'>('free');
-  const [price, setPrice] = useState('1000');
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
-  const [locationName, setLocationName] = useState('');
-  const [locationAddress, setLocationAddress] = useState('');
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
+  const [transactionType, setTransactionType] = useState<'free' | 'sale'>(draft.transactionType || 'free');
+  const [price, setPrice] = useState(draft.price || '1000');
+  const [title, setTitle] = useState(draft.title || '');
+  const [description, setDescription] = useState(draft.description || '');
+  const [imageUrls, setImageUrls] = useState<string[]>(draft.imageUrls || []);
+  const [locationName, setLocationName] = useState(selectedLocation.locationName || '');
+  const [locationAddress, setLocationAddress] = useState(selectedLocation.address || '');
+  const [latitude, setLatitude] = useState(selectedLocation.latitude || '');
+  const [longitude, setLongitude] = useState(selectedLocation.longitude || '');
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitNotice, setSubmitNotice] = useState('');
+  const redirectTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => () => {
+    if (redirectTimeoutRef.current) {
+      window.clearTimeout(redirectTimeoutRef.current);
+    }
+  }, []);
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -40,7 +75,23 @@ const CreateItem: React.FC = () => {
     setImageUrls((prev) => prev.filter((value) => value !== url));
   };
 
+  const openLocationPicker = () => {
+    navigate('/create/location', {
+      state: {
+        draft: { transactionType, price, title, description, imageUrls },
+        location: {
+          locationName,
+          address: locationAddress,
+          latitude,
+          longitude,
+        },
+      },
+    });
+  };
+
   const handleSubmit = async () => {
+    setSubmitNotice('');
+
     if (!title.trim() || !description.trim()) {
       alert('Please fill in required fields.');
       return;
@@ -78,15 +129,17 @@ const CreateItem: React.FC = () => {
         tradeLatitude: parsedLatitude,
         tradeLongitude: parsedLongitude,
       });
-      alert('Item posted successfully!');
-      navigate('/home');
+      setSubmitNotice(POST_SUCCESS_MESSAGE);
+      redirectTimeoutRef.current = window.setTimeout(() => navigate('/home'), POST_SUCCESS_REDIRECT_DELAY_MS);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to post item.';
       alert(message);
-    } finally {
       setIsSubmitting(false);
     }
   };
+
+  const isPostButtonDisabled = isSubmitting || isUploading || Boolean(submitNotice);
+  const postButtonLabel = submitNotice ? 'Returning...' : isSubmitting ? 'Posting...' : isUploading ? 'Uploading photos...' : 'Post Item';
 
   return (
     <div className="bg-white min-h-screen pb-24 max-w-md mx-auto">
@@ -209,18 +262,22 @@ const CreateItem: React.FC = () => {
           longitude={longitude}
           onLocationNameChange={setLocationName}
           onAddressChange={setLocationAddress}
-          onLatitudeChange={setLatitude}
-          onLongitudeChange={setLongitude}
+          onOpenPicker={openLocationPicker}
         />
 
         <div className="pt-4">
+          {submitNotice && (
+            <p role="status" className="mb-3 rounded-lg border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
+              {submitNotice}
+            </p>
+          )}
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={isSubmitting || isUploading}
-            className={`w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-lg shadow-lg shadow-emerald-200 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 ${isSubmitting || isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={isPostButtonDisabled}
+            className={`w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-lg shadow-lg shadow-emerald-200 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 ${isPostButtonDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            {isSubmitting ? 'Posting...' : isUploading ? 'Uploading photos...' : 'Post Item'}
+            {postButtonLabel}
           </button>
         </div>
       </div>

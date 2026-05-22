@@ -7,6 +7,20 @@ import ImageWithFallback from '../components/ImageWithFallback';
 import NaverMap from '../components/NaverMap';
 import { ItemResponseDto, ItemStatus } from '../types';
 
+const getErrorStatus = (error: unknown): number | undefined => {
+  if (typeof error !== 'object' || error === null || !('status' in error)) {
+    return undefined;
+  }
+
+  const status = Number((error as { status?: number }).status);
+  return Number.isFinite(status) ? status : undefined;
+};
+
+const isAuthError = (error: unknown): boolean => {
+  const status = getErrorStatus(error);
+  return status === 401 || status === 403;
+};
+
 const ItemDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -50,7 +64,7 @@ const ItemDetail = () => {
         if (bookmarkResult.status === 'fulfilled') {
           const liked = bookmarkResult.value.some((bookmark) => bookmark.itemId === data.id);
           setIsLiked(liked);
-        } else {
+        } else if (!isAuthError(bookmarkResult.reason)) {
           console.error('Failed to fetch bookmarks', bookmarkResult.reason);
         }
       } catch (error) {
@@ -95,10 +109,7 @@ const ItemDetail = () => {
       setHasRequested(true);
       alert('Reservation request sent to the seller!');
     } catch (error) {
-      const status = typeof error === 'object' && error !== null && 'status' in error
-        ? Number((error as { status?: number }).status)
-        : undefined;
-      if (status === 401) {
+      if (isAuthError(error)) {
         navigate(`/login?next=${encodeURIComponent(`/item/${itemId}`)}`);
         return;
       }
@@ -117,6 +128,10 @@ const ItemDetail = () => {
       const result = await bookmarksApi.toggle(itemId);
       setIsLiked(result.toggleOn);
     } catch (error) {
+      if (isAuthError(error)) {
+        navigate(`/login?next=${encodeURIComponent(`/item/${itemId}`)}`);
+        return;
+      }
       const message = error instanceof Error ? error.message : 'Failed to update bookmark.';
       alert(message);
     }
@@ -127,7 +142,7 @@ const ItemDetail = () => {
       try {
         await navigator.share({
           title: item.title,
-          text: `Check out ${item.title} on Knock Market`,
+          text: `Check out ${item.title} from this Knock Market shelf`,
           url: window.location.href,
         });
       } catch (error) {
@@ -259,7 +274,7 @@ const ItemDetail = () => {
               />
               <div>
                 <p className="font-bold text-gray-900">{item.writerNickname || `Seller #${item.writerId}`}</p>
-                <p className="text-xs text-gray-500">Member</p>
+                <p className="text-xs text-gray-500">Seller</p>
               </div>
             </div>
           </button>

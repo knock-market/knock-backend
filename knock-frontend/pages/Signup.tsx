@@ -75,7 +75,7 @@ const Signup: React.FC = () => {
                 </button>
 
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-                <p className="text-gray-500 mb-8">Join the trust-based marketplace today.</p>
+                <p className="text-gray-500 mb-8">Create your personal shelf and start sharing it.</p>
 
                 {error && (
                     <div className="bg-red-50 border border-red-100 text-red-600 p-4 rounded-2xl mb-6 flex items-start space-x-3 animate-in fade-in slide-in-from-top-2">
@@ -106,7 +106,7 @@ const Signup: React.FC = () => {
 
                     {/* Nickname */}
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-700 ml-1">Community Nickname</label>
+                        <label className="text-sm font-semibold text-gray-700 ml-1">Seller Nickname</label>
                         <div className="relative group">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-emerald-500 transition-colors">
                                 <AtSign size={18} />

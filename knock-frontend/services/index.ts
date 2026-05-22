@@ -2,12 +2,11 @@ import client from './client';
 import {
     BlockedUserResponseDto,
     BookmarkToggleResponseDto,
-    GroupCreateResponseDto,
-    GroupResponseDto,
     ImageUploadResultDto,
     InviteDuration,
     ItemResponseDto,
     ItemSummaryResponseDto,
+    LocationSearchResponseDto,
     MemberResponseDto,
     MyBookmarkResponseDto,
     NotificationResponseDto,
@@ -28,7 +27,6 @@ const patch = <T, D = unknown>(url: string, data?: D, config?: object) =>
 const del = <T>(url: string, config?: object) => client.delete<T, T>(url, config);
 
 type ItemCreatePayload = {
-    groupId?: number;
     title: string;
     description: string;
     price: number;
@@ -56,35 +54,20 @@ export const authApi = {
         put<void, { nickname?: string; profileImageUrl?: string }>('/members/my', data),
 };
 
-// ============== Group API ==============
-export const groupsApi = {
-    getMyGroups: () => get<GroupResponseDto[]>('/groups/my'),
-    getGroup: (groupId: number | string) => get<GroupResponseDto>(`/groups/${groupId}`),
-    createGroup: (data: { name: string; description?: string; imageUrl?: string }) =>
-        post<GroupCreateResponseDto, { name: string; description?: string; imageUrl?: string }>(
-            '/groups',
-            data
-        ),
-    createInviteCode: (groupId: number, duration: InviteDuration = 'ONE_DAY') =>
-        post<{ inviteCode: string; expiresAt?: string }, { duration: InviteDuration }>(
-            `/groups/${groupId}/invite-codes`,
-            { duration }
-        ),
-    joinGroup: (inviteCode: string) =>
-        post<{ id: number }, { inviteCode: string }>('/groups/join', { inviteCode }),
-    leaveGroup: (groupId: number) =>
-        post<void>(`/groups/${groupId}/leave`),
-};
-
 // ============== Item API ==============
 export const itemsApi = {
     getMarketplaceItems: () => get<ItemSummaryResponseDto[]>('/items'),
-    getItems: (groupId: number | string) => get<ItemSummaryResponseDto[]>(`/groups/${groupId}/items`),
     getItem: (itemId: number | string) => get<ItemResponseDto>(`/items/${itemId}`),
     createItem: (data: ItemCreatePayload) => post<{ id: number }, ItemCreatePayload>('/items', data),
     getMySelling: () => get<ItemSummaryResponseDto[]>('/items/my-selling'),
     getSellerItems: (memberId: number | string) => get<ItemSummaryResponseDto[]>(`/members/${memberId}/items`),
     deleteItem: (itemId: number | string) => del<void>(`/items/${itemId}`),
+};
+
+// ============== Location API ==============
+export const locationsApi = {
+    search: (query: string) =>
+        get<LocationSearchResponseDto[]>('/locations/search', { params: { query } }),
 };
 
 // ============== Seller Share API ==============

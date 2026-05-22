@@ -1,0 +1,47 @@
+version: 1
+name: knock-harness
+
+workspace:
+  axes:
+    backend:
+      path: knock-backend
+      kind: gradle-spring-boot
+      entrypoint: core:core-api
+      commands:
+        run: ./gradlew :core:core-api:bootRun
+        test: ./gradlew test
+        unit: ./gradlew unitTest
+        context: ./gradlew contextTest
+        restdocs: ./gradlew restDocsTest
+      health:
+        url: http://localhost:8080/health
+    frontend:
+      paths:
+        - knock-frontend
+        - ../knock-frontend
+      kind: node-web
+      commands:
+        install: npm install
+        run: npm run dev
+        test: npm test
+      health:
+        url: http://localhost:3000
+      optional: true
+    docs:
+      path: docs
+      kind: markdown
+      commands:
+        serve: python3 -m http.server 8088 --directory docs
+
+dependencies:
+  local:
+    compose_file: knock-backend/docker/local/docker-compose.yml
+    services:
+      - redis
+      - mysql
+
+quality_gates:
+  default:
+    - doctor
+    - backend:unit
+    - frontend:test

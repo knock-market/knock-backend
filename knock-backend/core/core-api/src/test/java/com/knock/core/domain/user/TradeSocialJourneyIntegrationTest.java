@@ -37,7 +37,7 @@ class TradeSocialJourneyIntegrationTest extends ContextTest {
 	private ObjectMapper objectMapper;
 
 	@Test
-	@DisplayName("거래 플로우: 그룹/상품/예약/승인/완료 + 권한 실패 + 북마크 토글")
+	@DisplayName("거래 플로우: 상품/예약/승인/완료 + 권한 실패 + 북마크 토글")
 	void tradeFlowWithPermissionChecks() throws Exception {
 		String sellerEmail = uniqueEmail("seller");
 		String buyerEmail = uniqueEmail("buyer");
@@ -52,33 +52,15 @@ class TradeSocialJourneyIntegrationTest extends ContextTest {
 		Cookie buyerCookie = login(buyerEmail, password);
 		Cookie strangerCookie = login(strangerEmail, password);
 
-		MvcResult createGroupResult = mockMvc
-			.perform(post("/api/v1/groups").cookie(sellerCookie)
+		MvcResult createItemResult = mockMvc
+			.perform(post("/api/v1/items").cookie(sellerCookie)
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(
-						Map.of("name", "거래 그룹", "description", "거래용", "imageUrl", "https://example.com/group.png"))))
-			.andExpect(status().isOk())
-			.andReturn();
-
-		JsonNode createdGroup = readData(createGroupResult);
-		long groupId = createdGroup.path("id").asLong();
-		String inviteCode = createdGroup.path("inviteCode").asText();
-
-		MvcResult createItemResult = mockMvc.perform(post("/api/v1/items").cookie(sellerCookie)
-			.contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(Map.of("groupId", groupId, "title", "맥북", "description", "거의 새 제품",
-					"price", 1500000, "itemType", "SELL", "category", "DIGITAL_DEVICE", "imageUrls", List.of()))))
+				.content(objectMapper.writeValueAsString(Map.of("title", "맥북", "description", "거의 새 제품", "price",
+						1500000, "itemType", "SELL", "category", "DIGITAL_DEVICE", "imageUrls", List.of()))))
 			.andExpect(status().isOk())
 			.andReturn();
 
 		long itemId = readData(createItemResult).path("id").asLong();
-
-		mockMvc
-			.perform(post("/api/v1/groups/join").cookie(buyerCookie)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(Map.of("inviteCode", inviteCode))))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.data.id").value(groupId));
 
 		MvcResult reserveResult = mockMvc
 			.perform(post("/api/v1/reservations").cookie(buyerCookie)

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { Lock } from 'lucide-react';
+import { Store } from 'lucide-react';
 import { buildGoogleAuthStartUrl, buildLoginUrl, resolveAuthNextPath } from '../utils/authRedirect';
 
 const Onboarding: React.FC = () => {
@@ -20,19 +20,18 @@ const Onboarding: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen bg-white max-w-md mx-auto relative overflow-hidden">
-      {/* Background Decor */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-100 rounded-bl-full opacity-50 -mr-16 -mt-16"></div>
-      <div className="absolute bottom-0 left-0 w-48 h-48 bg-amber-100 rounded-tr-full opacity-50 -ml-16 -mb-16"></div>
+      <div className="absolute inset-x-0 top-0 h-56 bg-emerald-50"></div>
+      <div className="absolute inset-x-0 bottom-0 h-24 bg-amber-50"></div>
 
       <div className="flex-1 flex flex-col items-center justify-center px-8 z-10 relative">
-        <div className="bg-amber-500 p-6 rounded-3xl mb-8 shadow-xl rotate-3">
-          <Lock className="text-white w-12 h-12" strokeWidth={2.5} />
+        <div className="bg-emerald-600 p-6 rounded-lg mb-8 shadow-xl shadow-emerald-100">
+          <Store className="text-white w-12 h-12" strokeWidth={2.5} />
         </div>
 
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Knock Market</h1>
         <p className="text-center text-gray-500 mb-12 px-4 leading-relaxed">
-          Trade with people you trust in your circle.<br />
-          No strangers, just friends.
+          Open your own selling shelf.<br />
+          Share the link with people who already know you.
         </p>
 
         <div className="w-full space-y-4">

@@ -3,7 +3,6 @@ package com.knock.core.domain.member;
 import com.knock.core.domain.member.dto.MemberResult;
 import com.knock.core.domain.member.dto.MemberSignupData;
 import com.knock.core.domain.member.dto.MemberSignupResult;
-import com.knock.core.domain.member.event.MemberCreatedEvent;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
 import com.knock.storage.db.core.member.Member;
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -43,9 +41,6 @@ class MemberServiceTest {
 	private PasswordEncoder passwordEncoder;
 
 	@Mock
-	private ApplicationEventPublisher eventPublisher;
-
-	@Mock
 	private MemberBlockRepository memberBlockRepository;
 
 	@Nested
@@ -70,7 +65,6 @@ class MemberServiceTest {
 			// then
 			assertThat(result.email()).isEqualTo(TEST_EMAIL);
 			verify(memberRepository).save(any(Member.class));
-			verify(eventPublisher).publishEvent(any(MemberCreatedEvent.class));
 		}
 
 		@Test

@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { DEFAULT_IMAGE } from '../constants';
 
 interface ImageWithFallbackProps extends React.ImgHTMLAttributes<HTMLImageElement> {
     fallbackSrc?: string;
 }
 
-const DEFAULT_FALLBACK = 'https://picsum.photos/400/300?grayscale'; // Generic placeholder
-
 const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
     src,
-    fallbackSrc = DEFAULT_FALLBACK,
+    fallbackSrc = DEFAULT_IMAGE,
     alt,
     loading = 'lazy',
     decoding = 'async',

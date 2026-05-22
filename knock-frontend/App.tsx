@@ -4,6 +4,7 @@ import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
 import ItemDetail from './pages/ItemDetail';
 import CreateItem from './pages/CreateItem';
+import PickupLocationPicker from './pages/PickupLocationPicker';
 import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
 import EditProfile from './pages/EditProfile';
@@ -121,6 +122,7 @@ const App: React.FC = () => {
             <Route path="/seller/:memberId" element={<SellerPage />} />
             <Route path="/shop/:token" element={<SellerPage />} />
             <Route path="/create" element={<CreateItem />} />
+            <Route path="/create/location" element={<PickupLocationPicker />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/edit-profile" element={<EditProfile />} />
             <Route path="/manage-items" element={<ManageItems />} />
