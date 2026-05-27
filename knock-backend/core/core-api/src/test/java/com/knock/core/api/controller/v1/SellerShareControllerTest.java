@@ -93,8 +93,8 @@ class SellerShareControllerTest {
 		// then
 		List<SellerShareLinkSummaryResponseDto> data = (List<SellerShareLinkSummaryResponseDto>) response.getData();
 		assertThat(data).hasSize(1);
-		assertThat(data.get(0).clickCount()).isEqualTo(3);
-		assertThat(data.get(0).useCount()).isEqualTo(2);
+		assertThat(data.get(0).clickCount()).isEqualTo(3L);
+		assertThat(data.get(0).useCount()).isEqualTo(2L);
 	}
 
 }
