@@ -9,7 +9,6 @@ import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
 import EditProfile from './pages/EditProfile';
 import NotificationSettings from './pages/NotificationSettings';
-import BlockedUsers from './pages/BlockedUsers';
 import ManageItems from './pages/ManageItems';
 import ManageItemDetail from './pages/ManageItemDetail';
 import SellerPage from './pages/SellerPage';
@@ -33,7 +32,7 @@ const isPublicPath = (pathname: string): boolean => {
   if (PUBLIC_PATHS.has(pathname)) {
     return true;
   }
-  return /^\/item\/\d+$/.test(pathname) || /^\/seller\/\d+$/.test(pathname) || /^\/shop\/[A-Za-z0-9_-]+$/.test(pathname);
+  return /^\/seller\/\d+$/.test(pathname) || /^\/shop\/[A-Za-z0-9_-]+$/.test(pathname);
 };
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -132,7 +131,6 @@ const App: React.FC = () => {
             <Route path="/manage-items" element={<ManageItems />} />
             <Route path="/manage-item/:id" element={<ManageItemDetail />} />
             <Route path="/settings/notifications" element={<NotificationSettings />} />
-            <Route path="/settings/blocked" element={<BlockedUsers />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/saved" element={<Bookmarks />} />
             <Route path="/terms" element={<TermsOfService />} />

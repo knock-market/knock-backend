@@ -62,7 +62,7 @@ const ManageItemDetail: React.FC = () => {
       setIsLoading(true);
       try {
         const [itemData, reservationData] = await Promise.all([
-          itemsApi.getItem(id),
+          itemsApi.getItemForManagement(id),
           reservationsApi.getForItem(id),
         ]);
 

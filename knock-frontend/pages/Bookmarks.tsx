@@ -18,13 +18,13 @@ const Bookmarks: React.FC = () => {
           const itemCreatedAt = bookmark.itemCreatedAt ?? bookmark.createdAt;
           return {
             id: bookmark.itemId,
+            publicId: bookmark.itemPublicId,
             title: bookmark.title,
             price: bookmark.price,
             thumbnailUrl: bookmark.thumbnailUrl,
             image: bookmark.thumbnailUrl,
             type: bookmark.type,
             status: bookmark.status,
-            category: bookmark.category,
             postedAtLabel: itemCreatedAt ? new Date(itemCreatedAt).toLocaleDateString() : '',
           };
         });
@@ -59,7 +59,7 @@ const Bookmarks: React.FC = () => {
           savedItems.map((item) => (
             <Link
               key={item.id}
-              to={`/item/${item.id}`}
+              to={`/item/${item.publicId}`}
               className="bg-white border border-gray-100 rounded-lg p-3 flex space-x-4 hover:shadow-md transition-all active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
             >
               <div className="relative w-24 h-24 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0">

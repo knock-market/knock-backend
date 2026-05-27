@@ -24,8 +24,8 @@ const isAuthError = (error: unknown): boolean => {
 const ItemDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const itemId = id ? Number(id) : NaN;
-  const hasValidItemId = Number.isInteger(itemId) && itemId > 0;
+  const itemPublicId = id?.trim() || '';
+  const hasValidItemPublicId = itemPublicId.length > 0;
 
   const [item, setItem] = useState<ItemResponseDto | null>(null);
   const [hasRequested, setHasRequested] = useState(false);
@@ -37,7 +37,7 @@ const ItemDetail = () => {
 
   useEffect(() => {
     const load = async () => {
-      if (!hasValidItemId) {
+      if (!hasValidItemPublicId) {
         setItem(null);
         setHasRequested(false);
         setIsLiked(false);
@@ -50,7 +50,7 @@ const ItemDetail = () => {
       setIsLiked(false);
       try {
         const [itemResult, bookmarkResult] = await Promise.allSettled([
-          itemsApi.getItem(itemId),
+          itemsApi.getItem(itemPublicId),
           bookmarksApi.getMyBookmarks(),
         ]);
 
@@ -78,7 +78,7 @@ const ItemDetail = () => {
     };
 
     load();
-  }, [itemId, hasValidItemId]);
+  }, [itemPublicId, hasValidItemPublicId]);
 
   if (isLoading) {
     return <ItemDetailSkeleton />;
@@ -101,16 +101,16 @@ const ItemDetail = () => {
   };
 
   const confirmReservation = async () => {
-    if (!hasValidItemId) return;
+    if (!item) return;
 
     setIsSubmitting(true);
     try {
-      await reservationsApi.create(itemId);
+      await reservationsApi.create(item.id);
       setHasRequested(true);
       alert('Reservation request sent to the seller!');
     } catch (error) {
       if (isAuthError(error)) {
-        navigate(`/login?next=${encodeURIComponent(`/item/${itemId}`)}`);
+        navigate(`/login?next=${encodeURIComponent(`/item/${itemPublicId}`)}`);
         return;
       }
       const message = error instanceof Error ? error.message : 'Failed to send reservation request.';
@@ -122,14 +122,14 @@ const ItemDetail = () => {
   };
 
   const toggleLike = async () => {
-    if (!hasValidItemId) return;
+    if (!item) return;
 
     try {
-      const result = await bookmarksApi.toggle(itemId);
+      const result = await bookmarksApi.toggle(item.id);
       setIsLiked(result.toggleOn);
     } catch (error) {
       if (isAuthError(error)) {
-        navigate(`/login?next=${encodeURIComponent(`/item/${itemId}`)}`);
+        navigate(`/login?next=${encodeURIComponent(`/item/${itemPublicId}`)}`);
         return;
       }
       const message = error instanceof Error ? error.message : 'Failed to update bookmark.';

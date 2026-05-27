@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle, MessageCircle, Package, Settings, UserX } from 'lucide-react';
+import { ArrowLeft, CheckCircle, MessageCircle, Package, Settings } from 'lucide-react';
 import { authApi, itemsApi, reservationsApi } from '../services';
 import { ItemStatus, MemberResponseDto, ReservationStatus, User } from '../types';
 import { ProfileSkeleton } from '../components/Skeletons';
@@ -23,7 +23,6 @@ const Profile: React.FC = () => {
     avatar: DEFAULT_AVATAR,
     role: 'Member',
   });
-  const [mannerTemperature, setMannerTemperature] = useState(36.5);
   const [stats, setStats] = useState<ProfileStats>({ listed: 0, received: 0, active: 0 });
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -45,7 +44,6 @@ const Profile: React.FC = () => {
           nickname: memberData.nickname,
           role: 'Seller',
         });
-        setMannerTemperature(memberData.mannerTemperature ?? 36.5);
 
         const listed = sellingItems.length;
         const active = sellingItems.filter((item) => item.status === ItemStatus.ON_SALE).length;
@@ -82,11 +80,6 @@ const Profile: React.FC = () => {
     }
   };
 
-  const radius = 70;
-  const circumference = 2 * Math.PI * radius;
-  const progress = Math.min(Math.max((mannerTemperature / 50) * 100, 0), 100) / 100;
-  const dashOffset = circumference * (1 - progress);
-
   return (
     <div className="bg-gray-50 min-h-screen pb-24 max-w-md mx-auto relative">
       <div className="absolute top-0 left-0 right-0 p-4 z-10">
@@ -110,29 +103,6 @@ const Profile: React.FC = () => {
 
         <h1 className="text-xl font-bold text-gray-900 leading-tight">{user.name}</h1>
         <p className="text-sm text-gray-400 mt-1">{user.role || 'Seller'}</p>
-
-        <div className="mt-8 flex flex-col items-center justify-center">
-          <div className="relative w-40 h-40">
-            <svg className="w-full h-full -rotate-90" viewBox="0 0 160 160">
-              <circle cx="80" cy="80" r="70" stroke="#f3f4f6" strokeWidth="10" fill="none" />
-              <circle
-                cx="80"
-                cy="80"
-                r="70"
-                stroke="#10b981"
-                strokeWidth="10"
-                fill="none"
-                strokeDasharray={circumference}
-                strokeDashoffset={dashOffset}
-                strokeLinecap="round"
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-              <span className="text-3xl font-bold text-gray-900 leading-none mb-1">{mannerTemperature.toFixed(1)}°</span>
-              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Manner<br />Temperature</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div className="p-6 space-y-6">
@@ -156,7 +126,6 @@ const Profile: React.FC = () => {
             { icon: Package, label: 'My Listings', path: '/manage-items' },
             { icon: Settings, label: 'Edit Profile', path: '/edit-profile' },
             { icon: MessageCircle, label: 'Notification Settings', path: '/settings/notifications' },
-            { icon: UserX, label: 'Blocked Users', path: '/settings/blocked' },
           ].map((menu, idx) => {
             const Icon = menu.icon;
             return (
