@@ -17,14 +17,6 @@ export enum ItemType {
   GIVE = 'GIVE',
 }
 
-export enum ItemCategory {
-  CLOTHING = 'CLOTHING',
-  FURNITURE = 'FURNITURE',
-  ETC = 'ETC',
-  DIGITAL_DEVICE = 'DIGITAL_DEVICE',
-  BOOKS = 'BOOKS',
-}
-
 export enum ItemStatus {
   ON_SALE = 'ON_SALE',
   RESERVED = 'RESERVED',
@@ -39,8 +31,6 @@ export enum ReservationStatus {
 }
 
 export type InviteDuration =
-  | 'FIVE_MINUTES'
-  | 'THIRTY_MINUTES'
   | 'ONE_HOUR'
   | 'ONE_DAY'
   | 'PERMANENT';
@@ -52,15 +42,14 @@ export interface MemberResponseDto {
   nickname: string;
   profileImageUrl?: string;
   provider?: string;
-  mannerTemperature?: number;
 }
 
 export interface ItemSummaryResponseDto {
   id: number;
+  publicId: string;
   title: string;
   price: number;
   type: ItemType;
-  category: ItemCategory;
   status: ItemStatus;
   thumbnailUrl?: string;
   writerId?: number;
@@ -78,6 +67,19 @@ export interface SellerShareLinkResponseDto {
   token: string;
   path: string;
   expiresAt?: string;
+  active: boolean;
+  clickCount: number;
+  useCount: number;
+}
+
+export interface SellerShareLinkSummaryResponseDto {
+  token: string;
+  path: string;
+  expiresAt?: string;
+  active: boolean;
+  clickCount: number;
+  useCount: number;
+  createdAt?: string;
 }
 
 export interface SellerShopResponseDto {
@@ -90,11 +92,11 @@ export interface SellerShopResponseDto {
 
 export interface ItemResponseDto {
   id: number;
+  publicId: string;
   title: string;
   description: string;
   price: number;
   type: ItemType;
-  category: ItemCategory;
   status: ItemStatus;
   imageUrls: string[];
   writerId?: number;
@@ -109,10 +111,10 @@ export interface ItemResponseDto {
 export interface MyBookmarkResponseDto {
   bookmarkId: number;
   itemId: number;
+  itemPublicId: string;
   title: string;
   price: number;
   type: ItemType;
-  category: ItemCategory;
   status: ItemStatus;
   thumbnailUrl?: string;
   createdAt?: string;
@@ -153,12 +155,6 @@ export interface NotificationSettingsResponseDto {
   chat: boolean;
   marketing: boolean;
   sound: boolean;
-}
-
-export interface BlockedUserResponseDto {
-  id: number;
-  name: string;
-  blockedAt: string;
 }
 
 export interface ImageUploadResultDto {

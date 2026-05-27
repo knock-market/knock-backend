@@ -39,6 +39,28 @@ class SellerShareLinkRepositoryTest extends CoreDbContextTest {
 		assertThat(sellerShareLinkRepository.existsByToken("seller-share-token")).isTrue();
 		assertThat(foundShareLink.get().isExpired(expiresAt.minusSeconds(1))).isFalse();
 		assertThat(foundShareLink.get().isExpired(expiresAt.plusSeconds(1))).isTrue();
+		assertThat(sellerShareLinkRepository.findAllByMemberId(member.getId())).hasSize(1);
+	}
+
+	@Test
+	@DisplayName("회원의 최신 공유 링크 1개 조회 성공")
+	void findLatestByMemberId() {
+		// given
+		Member member = memberRepository
+			.save(Member.create("seller-share-latest@test.com", "Name", "Pass", "Nick", "LOCAL"));
+		SellerShareLink firstShareLink = sellerShareLinkRepository
+			.save(SellerShareLink.create(member, "seller-share-first-token", LocalDateTime.now().plusHours(1)));
+		SellerShareLink latestShareLink = sellerShareLinkRepository
+			.save(SellerShareLink.create(member, "seller-share-latest-token", LocalDateTime.now().plusHours(2)));
+
+		// when
+		Optional<SellerShareLink> foundShareLink = sellerShareLinkRepository.findLatestByMemberId(member.getId());
+
+		// then
+		assertThat(foundShareLink).isPresent();
+		assertThat(foundShareLink.get().getId()).isNotEqualTo(firstShareLink.getId());
+		assertThat(foundShareLink.get().getId()).isEqualTo(latestShareLink.getId());
+		assertThat(foundShareLink.get().getToken()).isEqualTo("seller-share-latest-token");
 	}
 
 }

@@ -1,6 +1,5 @@
 import client from './client';
 import {
-    BlockedUserResponseDto,
     BookmarkToggleResponseDto,
     ImageUploadResultDto,
     InviteDuration,
@@ -14,6 +13,7 @@ import {
     ReservationCreateResponseDto,
     ReservationResponseDto,
     SellerShareLinkResponseDto,
+    SellerShareLinkSummaryResponseDto,
     SellerShopResponseDto,
 } from '../types';
 
@@ -31,7 +31,6 @@ type ItemCreatePayload = {
     description: string;
     price: number;
     itemType: 'SELL' | 'GIVE';
-    category: string;
     imageUrls: string[];
     tradeLocationName?: string;
     tradeLocationAddress?: string;
@@ -44,7 +43,7 @@ export const authApi = {
     emailLogin: (data: { email: string; password: string }) =>
         post<void, { email: string; password: string }>('/auth/login', data),
     signup: (data: { email: string; name: string; password: string; nickname: string; profileImageUrl?: string }) =>
-        post<void, { email: string; name: string; password: string; nickname: string; profileImageUrl?: string }>(
+      post<void, { email: string; name: string; password: string; nickname: string; profileImageUrl?: string }>(
             '/members',
             data
         ),
@@ -58,7 +57,8 @@ export const authApi = {
 export const itemsApi = {
     getMarketplaceItems: () => get<ItemSummaryResponseDto[]>('/items'),
     getItem: (itemId: number | string) => get<ItemResponseDto>(`/items/${itemId}`),
-    createItem: (data: ItemCreatePayload) => post<{ id: number }, ItemCreatePayload>('/items', data),
+    getItemForManagement: (itemId: number | string) => get<ItemResponseDto>(`/items/manage/${itemId}`),
+    createItem: (data: ItemCreatePayload) => post<{ id: number; publicId: string }, ItemCreatePayload>('/items', data),
     getMySelling: () => get<ItemSummaryResponseDto[]>('/items/my-selling'),
     getSellerItems: (memberId: number | string) => get<ItemSummaryResponseDto[]>(`/members/${memberId}/items`),
     deleteItem: (itemId: number | string) => del<void>(`/items/${itemId}`),
@@ -74,6 +74,8 @@ export const locationsApi = {
 export const sellerShareApi = {
     create: (duration: InviteDuration = 'ONE_DAY') =>
         post<SellerShareLinkResponseDto, { duration: InviteDuration }>('/seller-shares', { duration }),
+    getMyLinks: () => get<SellerShareLinkSummaryResponseDto[]>('/seller-shares/my'),
+    deactivate: (token: string) => del<void>(`/seller-shares/${token}`),
     getShop: (token: string) => get<SellerShopResponseDto>(`/seller-shares/${token}`),
 };
 
@@ -110,13 +112,6 @@ export const memberSettingsApi = {
         get<NotificationSettingsResponseDto>('/members/my/settings/notifications'),
     updateNotificationSettings: (data: NotificationSettingsResponseDto) =>
         put<void, NotificationSettingsResponseDto>('/members/my/settings/notifications', data),
-};
-
-// ============== Member Block API ==============
-export const memberBlockApi = {
-    getBlockedUsers: () => get<BlockedUserResponseDto[]>('/members/my/blocked'),
-    blockUser: (memberId: number | string) => post<void>(`/members/${memberId}/block`),
-    unblockUser: (memberId: number | string) => del<void>(`/members/${memberId}/block`),
 };
 
 // ============== Image API ==============
