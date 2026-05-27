@@ -1,7 +1,7 @@
 # Knock Backend Convention (v1)
 
 작성일: 2026-02-14  
-검수일: 2026-05-12
+검수일: 2026-05-26
 대상 프로젝트: `knock-backend`
 
 이 문서는 현재 코드베이스(`core-api`, `core-auth`, `storage/db-core`, `infra/s3`)를 기준으로 정리한 백엔드 개발 컨벤션이다.  
@@ -111,7 +111,7 @@
 - 락 기반 검증 시, 잠금 대상에서 누락된 엔티티를 무시하지 않고 즉시 예외로 처리한다.
   - 예: `approveReservation`에서 `findByItemIdForUpdate` 결과에 대상 예약이 없으면 `RESERVATION_NOT_FOUND`.
 - 유니크 제약을 이용해 멱등성을 보장하는 API는 `save` 시점의 충돌 예외를 정상 시나리오로 흡수할 수 있어야 한다.
-  - 예: `blockMember`는 `DataIntegrityViolationException` 발생 후 실존 여부 재검증으로 멱등 처리.
+  - 예: 공유 링크 토큰 생성은 충돌 시 새 토큰으로 재시도한다.
 - 소프트 삭제와 연계된 도메인 상태 전이는 삭제 전에 명시적으로 처리한다.
   - 예: `deleteItem` 실행 전 `WAITING`/`APPROVED` 예약을 `CANCELED`로 전환.
 - 비동기 후처리는 `@Async`로 분리하되 예외는 `AsyncExceptionHandler`로 수집한다.

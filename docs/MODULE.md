@@ -2,7 +2,7 @@
 
 이 문서는 `knock-backend` 프로젝트의 멀티 모듈 구조, 각 모듈의 역할, 테스트 전략, 그리고 Gradle Kotlin DSL에 대해 설명합니다.
 
-검수일: 2026-05-12
+검수일: 2026-05-27
 
 ## 1. 프로젝트 구조 개요
 현재 프로젝트는 기능과 역할에 따라 여러 개의 모듈로 나뉘어 있습니다.
@@ -166,7 +166,7 @@ val javaVersion = property("javaVersion") as String
 ```
 -   `gradle.properties` 파일에 정의된 변수를 가져와서 사용합니다. 버전을 한곳에서 관리하기 위함입니다.
 
-## 5. 최근 반영사항 (2026-05-12)
+## 5. 최근 반영사항 (2026-05-26)
 
 아래 변경은 모듈 간 책임 분리를 유지한 채 각 레이어에 반영되었습니다.
 
@@ -175,21 +175,28 @@ val javaVersion = property("javaVersion") as String
   - 전체 마켓 상품 목록 API 추가: `GET /api/v1/items`
   - 공개 판매자 상품 목록 API 추가: `GET /api/v1/members/{memberId}/items`
   - 만료 가능한 판매자 공유 링크 추가: `POST /api/v1/seller-shares`, `GET /api/v1/seller-shares/{token}`
-  - 상품 등록은 인증된 판매자의 개인 매대에 저장되며 `groupId`를 받지 않음
+  - 공유 링크 관리 API 추가: `GET /api/v1/seller-shares/my`, `DELETE /api/v1/seller-shares/{token}`
+  - 공유 링크는 현재 링크 1개 기준으로 관리하며, 새 링크 생성 시 기존 링크를 비활성화
+  - 현재 공유 링크 지표(`clickCount`, `useCount`)와 중단 상태(`active`) 저장
+  - 상품 외부 URL용 `publicId` 추가. 내부 PK는 유지하되 홈/공유 매대/북마크 링크는 `/item/{publicId}`를 사용
+  - 상품 등록은 인증된 판매자의 개인 매대에 저장되며 `groupId`와 `category`를 받지 않음
+  - 그룹 장터 스키마(`Group`, `GroupMember`, `item.group_id`) 제거
+  - 차단 스키마/API(`MemberBlock`, `/members/{memberId}/block`) 제거
+  - 매너온도/평판 계산 스키마와 서비스 제거
   - 거래 위치 좌표 범위 검증 추가
   - 상품 삭제 시 활성 예약(`WAITING`, `APPROVED`) 자동 취소 후 소프트 삭제
   - 예약 승인 시 `FOR UPDATE` 조회 대상 누락을 예외 처리(`RESERVATION_NOT_FOUND`)
-  - 회원 차단 API 동시 요청 충돌(`DataIntegrityViolationException`) 멱등 처리
   - 알림 전체 읽음 API 추가: `PATCH /api/v1/notifications/read-all`
   - 후기 작성/조회 API 유지: `POST /api/v1/reviews`, `GET /api/v1/members/{memberId}/reviews`
 - `core:core-api` (DTO)
-  - 상품 상세/목록 응답에 판매자 닉네임/프로필 이미지와 거래 위치 필드 확장
-  - 북마크 응답에 `type`, `category`, `status`, `itemCreatedAt` 확장
+  - 상품 상세/목록 응답에 `publicId`, 판매자 닉네임/프로필 이미지, 거래 위치 필드 확장
+  - 북마크 응답에 `itemPublicId`, `type`, `status`, `itemCreatedAt` 확장
 - 루트 하네스
   - `Makefile`, `scripts/harness.sh`, `harness/harness.yml` 추가
   - 루트에서 `make doctor`, `make verify`, `make backend-run`, `make frontend-test` 실행 가능
 - `knock-frontend`
   - 개인 판매 페이지(`/seller/:memberId`, `/shop/:token`) 추가
+  - 개인 판매 페이지에 구글 드라이브 일반 액세스와 유사한 단일 공유 링크 모달 추가
   - 홈과 하단 탭에서 그룹 중심 문구 제거
   - 상품 등록 화면에서 그룹/카테고리 선택 제거
   - 상품 등록 화면에 Naver Map 검색/지도 선택 기반 거래 위치 입력 추가

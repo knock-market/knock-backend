@@ -1,6 +1,6 @@
 # Knock API Reference
 
-업데이트 기준: 2026-05-12
+업데이트 기준: 2026-05-27
 
 문서화된 API는 `core-api` 모듈의 컨트롤러와 DTO를 기준으로 검수했습니다.
 상세한 Request/Response 스니펫은 `./gradlew :core:core-api:asciidoctor` 실행 후 생성되는 HTML 문서를 참고하세요.
@@ -23,40 +23,49 @@
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|
 | POST | `/api/v1/members` | 회원가입 | `MemberSignupRequestDto` <br> `{ email, name, password, nickname, profileImageUrl }` | `MemberSignupResponseDto` <br> `{ email, name, nickname, profileImageUrl, provider }` | ✅ Implemented |
-| GET | `/api/v1/members/my` | 내 정보 조회 | `(None)` | `MemberResponseDto` <br> `{ id, email, name, nickname, profileImageUrl, provider, mannerTemperature }` | ✅ Implemented |
+| GET | `/api/v1/members/my` | 내 정보 조회 | `(None)` | `MemberResponseDto` <br> `{ id, email, name, nickname, profileImageUrl, provider }` | ✅ Implemented |
 | PUT | `/api/v1/members/my` | 내 정보 수정 | `MemberUpdateRequestDto` <br> `{ nickname, profileImageUrl }` | `ApiResponse` <br> `(void)` | ✅ Implemented |
 | GET | `/api/v1/members/my/settings/notifications` | 내 알림 설정 조회 | `(None)` | `NotificationSettingsResponseDto` <br> `{ push, newItems, chat, marketing, sound }` | ✅ Implemented |
 | PUT | `/api/v1/members/my/settings/notifications` | 내 알림 설정 수정 | `NotificationSettingsUpdateRequestDto` <br> `{ push, newItems, chat, marketing, sound }` | `ApiResponse` <br> `(void)` | ✅ Implemented |
-| GET | `/api/v1/members/my/blocked` | 차단 유저 목록 조회 | `(None)` | `List<BlockedMemberResponseDto>` <br> `[{ id, name, blockedAt }]` | ✅ Implemented |
-| POST | `/api/v1/members/{memberId}/block` | 유저 차단 (멱등) | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
-| DELETE | `/api/v1/members/{memberId}/block` | 유저 차단 해제 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
-| GET | `/api/v1/members/{memberId}/items` | 특정 회원의 공개 판매 상품 목록 | `(None)` | `List<ItemSummaryResponseDto>` <br> `[{ id, title, price, type, category, status, thumbnailUrl, writerId, writerNickname, writerProfileImageUrl, likesCount, postedAt, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }]` | ✅ Implemented |
-| POST | `/api/v1/seller-shares` | 내 판매 페이지 공유 링크 생성 | `SellerShareLinkCreateRequestDto` <br> `{ duration }` | `SellerShareLinkResponseDto` <br> `{ token, path, expiresAt }` | ✅ Implemented |
+| GET | `/api/v1/members/{memberId}/items` | 특정 회원의 공개 판매 상품 목록 | `(None)` | `List<ItemSummaryResponseDto>` <br> `[{ id, publicId, title, price, type, status, thumbnailUrl, writerId, writerNickname, writerProfileImageUrl, likesCount, postedAt, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }]` | ✅ Implemented |
+| POST | `/api/v1/seller-shares` | 내 판매 페이지 공유 링크 생성 | `SellerShareLinkCreateRequestDto` <br> `{ duration }` <br> `ONE_HOUR`, `ONE_DAY`, `PERMANENT` | `SellerShareLinkResponseDto` <br> `{ token, path, expiresAt, active, clickCount, useCount }` | ✅ Implemented |
+| GET | `/api/v1/seller-shares/my` | 내 현재 공유 링크와 지표 조회 | `(None)` | `List<SellerShareLinkSummaryResponseDto>` <br> 최신 링크 0~1개 `[{ token, path, expiresAt, active, clickCount, useCount, createdAt }]` | ✅ Implemented |
+| DELETE | `/api/v1/seller-shares/{token}` | 공유 링크 중단 | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
 | GET | `/api/v1/seller-shares/{token}` | 공유 링크로 판매 페이지 조회 | `(None)` | `SellerShopResponseDto` <br> `{ sellerId, sellerName, sellerNickname, sellerProfileImageUrl, items }` | ✅ Implemented |
 
 ## 3. Item API
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|
 | GET | `/api/v1/items` | 전체 마켓 상품 목록 | `(None)` | `List<ItemSummaryResponseDto>` | ✅ Implemented |
-| POST | `/api/v1/items` | 내 개인 매대에 상품 등록 | `ItemCreateRequestDto` <br> `{ title, description, price, itemType, category?, imageUrls, tradeLocationName?, tradeLocationAddress?, tradeLatitude?, tradeLongitude? }` | `ItemIdResponseDto` <br> `{ id }` | ✅ Implemented |
-| GET | `/api/v1/items/{itemId}` | 상품 상세 조회 | `(None)` | `ItemResponseDto` <br> `{ id, title, description, price, type, category, status, imageUrls, writerId, writerNickname, writerProfileImageUrl, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }` | ✅ Implemented |
-| GET | `/api/v1/items/my-selling` | 내 판매 상품 목록 | `(None)` | `List<ItemSummaryResponseDto>` <br> `[{ id, title, price, type, category, status, thumbnailUrl, writerId, writerNickname, writerProfileImageUrl, likesCount, postedAt, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }]` | ✅ Implemented |
+| POST | `/api/v1/items` | 내 개인 매대에 상품 등록 | `ItemCreateRequestDto` <br> `{ title, description, price, itemType, imageUrls, tradeLocationName?, tradeLocationAddress?, tradeLatitude?, tradeLongitude? }` | `ItemIdResponseDto` <br> `{ id, publicId }` | ✅ Implemented |
+| GET | `/api/v1/items/{itemPublicId}` | 상품 상세 조회. 인증 필요. URL에는 숫자 PK 대신 공개 식별자를 사용 | `(None)` | `ItemResponseDto` <br> `{ id, publicId, title, description, price, type, status, imageUrls, writerId, writerNickname, writerProfileImageUrl, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }` | ✅ Implemented |
+| GET | `/api/v1/items/manage/{itemId}` | 판매자 관리 화면용 상품 상세 조회. 인증 필요 | `(None)` | `ItemResponseDto` <br> `{ id, publicId, title, description, price, type, status, imageUrls, writerId, writerNickname, writerProfileImageUrl, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }` | ✅ Implemented |
+| GET | `/api/v1/items/my-selling` | 내 판매 상품 목록 | `(None)` | `List<ItemSummaryResponseDto>` <br> `[{ id, publicId, title, price, type, status, thumbnailUrl, writerId, writerNickname, writerProfileImageUrl, likesCount, postedAt, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }]` | ✅ Implemented |
 | DELETE | `/api/v1/items/{itemId}` | 내 상품 삭제 (활성 예약은 자동 취소) | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
 
 ### Item location field rules
 
 - `tradeLatitude`와 `tradeLongitude`는 둘 다 없거나 둘 다 있어야 합니다.
+- 상품 등록에는 `tradeLocationName`, `tradeLocationAddress`, `tradeLatitude`, `tradeLongitude`가 모두 필요합니다.
 - 위도 범위는 `-90..90`, 경도 범위는 `-180..180`입니다.
 - 프론트엔드는 `VITE_NAVER_MAP_CLIENT_ID`가 있으면 등록 화면에서 Naver Map 지도 선택을 사용합니다.
 - 장소 검색은 백엔드 `Location API`가 Naver Local Search/Geocoding API를 호출해 좌표를 반환합니다.
-- 상품 등록은 인증된 판매자의 개인 매대에 저장되며 `groupId`를 받지 않습니다.
-- `category`가 없으면 서버는 기본 `ETC`로 저장합니다.
+- 상품 등록은 인증된 판매자의 개인 매대에 저장되며 `groupId`와 `category`를 받지 않습니다.
+- 상품 상세 URL은 `/item/{publicId}`를 사용합니다. 내부 숫자 `id`는 예약/북마크 같은 인증 후 API payload에서만 사용합니다.
+
+### Seller share rules
+
+- 공유 링크 유효시간은 `ONE_HOUR`(1시간), `ONE_DAY`(24시간), `PERMANENT`(무제한)만 사용합니다.
+- 판매자 매대의 공유 상태는 구글 드라이브의 일반 액세스처럼 현재 링크 1개 기준으로 관리합니다.
+- 새 공유 링크를 만들면 기존 링크는 모두 비활성화되고, `GET /api/v1/seller-shares/my`는 최신 링크 0~1개만 반환합니다.
+- `clickCount`는 공유 링크 요청 수, `useCount`는 활성 상태에서 실제 판매 페이지가 열린 횟수입니다.
+- 판매자가 `DELETE /api/v1/seller-shares/{token}`을 호출하면 해당 링크는 즉시 비활성화됩니다.
 
 ## 4. Bookmark API
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|
 | POST | `/api/v1/items/{itemId}/bookmarks` | 상품 찜하기 (Toggle) | `(None)` | `BookmarkToggleResponseDto` <br> `{ itemId, toggleOn }` | ✅ Implemented |
-| GET | `/api/v1/items/my-bookmarks` | 내 찜 목록 | `(None)` | `List<MyBookmarkResponseDto>` <br> `[{ bookmarkId, itemId, title, price, type, category, status, thumbnailUrl, createdAt, itemCreatedAt }]` | ✅ Implemented |
+| GET | `/api/v1/items/my-bookmarks` | 내 찜 목록 | `(None)` | `List<MyBookmarkResponseDto>` <br> `[{ bookmarkId, itemId, itemPublicId, title, price, type, status, thumbnailUrl, createdAt, itemCreatedAt }]` | ✅ Implemented |
 
 ## 5. Reservation API
 | Method | URI | Description | Request Body | Response Body | Status |
