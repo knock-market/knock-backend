@@ -70,7 +70,7 @@ class BookmarkControllerTest extends RestDocsTest {
 	void getMyBookmarks_success() {
 		// given
 		Member member = createMember(TEST_MEMBER_ID);
-		Item item = createItem(TEST_ITEM_ID, createGroup(), member);
+		Item item = createItem(TEST_ITEM_ID, member);
 		Bookmark bookmark = createBookmark(TEST_BOOKMARK_ID, member, item);
 		BookmarkResult result = BookmarkResult.from(bookmark, TEST_IMAGE_URL);
 
@@ -84,10 +84,10 @@ class BookmarkControllerTest extends RestDocsTest {
 					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
 							fieldWithPath("data[].bookmarkId").type(JsonFieldType.NUMBER).description("북마크 ID"),
 							fieldWithPath("data[].itemId").type(JsonFieldType.NUMBER).description("상품 ID"),
+							fieldWithPath("data[].itemPublicId").type(JsonFieldType.STRING).description("공개 상품 식별자"),
 							fieldWithPath("data[].title").type(JsonFieldType.STRING).description("상품 제목"),
 							fieldWithPath("data[].price").type(JsonFieldType.NUMBER).description("상품 가격"),
 							fieldWithPath("data[].type").type(JsonFieldType.STRING).description("거래 유형"),
-							fieldWithPath("data[].category").type(JsonFieldType.STRING).description("카테고리"),
 							fieldWithPath("data[].status").type(JsonFieldType.STRING).description("상품 상태"),
 							fieldWithPath("data[].thumbnailUrl").type(JsonFieldType.STRING).description("상품 썸네일 URL"),
 							fieldWithPath("data[].createdAt").description("생성일"),

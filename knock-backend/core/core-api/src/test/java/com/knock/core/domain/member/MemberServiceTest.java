@@ -6,7 +6,6 @@ import com.knock.core.domain.member.dto.MemberSignupResult;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
 import com.knock.storage.db.core.member.Member;
-import com.knock.storage.db.core.member.MemberBlockRepository;
 import com.knock.storage.db.core.member.MemberRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -39,9 +38,6 @@ class MemberServiceTest {
 
 	@Mock
 	private PasswordEncoder passwordEncoder;
-
-	@Mock
-	private MemberBlockRepository memberBlockRepository;
 
 	@Nested
 	@DisplayName("회원가입")

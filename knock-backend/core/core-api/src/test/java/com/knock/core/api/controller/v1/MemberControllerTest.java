@@ -97,7 +97,7 @@ class MemberControllerTest extends RestDocsTest {
 	void getMyMember_success() {
 		// given
 		MemberResult result = new MemberResult(TEST_MEMBER_ID, TEST_EMAIL, TEST_NAME, TEST_NICKNAME, null,
-				TEST_PROVIDER, 36.5);
+				TEST_PROVIDER);
 		given(memberService.getMember(any())).willReturn(result);
 
 		restDocGiven().get("/api/v1/members/my")
@@ -113,7 +113,6 @@ class MemberControllerTest extends RestDocsTest {
 								.description("프로필 이미지 URL")
 								.optional(),
 							fieldWithPath("data.provider").type(JsonFieldType.STRING).description("가입 경로"),
-							fieldWithPath("data.mannerTemperature").type(JsonFieldType.NUMBER).description("매너 온도"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}
 

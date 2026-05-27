@@ -12,9 +12,9 @@ public class GoogleOAuthProperties {
 
 	private final String redirectUri;
 
-	public GoogleOAuthProperties(@Value("${GOOGLE_CLIENT_ID}") String clientId,
-			@Value("${GOOGLE_CLIENT_SECRET}") String clientSecret,
-			@Value("${GOOGLE_REDIRECT_URI}") String redirectUri) {
+	public GoogleOAuthProperties(@Value("${GOOGLE_CLIENT_ID:}") String clientId,
+			@Value("${GOOGLE_CLIENT_SECRET:}") String clientSecret,
+			@Value("${GOOGLE_REDIRECT_URI:}") String redirectUri) {
 		this.clientId = clientId;
 		this.clientSecret = clientSecret;
 		this.redirectUri = redirectUri;

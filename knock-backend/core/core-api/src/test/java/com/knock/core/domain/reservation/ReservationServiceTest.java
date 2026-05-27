@@ -62,7 +62,7 @@ class ReservationServiceTest {
 		void success_reservation() {
 			// given
 			Member member = createMember(TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, createGroup(), createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2));
+			Item item = createItem(TEST_ITEM_ID, createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2));
 			Reservation reservation = createReservation(TEST_RESERVATION_ID, item, member);
 			ReservationCreateData data = new ReservationCreateData(TEST_ITEM_ID, TEST_MEMBER_ID);
 
@@ -85,7 +85,7 @@ class ReservationServiceTest {
 			assertThat(notification.memberId()).isEqualTo(TEST_MEMBER_ID_2);
 			assertThat(notification.notificationType()).isEqualTo(NotificationType.RESERVATION_CREATED);
 			assertThat(notification.content()).contains(member.getNickname(), item.getTitle(), "관심");
-			assertThat(notification.relatedUrl()).isEqualTo("/items/" + item.getId() + "/reservations");
+			assertThat(notification.relatedUrl()).isEqualTo("/manage-item/" + item.getId());
 		}
 
 		@Test
@@ -93,7 +93,7 @@ class ReservationServiceTest {
 		void fail_alreadyApproved() {
 			// given
 			Member member = createMember(TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, createGroup(), createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2));
+			Item item = createItem(TEST_ITEM_ID, createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2));
 			ReservationCreateData data = new ReservationCreateData(TEST_ITEM_ID, TEST_MEMBER_ID);
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
@@ -125,7 +125,7 @@ class ReservationServiceTest {
 		void fail_selfReservation() {
 			// given
 			Member member = createMember(TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, createGroup(), member);
+			Item item = createItem(TEST_ITEM_ID, member);
 			ReservationCreateData data = new ReservationCreateData(TEST_ITEM_ID, TEST_MEMBER_ID);
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
@@ -150,7 +150,7 @@ class ReservationServiceTest {
 			// given
 			Member owner = createMember(TEST_MEMBER_ID);
 			Member buyer = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
-			Item item = createItem(TEST_ITEM_ID, createGroup(), owner);
+			Item item = createItem(TEST_ITEM_ID, owner);
 			Reservation reservation = createReservation(TEST_RESERVATION_ID, item, buyer);
 
 			given(reservationRepository.findByIdWithItemAndMember(TEST_RESERVATION_ID))
@@ -171,7 +171,7 @@ class ReservationServiceTest {
 			// given
 			Member owner = createMember(TEST_MEMBER_ID);
 			Member buyer = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
-			Item item = createItem(TEST_ITEM_ID, createGroup(), owner);
+			Item item = createItem(TEST_ITEM_ID, owner);
 			Reservation reservation = createReservation(TEST_RESERVATION_ID, item, buyer);
 
 			given(reservationRepository.findByIdWithItemAndMember(TEST_RESERVATION_ID))
@@ -190,7 +190,7 @@ class ReservationServiceTest {
 			Member owner = createMember(TEST_MEMBER_ID);
 			Member buyer = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
 			Member otherBuyer = createMember(3L, "other@test.com");
-			Item item = createItem(TEST_ITEM_ID, createGroup(), owner);
+			Item item = createItem(TEST_ITEM_ID, owner);
 			Reservation target = createReservation(TEST_RESERVATION_ID, item, buyer);
 			Reservation approved = createReservation(2L, item, otherBuyer, ReservationStatus.APPROVED);
 
@@ -209,7 +209,7 @@ class ReservationServiceTest {
 			// given
 			Member owner = createMember(TEST_MEMBER_ID);
 			Member buyer = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
-			Item item = createItem(TEST_ITEM_ID, createGroup(), owner);
+			Item item = createItem(TEST_ITEM_ID, owner);
 			Reservation reservation = createReservation(TEST_RESERVATION_ID, item, buyer);
 
 			given(reservationRepository.findByIdWithItemAndMember(TEST_RESERVATION_ID))
@@ -234,7 +234,7 @@ class ReservationServiceTest {
 			// given
 			Member owner = createMember(TEST_MEMBER_ID);
 			Member buyer = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
-			Item item = createItem(TEST_ITEM_ID, createGroup(), owner);
+			Item item = createItem(TEST_ITEM_ID, owner);
 			Reservation reservation = createReservation(TEST_RESERVATION_ID, item, buyer, ReservationStatus.APPROVED);
 
 			given(reservationRepository.findByIdWithItemAndMember(TEST_RESERVATION_ID))
@@ -254,7 +254,7 @@ class ReservationServiceTest {
 			// given
 			Member owner = createMember(TEST_MEMBER_ID);
 			Member buyer = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
-			Item item = createItem(TEST_ITEM_ID, createGroup(), owner);
+			Item item = createItem(TEST_ITEM_ID, owner);
 			Reservation reservation = createReservation(TEST_RESERVATION_ID, item, buyer, ReservationStatus.APPROVED);
 
 			given(reservationRepository.findByIdWithItemAndMember(TEST_RESERVATION_ID))
@@ -280,7 +280,7 @@ class ReservationServiceTest {
 			// given
 			Member owner = createMember(TEST_MEMBER_ID);
 			Member buyer = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
-			Item item = createItem(TEST_ITEM_ID, createGroup(), owner);
+			Item item = createItem(TEST_ITEM_ID, owner);
 			Reservation reservation = createReservation(TEST_RESERVATION_ID, item, buyer);
 
 			given(reservationRepository.findByIdWithItemAndMember(TEST_RESERVATION_ID))
@@ -305,7 +305,7 @@ class ReservationServiceTest {
 		void getReservationsByItem() {
 			// given
 			Member member = createMember(TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, createGroup(), member);
+			Item item = createItem(TEST_ITEM_ID, member);
 			Reservation reservation = createReservation(TEST_RESERVATION_ID, item, member);
 
 			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
@@ -323,7 +323,7 @@ class ReservationServiceTest {
 		void getReservationsByItem_fail_forbidden() {
 			// given
 			Member owner = createMember(TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, createGroup(), owner);
+			Item item = createItem(TEST_ITEM_ID, owner);
 			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
 
 			// when & then
@@ -337,7 +337,7 @@ class ReservationServiceTest {
 		void getMyReservations() {
 			// given
 			Member member = createMember(TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, createGroup(), member);
+			Item item = createItem(TEST_ITEM_ID, member);
 			Reservation reservation = createReservation(TEST_RESERVATION_ID, item, member);
 
 			given(reservationRepository.findByMemberId(TEST_MEMBER_ID)).willReturn(List.of(reservation));

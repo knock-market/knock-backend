@@ -30,8 +30,6 @@ public class ReviewService {
 
 	private final ReservationRepository reservationRepository;
 
-	private final ReputationService reputationService;
-
 	@Transactional
 	public ReviewResult createReview(Long memberId, ReviewCreateData reviewCreateData) {
 		Reservation reservation = findReservation(memberId, reviewCreateData.itemId());
@@ -43,8 +41,6 @@ public class ReviewService {
 		try {
 			Review savedReview = reviewRepository
 				.save(Review.create(reservation, buyer, seller, reviewCreateData.content(), reviewCreateData.score()));
-
-			reputationService.changeReputation(seller, reviewCreateData.score());
 
 			return ReviewResult.from(savedReview);
 		}

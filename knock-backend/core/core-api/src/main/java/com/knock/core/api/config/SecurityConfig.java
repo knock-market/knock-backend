@@ -31,10 +31,10 @@ public class SecurityConfig {
 				securityContext.requireExplicitSave(true);
 			})
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers(RegexRequestMatcher.regexMatcher(HttpMethod.GET, "/api/v1/items/\\d+"))
-				.permitAll()
 				.requestMatchers(RegexRequestMatcher.regexMatcher(HttpMethod.GET, "/api/v1/members/\\d+/items"))
 				.permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/v1/seller-shares/my")
+				.authenticated()
 				.requestMatchers(
 						RegexRequestMatcher.regexMatcher(HttpMethod.GET, "/api/v1/seller-shares/[A-Za-z0-9_-]+"))
 				.permitAll()
