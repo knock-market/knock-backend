@@ -57,7 +57,7 @@ class SellerShareServiceTest {
 			Member member = createMember(TEST_MEMBER_ID);
 			SellerShareLink oldShareLink = SellerShareLink.create(member, "old-share-token",
 					LocalDateTime.now().plusHours(1));
-			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
+			given(memberRepository.findByIdForUpdate(TEST_MEMBER_ID)).willReturn(Optional.of(member));
 			given(sellerShareLinkRepository.findAllByMemberId(TEST_MEMBER_ID)).willReturn(List.of(oldShareLink));
 			given(sellerShareLinkRepository.save(any(SellerShareLink.class)))
 				.willAnswer(invocation -> invocation.getArgument(0));
@@ -90,7 +90,8 @@ class SellerShareServiceTest {
 			SellerShareLink shareLink = SellerShareLink.create(member, TEST_SELLER_SHARE_TOKEN,
 					LocalDateTime.now().plusHours(1));
 
-			given(sellerShareLinkRepository.findByToken(TEST_SELLER_SHARE_TOKEN)).willReturn(Optional.of(shareLink));
+			given(sellerShareLinkRepository.findByTokenForUpdate(TEST_SELLER_SHARE_TOKEN))
+				.willReturn(Optional.of(shareLink));
 			given(itemRepository.findByMemberIdWithLikes(TEST_MEMBER_ID))
 				.willReturn(List.<Object[]>of(new Object[] { item, TEST_IMAGE_URL, 1L }));
 
@@ -111,7 +112,8 @@ class SellerShareServiceTest {
 			Member member = createMember(TEST_MEMBER_ID);
 			SellerShareLink shareLink = SellerShareLink.create(member, TEST_SELLER_SHARE_TOKEN,
 					LocalDateTime.now().minusMinutes(1));
-			given(sellerShareLinkRepository.findByToken(TEST_SELLER_SHARE_TOKEN)).willReturn(Optional.of(shareLink));
+			given(sellerShareLinkRepository.findByTokenForUpdate(TEST_SELLER_SHARE_TOKEN))
+				.willReturn(Optional.of(shareLink));
 
 			// when & then
 			assertThatThrownBy(() -> sellerShareService.getSellerShop(TEST_SELLER_SHARE_TOKEN))
@@ -149,7 +151,8 @@ class SellerShareServiceTest {
 			Member member = createMember(TEST_MEMBER_ID);
 			SellerShareLink shareLink = SellerShareLink.create(member, TEST_SELLER_SHARE_TOKEN,
 					LocalDateTime.now().plusHours(1));
-			given(sellerShareLinkRepository.findByToken(TEST_SELLER_SHARE_TOKEN)).willReturn(Optional.of(shareLink));
+			given(sellerShareLinkRepository.findByTokenForUpdate(TEST_SELLER_SHARE_TOKEN))
+				.willReturn(Optional.of(shareLink));
 
 			// when
 			sellerShareService.deactivateShareLink(TEST_MEMBER_ID, TEST_SELLER_SHARE_TOKEN);

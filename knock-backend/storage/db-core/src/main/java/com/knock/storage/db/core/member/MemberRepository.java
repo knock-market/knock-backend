@@ -8,6 +8,8 @@ public interface MemberRepository {
 
 	Optional<Member> findById(Long id);
 
+	Optional<Member> findByIdForUpdate(Long id);
+
 	Optional<Member> findByEmail(String email);
 
 	Optional<Member> findByProviderAndProviderId(String provider, String providerId);

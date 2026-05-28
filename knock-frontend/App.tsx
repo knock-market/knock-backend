@@ -32,7 +32,11 @@ const isPublicPath = (pathname: string): boolean => {
   if (PUBLIC_PATHS.has(pathname)) {
     return true;
   }
-  return /^\/seller\/\d+$/.test(pathname) || /^\/shop\/[A-Za-z0-9_-]+$/.test(pathname);
+  return (
+    /^\/item\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(pathname) ||
+    /^\/seller\/\d+$/.test(pathname) ||
+    /^\/shop\/[A-Za-z0-9_-]+$/.test(pathname)
+  );
 };
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {

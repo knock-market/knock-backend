@@ -202,5 +202,5 @@ val javaVersion = property("javaVersion") as String
   - 상품 등록 화면에 Naver Map 검색/지도 선택 기반 거래 위치 입력 추가
   - 상품 상세 화면에 Naver Map 표시 및 검색 링크 fallback 추가
   - 로그아웃 버튼이 서버 `POST /api/v1/auth/logout` 호출 후 이동하도록 수정
-  - 숫자 라우트 파라미터 검증 강화 (`ItemDetail`, `ManageItemDetail`)
+  - 상품 상세는 UUID 형식 `publicId` 라우트만 공개 접근으로 허용하고, 관리 화면은 숫자 내부 ID를 인증 후 사용
   - 생성/상세 화면의 잘못된 UI 상태(무한 로딩, 비작동 토글, 잘못된 라벨/북마크 상태) 보정

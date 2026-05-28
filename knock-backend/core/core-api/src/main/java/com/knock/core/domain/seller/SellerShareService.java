@@ -38,7 +38,7 @@ public class SellerShareService {
 
 	@Transactional
 	public SellerShareLinkCreateResult createShareLink(Long memberId, InviteDuration duration) {
-		Member member = memberRepository.findById(memberId)
+		Member member = memberRepository.findByIdForUpdate(memberId)
 			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 		InviteDuration normalizedDuration = duration == null ? InviteDuration.ONE_DAY : duration;
 		LocalDateTime expiresAt = normalizedDuration.getDuration() == null ? null
@@ -52,7 +52,7 @@ public class SellerShareService {
 
 	@Transactional
 	public SellerShopResult getSellerShop(String token) {
-		SellerShareLink shareLink = sellerShareLinkRepository.findByToken(token)
+		SellerShareLink shareLink = sellerShareLinkRepository.findByTokenForUpdate(token)
 			.orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
 		shareLink.recordClick();
 		if (!shareLink.isAvailable(LocalDateTime.now())) {
@@ -80,7 +80,7 @@ public class SellerShareService {
 
 	@Transactional
 	public void deactivateShareLink(Long memberId, String token) {
-		SellerShareLink shareLink = sellerShareLinkRepository.findByToken(token)
+		SellerShareLink shareLink = sellerShareLinkRepository.findByTokenForUpdate(token)
 			.orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
 		if (!shareLink.getMember().getId().equals(memberId)) {
 			throw new CoreException(ErrorType.FORBIDDEN);

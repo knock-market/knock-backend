@@ -9,6 +9,8 @@ public interface SellerShareLinkRepository {
 
 	Optional<SellerShareLink> findByToken(String token);
 
+	Optional<SellerShareLink> findByTokenForUpdate(String token);
+
 	List<SellerShareLink> findAllByMemberId(Long memberId);
 
 	Optional<SellerShareLink> findLatestByMemberId(Long memberId);

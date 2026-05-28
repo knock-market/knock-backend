@@ -58,7 +58,7 @@ Knock Market은 그룹형 중고거래 장터에서 개인 판매자가 자신�
 - 이메일/비밀번호 로그인과 Google OAuth 로그인
 - 개인 매대(`/seller/:memberId`)와 공유 링크 매대(`/shop/:token`)
 - 상품 등록/목록/상세/삭제
-- 상품 상세 URL `/item/{publicId}`와 인증 전 상세 접근 시 로그인 리다이렉트
+- 상품 상세 URL `/item/{publicId}` 공개 조회. 예약/북마크 같은 사용자 액션은 로그인 리다이렉트
 - Naver Map 기반 픽업 위치 검색과 좌표 저장
 - 찜, 예약, 알림, 후기 API
 - 이미지 업로드

@@ -36,8 +36,11 @@ const ItemDetail = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+
     const load = async () => {
       if (!hasValidItemPublicId) {
+        if (cancelled) return;
         setItem(null);
         setHasRequested(false);
         setIsLiked(false);
@@ -58,6 +61,7 @@ const ItemDetail = () => {
           throw itemResult.reason;
         }
 
+        if (cancelled) return;
         const data = itemResult.value;
         setItem(data);
 
@@ -68,16 +72,21 @@ const ItemDetail = () => {
           console.error('Failed to fetch bookmarks', bookmarkResult.reason);
         }
       } catch (error) {
+        if (cancelled) return;
         console.error('Failed to fetch item', error);
         setItem(null);
         setHasRequested(false);
         setIsLiked(false);
       } finally {
+        if (cancelled) return;
         setIsLoading(false);
       }
     };
 
     load();
+    return () => {
+      cancelled = true;
+    };
   }, [itemPublicId, hasValidItemPublicId]);
 
   if (isLoading) {

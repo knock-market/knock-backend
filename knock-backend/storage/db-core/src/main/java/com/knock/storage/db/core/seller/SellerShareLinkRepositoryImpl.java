@@ -23,6 +23,11 @@ public class SellerShareLinkRepositoryImpl implements SellerShareLinkRepository 
 	}
 
 	@Override
+	public Optional<SellerShareLink> findByTokenForUpdate(String token) {
+		return sellerShareLinkJpaRepository.findByTokenForUpdate(token);
+	}
+
+	@Override
 	public List<SellerShareLink> findAllByMemberId(Long memberId) {
 		return sellerShareLinkJpaRepository.findAllByMemberIdOrderByCreatedAtDesc(memberId);
 	}

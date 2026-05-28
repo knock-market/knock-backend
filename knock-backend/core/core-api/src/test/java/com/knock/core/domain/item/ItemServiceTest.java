@@ -97,7 +97,7 @@ class ItemServiceTest {
 		void fail_missingTradeLocation() {
 			// given
 			ItemCreateData data = new ItemCreateData(TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE,
-					ItemType.SELL, List.of(TEST_IMAGE_URL));
+					ItemType.SELL, List.of(TEST_IMAGE_URL), null, null, null, null);
 
 			// when & then
 			assertThatThrownBy(() -> itemService.createItem(TEST_MEMBER_ID, data)).isInstanceOf(CoreException.class)

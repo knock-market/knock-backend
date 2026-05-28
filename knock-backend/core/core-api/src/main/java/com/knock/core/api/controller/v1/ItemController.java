@@ -33,7 +33,8 @@ public class ItemController {
 	public ApiResponse<ItemResponseDto> getItem(@AuthenticationPrincipal MemberPrincipal principal,
 			@PathVariable String itemPublicId) {
 		ItemReadResult result = itemService.getItemByPublicId(itemPublicId);
-		itemService.increaseViewCount(result.id(), principal.getMemberId());
+		Long viewerMemberId = principal == null ? null : principal.getMemberId();
+		itemService.increaseViewCount(result.id(), viewerMemberId);
 		return ApiResponse.success(ItemResponseDto.from(result));
 	}
 

@@ -38,7 +38,7 @@
 |---|---|---|---|---|---|
 | GET | `/api/v1/items` | 전체 마켓 상품 목록 | `(None)` | `List<ItemSummaryResponseDto>` | ✅ Implemented |
 | POST | `/api/v1/items` | 내 개인 매대에 상품 등록 | `ItemCreateRequestDto` <br> `{ title, description, price, itemType, imageUrls, tradeLocationName?, tradeLocationAddress?, tradeLatitude?, tradeLongitude? }` | `ItemIdResponseDto` <br> `{ id, publicId }` | ✅ Implemented |
-| GET | `/api/v1/items/{itemPublicId}` | 상품 상세 조회. 인증 필요. URL에는 숫자 PK 대신 공개 식별자를 사용 | `(None)` | `ItemResponseDto` <br> `{ id, publicId, title, description, price, type, status, imageUrls, writerId, writerNickname, writerProfileImageUrl, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }` | ✅ Implemented |
+| GET | `/api/v1/items/{itemPublicId}` | 상품 상세 조회. UUID 형식 공개 식별자는 비로그인 조회 가능, 예약/북마크 같은 액션은 인증 필요 | `(None)` | `ItemResponseDto` <br> `{ id, publicId, title, description, price, type, status, imageUrls, writerId, writerNickname, writerProfileImageUrl, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }` | ✅ Implemented |
 | GET | `/api/v1/items/manage/{itemId}` | 판매자 관리 화면용 상품 상세 조회. 인증 필요 | `(None)` | `ItemResponseDto` <br> `{ id, publicId, title, description, price, type, status, imageUrls, writerId, writerNickname, writerProfileImageUrl, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }` | ✅ Implemented |
 | GET | `/api/v1/items/my-selling` | 내 판매 상품 목록 | `(None)` | `List<ItemSummaryResponseDto>` <br> `[{ id, publicId, title, price, type, status, thumbnailUrl, writerId, writerNickname, writerProfileImageUrl, likesCount, postedAt, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }]` | ✅ Implemented |
 | DELETE | `/api/v1/items/{itemId}` | 내 상품 삭제 (활성 예약은 자동 취소) | `(None)` | `ApiResponse` <br> `(void)` | ✅ Implemented |
@@ -51,7 +51,7 @@
 - 프론트엔드는 `VITE_NAVER_MAP_CLIENT_ID`가 있으면 등록 화면에서 Naver Map 지도 선택을 사용합니다.
 - 장소 검색은 백엔드 `Location API`가 Naver Local Search/Geocoding API를 호출해 좌표를 반환합니다.
 - 상품 등록은 인증된 판매자의 개인 매대에 저장되며 `groupId`와 `category`를 받지 않습니다.
-- 상품 상세 URL은 `/item/{publicId}`를 사용합니다. 내부 숫자 `id`는 예약/북마크 같은 인증 후 API payload에서만 사용합니다.
+- 상품 상세 URL은 `/item/{publicId}`를 사용합니다. UUID 형식 `publicId` 상세 조회는 공유 유입을 위해 공개하고, 내부 숫자 `id`는 예약/북마크 같은 인증 후 API payload에서만 사용합니다.
 
 ### Seller share rules
 

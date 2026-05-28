@@ -33,6 +33,9 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(RegexRequestMatcher.regexMatcher(HttpMethod.GET, "/api/v1/members/\\d+/items"))
 				.permitAll()
+				.requestMatchers(RegexRequestMatcher.regexMatcher(HttpMethod.GET,
+						"/api/v1/items/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"))
+				.permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/v1/seller-shares/my")
 				.authenticated()
 				.requestMatchers(

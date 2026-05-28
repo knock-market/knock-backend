@@ -31,10 +31,14 @@ class SellerShareLinkRepositoryTest extends CoreDbContextTest {
 		// when
 		SellerShareLink savedShareLink = sellerShareLinkRepository.save(shareLink);
 		Optional<SellerShareLink> foundShareLink = sellerShareLinkRepository.findByToken("seller-share-token");
+		Optional<SellerShareLink> lockedShareLink = sellerShareLinkRepository
+			.findByTokenForUpdate("seller-share-token");
 
 		// then
 		assertThat(foundShareLink).isPresent();
+		assertThat(lockedShareLink).isPresent();
 		assertThat(foundShareLink.get().getId()).isEqualTo(savedShareLink.getId());
+		assertThat(lockedShareLink.get().getId()).isEqualTo(savedShareLink.getId());
 		assertThat(foundShareLink.get().getMember().getId()).isEqualTo(member.getId());
 		assertThat(sellerShareLinkRepository.existsByToken("seller-share-token")).isTrue();
 		assertThat(foundShareLink.get().isExpired(expiresAt.minusSeconds(1))).isFalse();

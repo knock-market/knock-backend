@@ -110,6 +110,12 @@ const CreateItem: React.FC = () => {
 
     const parsedLatitude = latitude.trim() ? Number(latitude) : undefined;
     const parsedLongitude = longitude.trim() ? Number(longitude) : undefined;
+    const hasNonNumericCoordinate = (parsedLatitude !== undefined && !Number.isFinite(parsedLatitude))
+      || (parsedLongitude !== undefined && !Number.isFinite(parsedLongitude));
+    if (hasNonNumericCoordinate) {
+      setFormError('Please enter a valid latitude and longitude pair.');
+      return;
+    }
     const hasSelectedPickupLocation = locationName.trim() && locationAddress.trim()
       && parsedLatitude !== undefined && parsedLongitude !== undefined;
     if (!hasSelectedPickupLocation) {

@@ -132,17 +132,31 @@ const SellerPage = () => {
   };
 
   const stopSharing = async (tokenValue: string) => {
-    await sellerShareApi.deactivate(tokenValue);
-    await refreshShareLinks();
-    setSharePath('');
-    setShareNotice('Link access is now restricted.');
+    setIsSharing(true);
+    setShareNotice('');
+    try {
+      await sellerShareApi.deactivate(tokenValue);
+      await refreshShareLinks();
+      setSharePath('');
+      setShareNotice('Link access is now restricted.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to restrict link access.';
+      setShareNotice(message);
+    } finally {
+      setIsSharing(false);
+    }
   };
 
   const copyShareLink = async (path: string) => {
-    const nextPath = buildAbsoluteShareUrl(path);
-    setSharePath(nextPath);
-    await navigator.clipboard.writeText(nextPath);
-    setShareNotice('Link copied.');
+    try {
+      const nextPath = buildAbsoluteShareUrl(path);
+      setSharePath(nextPath);
+      await navigator.clipboard.writeText(nextPath);
+      setShareNotice('Link copied.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to copy link.';
+      setShareNotice(message);
+    }
   };
 
   const formatExpiry = (expiresAt?: string) => {
@@ -356,6 +370,7 @@ const SellerPage = () => {
                 <button
                   type="button"
                   onClick={() => stopSharing(currentShareLink.token)}
+                  disabled={isSharing}
                   className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-100 px-4 py-3 text-sm font-bold text-red-700 transition-colors hover:bg-red-50 focus-visible:ring-2 focus-visible:ring-red-500"
                 >
                   <Link2Off size={16} />

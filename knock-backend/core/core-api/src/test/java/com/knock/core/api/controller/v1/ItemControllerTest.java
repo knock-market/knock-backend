@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
@@ -115,6 +116,23 @@ class ItemControllerTest extends RestDocsTest {
 							fieldWithPath("data.tradeLatitude").type(JsonFieldType.NUMBER).description("거래 위치 위도"),
 							fieldWithPath("data.tradeLongitude").type(JsonFieldType.NUMBER).description("거래 위치 경도"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+	}
+
+	@Test
+	@DisplayName("비로그인 상품 상세 조회 시 회원 ID 없이 조회수를 기록한다")
+	void getItem_guestSuccess() {
+		// given
+		ItemReadResult result = new ItemReadResult(TEST_ITEM_ID, TEST_ITEM_PUBLIC_ID, TEST_ITEM_TITLE,
+				TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE, ItemType.SELL, ItemStatus.ON_SALE, List.of(TEST_IMAGE_URL),
+				TEST_MEMBER_ID, TEST_NICKNAME, TEST_IMAGE_URL, TEST_TRADE_LOCATION_NAME, TEST_TRADE_LOCATION_ADDRESS,
+				TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
+		given(itemService.getItemByPublicId(TEST_ITEM_PUBLIC_ID)).willReturn(result);
+
+		// when
+		itemController.getItem(null, TEST_ITEM_PUBLIC_ID);
+
+		// then
+		verify(itemService).increaseViewCount(TEST_ITEM_ID, null);
 	}
 
 	@Test
