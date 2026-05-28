@@ -69,7 +69,7 @@ const Home: React.FC = () => {
             <button
               key={item.id}
               type="button"
-              onClick={() => navigate(`/item/${item.id}`)}
+              onClick={() => navigate(`/item/${item.publicId}`)}
               className="text-left bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition-colors focus-visible:ring-2 focus-visible:ring-blue-700"
             >
               <div className="relative aspect-square bg-gray-100 overflow-hidden">

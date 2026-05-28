@@ -57,7 +57,7 @@ public class ReservationService {
 
 		notifyCounterparty(item.getMember().getId(), data.memberId(), NotificationType.RESERVATION_CREATED,
 				requester.getNickname() + "님이 '" + item.getTitle() + "' 상품에 관심을 보냈습니다.",
-				"/items/" + item.getId() + "/reservations");
+				"/manage-item/" + item.getId());
 		return reservationId;
 	}
 
@@ -88,7 +88,7 @@ public class ReservationService {
 
 		target.approve();
 		notifyCounterparty(target.getMember().getId(), memberId, NotificationType.RESERVATION_APPROVED,
-				"'" + target.getItem().getTitle() + "' 예약이 승인되었습니다.", "/items/" + target.getItem().getId());
+				"'" + target.getItem().getTitle() + "' 예약이 승인되었습니다.", "/item/" + target.getItem().getPublicId());
 	}
 
 	@Transactional
@@ -106,7 +106,8 @@ public class ReservationService {
 		reservation.complete();
 		Long counterpartyId = isOwner ? reservation.getMember().getId() : reservation.getItem().getMember().getId();
 		notifyCounterparty(counterpartyId, memberId, NotificationType.RESERVATION_COMPLETED,
-				"'" + reservation.getItem().getTitle() + "' 거래가 완료되었습니다.", "/items/" + reservation.getItem().getId());
+				"'" + reservation.getItem().getTitle() + "' 거래가 완료되었습니다.",
+				"/item/" + reservation.getItem().getPublicId());
 	}
 
 	@Transactional
@@ -124,7 +125,8 @@ public class ReservationService {
 		reservation.cancel();
 		Long counterpartyId = isOwner ? reservation.getMember().getId() : reservation.getItem().getMember().getId();
 		notifyCounterparty(counterpartyId, memberId, NotificationType.RESERVATION_CANCELED,
-				"'" + reservation.getItem().getTitle() + "' 예약이 취소되었습니다.", "/items/" + reservation.getItem().getId());
+				"'" + reservation.getItem().getTitle() + "' 예약이 취소되었습니다.",
+				"/item/" + reservation.getItem().getPublicId());
 	}
 
 	public List<ReservationResult> getReservationsByItem(Long memberId, Long itemId) {

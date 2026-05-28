@@ -4,7 +4,6 @@ import com.knock.core.domain.item.dto.ItemCreateData;
 import com.knock.core.domain.item.dto.ItemCreateResult;
 import com.knock.core.domain.item.dto.ItemListResult;
 import com.knock.core.domain.item.dto.ItemReadResult;
-import com.knock.core.enums.ItemCategory;
 import com.knock.core.enums.ItemType;
 import com.knock.core.enums.ReservationStatus;
 import com.knock.core.support.error.CoreException;
@@ -66,8 +65,8 @@ class ItemServiceTest {
 			Member member = createMember(TEST_MEMBER_ID);
 			Item item = createItem(TEST_ITEM_ID, member);
 			ItemCreateData data = new ItemCreateData(TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE,
-					ItemType.SELL, ItemCategory.DIGITAL_DEVICE, List.of(TEST_IMAGE_URL), TEST_TRADE_LOCATION_NAME,
-					TEST_TRADE_LOCATION_ADDRESS, TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
+					ItemType.SELL, List.of(TEST_IMAGE_URL), TEST_TRADE_LOCATION_NAME, TEST_TRADE_LOCATION_ADDRESS,
+					TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
 			given(itemRepository.save(any(Item.class), anyList())).willReturn(item);
@@ -77,6 +76,7 @@ class ItemServiceTest {
 
 			// then
 			assertThat(result.id()).isEqualTo(TEST_ITEM_ID);
+			assertThat(result.publicId()).isEqualTo(TEST_ITEM_PUBLIC_ID);
 		}
 
 		@Test
@@ -84,8 +84,20 @@ class ItemServiceTest {
 		void fail_invalidTradeLocation() {
 			// given
 			ItemCreateData data = new ItemCreateData(TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE,
-					ItemType.SELL, ItemCategory.DIGITAL_DEVICE, List.of(), TEST_TRADE_LOCATION_NAME,
-					TEST_TRADE_LOCATION_ADDRESS, 91.0, TEST_TRADE_LONGITUDE);
+					ItemType.SELL, List.of(), TEST_TRADE_LOCATION_NAME, TEST_TRADE_LOCATION_ADDRESS, 91.0,
+					TEST_TRADE_LONGITUDE);
+
+			// when & then
+			assertThatThrownBy(() -> itemService.createItem(TEST_MEMBER_ID, data)).isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.VALIDATION_ERROR);
+		}
+
+		@Test
+		@DisplayName("실패 - 거래 위치 미지정")
+		void fail_missingTradeLocation() {
+			// given
+			ItemCreateData data = new ItemCreateData(TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE,
+					ItemType.SELL, List.of(TEST_IMAGE_URL), null, null, null, null);
 
 			// when & then
 			assertThatThrownBy(() -> itemService.createItem(TEST_MEMBER_ID, data)).isInstanceOf(CoreException.class)
@@ -97,7 +109,8 @@ class ItemServiceTest {
 		void fail_memberNotFound() {
 			// given
 			ItemCreateData data = new ItemCreateData(TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE,
-					ItemType.SELL, ItemCategory.DIGITAL_DEVICE, List.of());
+					ItemType.SELL, List.of(), TEST_TRADE_LOCATION_NAME, TEST_TRADE_LOCATION_ADDRESS,
+					TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.empty());
 
 			// when & then
@@ -125,7 +138,25 @@ class ItemServiceTest {
 
 			// then
 			assertThat(result.id()).isEqualTo(TEST_ITEM_ID);
+			assertThat(result.publicId()).isEqualTo(TEST_ITEM_PUBLIC_ID);
 			assertThat(result.title()).isEqualTo(TEST_ITEM_TITLE);
+		}
+
+		@Test
+		@DisplayName("성공 - 공개 식별자로 조회")
+		void success_publicId() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, member);
+
+			given(itemRepository.findByPublicIdWithImages(TEST_ITEM_PUBLIC_ID)).willReturn(Optional.of(item));
+
+			// when
+			ItemReadResult result = itemService.getItemByPublicId(TEST_ITEM_PUBLIC_ID);
+
+			// then
+			assertThat(result.id()).isEqualTo(TEST_ITEM_ID);
+			assertThat(result.publicId()).isEqualTo(TEST_ITEM_PUBLIC_ID);
 		}
 
 		@Test
@@ -136,6 +167,18 @@ class ItemServiceTest {
 
 			// when & then
 			assertThatThrownBy(() -> itemService.getItem(TEST_ITEM_ID)).isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.ITEM_NOT_FOUND);
+		}
+
+		@Test
+		@DisplayName("실패 - 공개 식별자 상품 없음")
+		void fail_publicIdItemNotFound() {
+			// given
+			given(itemRepository.findByPublicIdWithImages(TEST_ITEM_PUBLIC_ID)).willReturn(Optional.empty());
+
+			// when & then
+			assertThatThrownBy(() -> itemService.getItemByPublicId(TEST_ITEM_PUBLIC_ID))
+				.isInstanceOf(CoreException.class)
 				.hasFieldOrPropertyWithValue("errorType", ErrorType.ITEM_NOT_FOUND);
 		}
 

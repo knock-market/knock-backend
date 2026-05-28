@@ -9,7 +9,6 @@ import Profile from './pages/Profile';
 import Notifications from './pages/Notifications';
 import EditProfile from './pages/EditProfile';
 import NotificationSettings from './pages/NotificationSettings';
-import BlockedUsers from './pages/BlockedUsers';
 import ManageItems from './pages/ManageItems';
 import ManageItemDetail from './pages/ManageItemDetail';
 import SellerPage from './pages/SellerPage';
@@ -33,7 +32,11 @@ const isPublicPath = (pathname: string): boolean => {
   if (PUBLIC_PATHS.has(pathname)) {
     return true;
   }
-  return /^\/item\/\d+$/.test(pathname) || /^\/seller\/\d+$/.test(pathname) || /^\/shop\/[A-Za-z0-9_-]+$/.test(pathname);
+  return (
+    /^\/item\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(pathname) ||
+    /^\/seller\/\d+$/.test(pathname) ||
+    /^\/shop\/[A-Za-z0-9_-]+$/.test(pathname)
+  );
 };
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -56,10 +59,12 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const [isChecking, setIsChecking] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [checkedPathname, setCheckedPathname] = useState('');
 
   useEffect(() => {
     if (isPublicPath(location.pathname)) {
       setIsChecking(false);
+      setCheckedPathname(location.pathname);
       return;
     }
 
@@ -70,11 +75,13 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       .then(() => {
         if (mounted) {
           setIsAuthenticated(true);
+          setCheckedPathname(location.pathname);
         }
       })
       .catch(() => {
         if (mounted) {
           setIsAuthenticated(false);
+          setCheckedPathname(location.pathname);
         }
       })
       .finally(() => {
@@ -92,7 +99,7 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return <>{children}</>;
   }
 
-  if (isChecking) {
+  if (isChecking || checkedPathname !== location.pathname) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center text-gray-500">
         Checking session...
@@ -128,7 +135,6 @@ const App: React.FC = () => {
             <Route path="/manage-items" element={<ManageItems />} />
             <Route path="/manage-item/:id" element={<ManageItemDetail />} />
             <Route path="/settings/notifications" element={<NotificationSettings />} />
-            <Route path="/settings/blocked" element={<BlockedUsers />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/saved" element={<Bookmarks />} />
             <Route path="/terms" element={<TermsOfService />} />

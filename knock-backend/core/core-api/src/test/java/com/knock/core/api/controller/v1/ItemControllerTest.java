@@ -7,7 +7,6 @@ import com.knock.core.domain.item.ItemService;
 import com.knock.core.domain.item.dto.ItemCreateResult;
 import com.knock.core.domain.item.dto.ItemListResult;
 import com.knock.core.domain.item.dto.ItemReadResult;
-import com.knock.core.enums.ItemCategory;
 import com.knock.core.enums.ItemStatus;
 import com.knock.core.enums.ItemType;
 import com.knock.test.api.RestDocsTest;
@@ -27,6 +26,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
@@ -53,9 +53,10 @@ class ItemControllerTest extends RestDocsTest {
 	void createItem_success() {
 		// given
 		ItemCreateRequestDto request = new ItemCreateRequestDto(TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE,
-				ItemType.SELL, ItemCategory.DIGITAL_DEVICE, List.of(TEST_IMAGE_URL), TEST_TRADE_LOCATION_NAME,
-				TEST_TRADE_LOCATION_ADDRESS, TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
-		given(itemService.createItem(anyLong(), any())).willReturn(new ItemCreateResult(TEST_ITEM_ID));
+				ItemType.SELL, List.of(TEST_IMAGE_URL), TEST_TRADE_LOCATION_NAME, TEST_TRADE_LOCATION_ADDRESS,
+				TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
+		given(itemService.createItem(anyLong(), any()))
+			.willReturn(new ItemCreateResult(TEST_ITEM_ID, TEST_ITEM_PUBLIC_ID));
 
 		// when & then
 		restDocGiven().contentType(ContentType.JSON)
@@ -68,7 +69,6 @@ class ItemControllerTest extends RestDocsTest {
 					fieldWithPath("description").type(JsonFieldType.STRING).description("상품 설명"),
 					fieldWithPath("price").type(JsonFieldType.NUMBER).description("가격"),
 					fieldWithPath("itemType").type(JsonFieldType.STRING).description("거래 유형 (SELL, BUY)"),
-					fieldWithPath("category").type(JsonFieldType.STRING).description("카테고리"),
 					fieldWithPath("imageUrls").type(JsonFieldType.ARRAY).description("이미지 URL 목록"),
 					fieldWithPath("tradeLocationName").type(JsonFieldType.STRING).description("거래 위치 이름").optional(),
 					fieldWithPath("tradeLocationAddress").type(JsonFieldType.STRING).description("거래 위치 주소").optional(),
@@ -76,6 +76,7 @@ class ItemControllerTest extends RestDocsTest {
 					fieldWithPath("tradeLongitude").type(JsonFieldType.NUMBER).description("거래 위치 경도").optional()),
 					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
 							fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("생성된 상품 ID"),
+							fieldWithPath("data.publicId").type(JsonFieldType.STRING).description("공개 상품 식별자"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}
 
@@ -83,26 +84,26 @@ class ItemControllerTest extends RestDocsTest {
 	@DisplayName("상품 상세 조회 성공")
 	void getItem_success() {
 		// given
-		ItemReadResult result = new ItemReadResult(TEST_ITEM_ID, TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION,
-				TEST_ITEM_PRICE, ItemType.SELL, ItemCategory.DIGITAL_DEVICE, ItemStatus.ON_SALE,
-				List.of(TEST_IMAGE_URL), TEST_MEMBER_ID, TEST_NICKNAME, TEST_IMAGE_URL, TEST_TRADE_LOCATION_NAME,
-				TEST_TRADE_LOCATION_ADDRESS, TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
-		given(itemService.getItem(anyLong())).willReturn(result);
+		ItemReadResult result = new ItemReadResult(TEST_ITEM_ID, TEST_ITEM_PUBLIC_ID, TEST_ITEM_TITLE,
+				TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE, ItemType.SELL, ItemStatus.ON_SALE, List.of(TEST_IMAGE_URL),
+				TEST_MEMBER_ID, TEST_NICKNAME, TEST_IMAGE_URL, TEST_TRADE_LOCATION_NAME, TEST_TRADE_LOCATION_ADDRESS,
+				TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
+		given(itemService.getItemByPublicId(TEST_ITEM_PUBLIC_ID)).willReturn(result);
 
 		// when & then
-		restDocGiven().pathParam("itemId", TEST_ITEM_ID)
-			.get("/api/v1/items/{itemId}")
+		restDocGiven().pathParam("itemPublicId", TEST_ITEM_PUBLIC_ID)
+			.get("/api/v1/items/{itemPublicId}")
 			.then()
 			.status(HttpStatus.OK)
 			.apply(document("api/v1/items/get", requestPreprocessor(), responsePreprocessor(),
-					pathParameters(parameterWithName("itemId").description("상품 ID")),
+					pathParameters(parameterWithName("itemPublicId").description("공개 상품 식별자")),
 					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
 							fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("상품 ID"),
+							fieldWithPath("data.publicId").type(JsonFieldType.STRING).description("공개 상품 식별자"),
 							fieldWithPath("data.title").type(JsonFieldType.STRING).description("제목"),
 							fieldWithPath("data.description").type(JsonFieldType.STRING).description("설명"),
 							fieldWithPath("data.price").type(JsonFieldType.NUMBER).description("가격"),
 							fieldWithPath("data.type").type(JsonFieldType.STRING).description("거래 유형"),
-							fieldWithPath("data.category").type(JsonFieldType.STRING).description("카테고리"),
 							fieldWithPath("data.status").type(JsonFieldType.STRING).description("상품 상태"),
 							fieldWithPath("data.imageUrls").type(JsonFieldType.ARRAY).description("이미지 URL 목록"),
 							fieldWithPath("data.writerId").type(JsonFieldType.NUMBER).description("판매자 ID"),
@@ -118,13 +119,30 @@ class ItemControllerTest extends RestDocsTest {
 	}
 
 	@Test
+	@DisplayName("비로그인 상품 상세 조회 시 회원 ID 없이 조회수를 기록한다")
+	void getItem_guestSuccess() {
+		// given
+		ItemReadResult result = new ItemReadResult(TEST_ITEM_ID, TEST_ITEM_PUBLIC_ID, TEST_ITEM_TITLE,
+				TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE, ItemType.SELL, ItemStatus.ON_SALE, List.of(TEST_IMAGE_URL),
+				TEST_MEMBER_ID, TEST_NICKNAME, TEST_IMAGE_URL, TEST_TRADE_LOCATION_NAME, TEST_TRADE_LOCATION_ADDRESS,
+				TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
+		given(itemService.getItemByPublicId(TEST_ITEM_PUBLIC_ID)).willReturn(result);
+
+		// when
+		itemController.getItem(null, TEST_ITEM_PUBLIC_ID);
+
+		// then
+		verify(itemService).increaseViewCount(TEST_ITEM_ID, null);
+	}
+
+	@Test
 	@DisplayName("내 판매 내역 조회 성공")
 	void getMySelling_success() {
 		// given
-		ItemListResult result = new ItemListResult(TEST_ITEM_ID, TEST_ITEM_TITLE, TEST_ITEM_PRICE, ItemType.SELL,
-				ItemCategory.DIGITAL_DEVICE, ItemStatus.ON_SALE, TEST_IMAGE_URL, TEST_MEMBER_ID, TEST_NICKNAME,
-				TEST_IMAGE_URL, 0L, java.time.LocalDateTime.now(), TEST_TRADE_LOCATION_NAME,
-				TEST_TRADE_LOCATION_ADDRESS, TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
+		ItemListResult result = new ItemListResult(TEST_ITEM_ID, TEST_ITEM_PUBLIC_ID, TEST_ITEM_TITLE, TEST_ITEM_PRICE,
+				ItemType.SELL, ItemStatus.ON_SALE, TEST_IMAGE_URL, TEST_MEMBER_ID, TEST_NICKNAME, TEST_IMAGE_URL, 0L,
+				java.time.LocalDateTime.now(), TEST_TRADE_LOCATION_NAME, TEST_TRADE_LOCATION_ADDRESS,
+				TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
 		given(itemService.getMySellingItems(anyLong())).willReturn(List.of(result));
 
 		// when & then
@@ -134,10 +152,10 @@ class ItemControllerTest extends RestDocsTest {
 			.apply(document("api/v1/items/my-selling", requestPreprocessor(), responsePreprocessor(),
 					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
 							fieldWithPath("data[].id").type(JsonFieldType.NUMBER).description("상품 ID"),
+							fieldWithPath("data[].publicId").type(JsonFieldType.STRING).description("공개 상품 식별자"),
 							fieldWithPath("data[].title").type(JsonFieldType.STRING).description("제목"),
 							fieldWithPath("data[].price").type(JsonFieldType.NUMBER).description("가격"),
 							fieldWithPath("data[].type").type(JsonFieldType.STRING).description("거래 유형"),
-							fieldWithPath("data[].category").type(JsonFieldType.STRING).description("카테고리"),
 							fieldWithPath("data[].status").type(JsonFieldType.STRING).description("상품 상태"),
 							fieldWithPath("data[].thumbnailUrl").type(JsonFieldType.STRING).description("썸네일 URL"),
 							fieldWithPath("data[].writerId").type(JsonFieldType.NUMBER).description("판매자 ID"),
@@ -159,10 +177,10 @@ class ItemControllerTest extends RestDocsTest {
 	@DisplayName("회원 판매 상품 조회 성공")
 	void getSellingItemsByMember_success() {
 		// given
-		ItemListResult result = new ItemListResult(TEST_ITEM_ID, TEST_ITEM_TITLE, TEST_ITEM_PRICE, ItemType.SELL,
-				ItemCategory.DIGITAL_DEVICE, ItemStatus.ON_SALE, TEST_IMAGE_URL, TEST_MEMBER_ID, TEST_NICKNAME,
-				TEST_IMAGE_URL, 0L, java.time.LocalDateTime.now(), TEST_TRADE_LOCATION_NAME,
-				TEST_TRADE_LOCATION_ADDRESS, TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
+		ItemListResult result = new ItemListResult(TEST_ITEM_ID, TEST_ITEM_PUBLIC_ID, TEST_ITEM_TITLE, TEST_ITEM_PRICE,
+				ItemType.SELL, ItemStatus.ON_SALE, TEST_IMAGE_URL, TEST_MEMBER_ID, TEST_NICKNAME, TEST_IMAGE_URL, 0L,
+				java.time.LocalDateTime.now(), TEST_TRADE_LOCATION_NAME, TEST_TRADE_LOCATION_ADDRESS,
+				TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
 		given(itemService.getSellingItemsByMember(anyLong())).willReturn(List.of(result));
 
 		// when & then
@@ -174,10 +192,10 @@ class ItemControllerTest extends RestDocsTest {
 					pathParameters(parameterWithName("memberId").description("회원 ID")),
 					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
 							fieldWithPath("data[].id").type(JsonFieldType.NUMBER).description("상품 ID"),
+							fieldWithPath("data[].publicId").type(JsonFieldType.STRING).description("공개 상품 식별자"),
 							fieldWithPath("data[].title").type(JsonFieldType.STRING).description("제목"),
 							fieldWithPath("data[].price").type(JsonFieldType.NUMBER).description("가격"),
 							fieldWithPath("data[].type").type(JsonFieldType.STRING).description("거래 유형"),
-							fieldWithPath("data[].category").type(JsonFieldType.STRING).description("카테고리"),
 							fieldWithPath("data[].status").type(JsonFieldType.STRING).description("상품 상태"),
 							fieldWithPath("data[].thumbnailUrl").type(JsonFieldType.STRING).description("썸네일 URL"),
 							fieldWithPath("data[].writerId").type(JsonFieldType.NUMBER).description("판매자 ID"),

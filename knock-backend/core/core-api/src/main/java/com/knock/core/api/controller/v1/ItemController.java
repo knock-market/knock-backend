@@ -26,14 +26,21 @@ public class ItemController {
 	public ApiResponse<ItemIdResponseDto> createItem(@AuthenticationPrincipal MemberPrincipal principal,
 			@RequestBody ItemCreateRequestDto request) {
 		ItemCreateResult result = itemService.createItem(principal.getMemberId(), ItemCreateData.of(request));
-		return ApiResponse.success(new ItemIdResponseDto(result.id()));
+		return ApiResponse.success(new ItemIdResponseDto(result.id(), result.publicId()));
 	}
 
-	@GetMapping("/api/v1/items/{itemId}")
+	@GetMapping("/api/v1/items/{itemPublicId}")
 	public ApiResponse<ItemResponseDto> getItem(@AuthenticationPrincipal MemberPrincipal principal,
+			@PathVariable String itemPublicId) {
+		ItemReadResult result = itemService.getItemByPublicId(itemPublicId);
+		Long viewerMemberId = principal == null ? null : principal.getMemberId();
+		itemService.increaseViewCount(result.id(), viewerMemberId);
+		return ApiResponse.success(ItemResponseDto.from(result));
+	}
+
+	@GetMapping("/api/v1/items/manage/{itemId}")
+	public ApiResponse<ItemResponseDto> getItemForManagement(@AuthenticationPrincipal MemberPrincipal principal,
 			@PathVariable Long itemId) {
-		Long memberId = principal != null ? principal.getMemberId() : null;
-		itemService.increaseViewCount(itemId, memberId);
 		ItemReadResult result = itemService.getItem(itemId);
 		return ApiResponse.success(ItemResponseDto.from(result));
 	}
@@ -65,7 +72,7 @@ public class ItemController {
 		return ApiResponse.success();
 	}
 
-	public record ItemIdResponseDto(Long id) {
+	public record ItemIdResponseDto(Long id, String publicId) {
 	}
 
 }

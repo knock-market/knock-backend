@@ -12,9 +12,9 @@ public final class TestConstants {
 
 	public static final Long TEST_MEMBER_ID_2 = 2L;
 
-	public static final Long TEST_GROUP_ID = 10L;
-
 	public static final Long TEST_ITEM_ID = 100L;
+
+	public static final String TEST_ITEM_PUBLIC_ID = "11111111-1111-4111-8111-111111111111";
 
 	public static final Long TEST_RESERVATION_ID = 1000L;
 
@@ -33,12 +33,6 @@ public final class TestConstants {
 	public static final String TEST_NICKNAME = "테스트닉네임";
 
 	public static final String TEST_PROVIDER = "local";
-
-	public static final String TEST_GROUP_NAME = "테스트그룹";
-
-	public static final String TEST_GROUP_DESCRIPTION = "테스트 그룹 설명";
-
-	public static final String TEST_INVITE_CODE = "TESTCODE";
 
 	public static final String TEST_ITEM_TITLE = "테스트 상품";
 

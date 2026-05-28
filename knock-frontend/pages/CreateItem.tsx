@@ -44,6 +44,7 @@ const CreateItem: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitNotice, setSubmitNotice] = useState('');
+  const [formError, setFormError] = useState('');
   const redirectTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => () => {
@@ -91,9 +92,10 @@ const CreateItem: React.FC = () => {
 
   const handleSubmit = async () => {
     setSubmitNotice('');
+    setFormError('');
 
     if (!title.trim() || !description.trim()) {
-      alert('Please fill in required fields.');
+      setFormError('Please fill in item name and description.');
       return;
     }
 
@@ -101,18 +103,30 @@ const CreateItem: React.FC = () => {
     if (transactionType === 'sale') {
       const isInvalidSalePrice = !price.trim() || !Number.isFinite(parsedPrice) || !Number.isInteger(parsedPrice) || parsedPrice <= 0;
       if (isInvalidSalePrice) {
-        alert('Please enter a valid sale price greater than 0.');
+        setFormError('Please enter a valid sale price greater than 0.');
         return;
       }
     }
 
     const parsedLatitude = latitude.trim() ? Number(latitude) : undefined;
     const parsedLongitude = longitude.trim() ? Number(longitude) : undefined;
+    const hasNonNumericCoordinate = (parsedLatitude !== undefined && !Number.isFinite(parsedLatitude))
+      || (parsedLongitude !== undefined && !Number.isFinite(parsedLongitude));
+    if (hasNonNumericCoordinate) {
+      setFormError('Please enter a valid latitude and longitude pair.');
+      return;
+    }
+    const hasSelectedPickupLocation = locationName.trim() && locationAddress.trim()
+      && parsedLatitude !== undefined && parsedLongitude !== undefined;
+    if (!hasSelectedPickupLocation) {
+      setFormError('Please pick an exact pickup location on the map before posting.');
+      return;
+    }
     const hasOneCoordinate = (parsedLatitude === undefined) !== (parsedLongitude === undefined);
     const hasInvalidCoordinates = (parsedLatitude !== undefined && (parsedLatitude < -90 || parsedLatitude > 90))
       || (parsedLongitude !== undefined && (parsedLongitude < -180 || parsedLongitude > 180));
     if (hasOneCoordinate || hasInvalidCoordinates) {
-      alert('Please enter a valid latitude and longitude pair.');
+      setFormError('Please enter a valid latitude and longitude pair.');
       return;
     }
     setIsSubmitting(true);
@@ -120,7 +134,6 @@ const CreateItem: React.FC = () => {
       await itemsApi.createItem({
         title: title.trim(),
         description: description.trim(),
-        category: 'ETC',
         itemType: transactionType === 'sale' ? 'SELL' : 'GIVE',
         price: transactionType === 'sale' ? parsedPrice : 0,
         imageUrls,
@@ -133,7 +146,7 @@ const CreateItem: React.FC = () => {
       redirectTimeoutRef.current = window.setTimeout(() => navigate('/home'), POST_SUCCESS_REDIRECT_DELAY_MS);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to post item.';
-      alert(message);
+      setFormError(message);
       setIsSubmitting(false);
     }
   };
@@ -266,6 +279,11 @@ const CreateItem: React.FC = () => {
         />
 
         <div className="pt-4">
+          {formError && (
+            <p role="alert" className="mb-3 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+              {formError}
+            </p>
+          )}
           {submitNotice && (
             <p role="status" className="mb-3 rounded-lg border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700">
               {submitNotice}

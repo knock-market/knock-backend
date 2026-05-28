@@ -2,7 +2,6 @@ package com.knock.core.domain.bookmark;
 
 import com.knock.core.domain.bookmark.dto.BookmarkResult;
 import com.knock.core.domain.bookmark.dto.BookmarkToggleData;
-import com.knock.core.enums.ItemCategory;
 import com.knock.core.enums.ItemStatus;
 import com.knock.core.enums.ItemType;
 import com.knock.core.support.error.CoreException;
@@ -58,7 +57,7 @@ class BookmarkServiceTest {
 		void createNewBookmark() {
 			// given
 			Member member = createMember(TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, createGroup(), member);
+			Item item = createItem(TEST_ITEM_ID, member);
 			BookmarkToggleData data = new BookmarkToggleData(TEST_ITEM_ID);
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
@@ -79,7 +78,7 @@ class BookmarkServiceTest {
 		void deleteExistingBookmark() {
 			// given
 			Member member = createMember(TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, createGroup(), member);
+			Item item = createItem(TEST_ITEM_ID, member);
 			Bookmark bookmark = createBookmark(TEST_BOOKMARK_ID, member, item);
 			BookmarkToggleData data = new BookmarkToggleData(TEST_ITEM_ID);
 
@@ -101,7 +100,7 @@ class BookmarkServiceTest {
 		void restoreDeletedBookmark() {
 			// given
 			Member member = createMember(TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, createGroup(), member);
+			Item item = createItem(TEST_ITEM_ID, member);
 			Bookmark bookmark = createBookmark(TEST_BOOKMARK_ID, member, item);
 			ReflectionTestUtils.setField(bookmark, "deletedAt", LocalDateTime.now().minusDays(1));
 			BookmarkToggleData data = new BookmarkToggleData(TEST_ITEM_ID);
@@ -159,7 +158,7 @@ class BookmarkServiceTest {
 		void success() {
 			// given
 			Member member = createMember(TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, createGroup(), member);
+			Item item = createItem(TEST_ITEM_ID, member);
 			Bookmark bookmark = createBookmark(TEST_BOOKMARK_ID, member, item);
 
 			given(bookmarkRepository.findAllByMemberIdJoined(TEST_MEMBER_ID)).willReturn(List.of(bookmark));
@@ -171,7 +170,6 @@ class BookmarkServiceTest {
 			assertThat(results).hasSize(1);
 			assertThat(results.get(0).itemId()).isEqualTo(TEST_ITEM_ID);
 			assertThat(results.get(0).type()).isEqualTo(ItemType.SELL);
-			assertThat(results.get(0).category()).isEqualTo(ItemCategory.DIGITAL_DEVICE);
 			assertThat(results.get(0).status()).isEqualTo(ItemStatus.ON_SALE);
 			assertThat(results.get(0).itemCreatedAt()).isEqualTo(item.getCreatedAt());
 		}

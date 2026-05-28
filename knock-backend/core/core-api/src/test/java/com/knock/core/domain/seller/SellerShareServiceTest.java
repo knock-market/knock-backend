@@ -5,7 +5,6 @@ import com.knock.core.domain.seller.dto.SellerShopResult;
 import com.knock.core.enums.InviteDuration;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
-import com.knock.storage.db.core.group.Group;
 import com.knock.storage.db.core.item.Item;
 import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.Member;
@@ -30,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class SellerShareServiceTest {
@@ -55,7 +55,10 @@ class SellerShareServiceTest {
 		void success() {
 			// given
 			Member member = createMember(TEST_MEMBER_ID);
-			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
+			SellerShareLink oldShareLink = SellerShareLink.create(member, "old-share-token",
+					LocalDateTime.now().plusHours(1));
+			given(memberRepository.findByIdForUpdate(TEST_MEMBER_ID)).willReturn(Optional.of(member));
+			given(sellerShareLinkRepository.findAllByMemberId(TEST_MEMBER_ID)).willReturn(List.of(oldShareLink));
 			given(sellerShareLinkRepository.save(any(SellerShareLink.class)))
 				.willAnswer(invocation -> invocation.getArgument(0));
 
@@ -66,6 +69,10 @@ class SellerShareServiceTest {
 			// then
 			assertThat(result.token()).isNotBlank();
 			assertThat(result.expiresAt()).isNotNull();
+			assertThat(result.active()).isTrue();
+			assertThat(result.clickCount()).isZero();
+			assertThat(result.useCount()).isZero();
+			assertThat(oldShareLink.isActive()).isFalse();
 		}
 
 	}
@@ -79,12 +86,12 @@ class SellerShareServiceTest {
 		void success() {
 			// given
 			Member member = createMember(TEST_MEMBER_ID);
-			Group group = createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, group, member);
+			Item item = createItem(TEST_ITEM_ID, member);
 			SellerShareLink shareLink = SellerShareLink.create(member, TEST_SELLER_SHARE_TOKEN,
 					LocalDateTime.now().plusHours(1));
 
-			given(sellerShareLinkRepository.findByToken(TEST_SELLER_SHARE_TOKEN)).willReturn(Optional.of(shareLink));
+			given(sellerShareLinkRepository.findByTokenForUpdate(TEST_SELLER_SHARE_TOKEN))
+				.willReturn(Optional.of(shareLink));
 			given(itemRepository.findByMemberIdWithLikes(TEST_MEMBER_ID))
 				.willReturn(List.<Object[]>of(new Object[] { item, TEST_IMAGE_URL, 1L }));
 
@@ -94,6 +101,8 @@ class SellerShareServiceTest {
 			// then
 			assertThat(result.sellerId()).isEqualTo(TEST_MEMBER_ID);
 			assertThat(result.items()).hasSize(1);
+			assertThat(shareLink.getClickCount()).isEqualTo(1);
+			assertThat(shareLink.getUseCount()).isEqualTo(1);
 		}
 
 		@Test
@@ -103,12 +112,53 @@ class SellerShareServiceTest {
 			Member member = createMember(TEST_MEMBER_ID);
 			SellerShareLink shareLink = SellerShareLink.create(member, TEST_SELLER_SHARE_TOKEN,
 					LocalDateTime.now().minusMinutes(1));
-			given(sellerShareLinkRepository.findByToken(TEST_SELLER_SHARE_TOKEN)).willReturn(Optional.of(shareLink));
+			given(sellerShareLinkRepository.findByTokenForUpdate(TEST_SELLER_SHARE_TOKEN))
+				.willReturn(Optional.of(shareLink));
 
 			// when & then
 			assertThatThrownBy(() -> sellerShareService.getSellerShop(TEST_SELLER_SHARE_TOKEN))
 				.isInstanceOf(CoreException.class)
 				.hasFieldOrPropertyWithValue("errorType", ErrorType.NOT_FOUND);
+			assertThat(shareLink.getClickCount()).isEqualTo(1);
+			assertThat(shareLink.getUseCount()).isZero();
+		}
+
+	}
+
+	@Nested
+	@DisplayName("내 공유 링크 관리")
+	class ManageShareLinks {
+
+		@Test
+		@DisplayName("목록 조회 성공")
+		void getMyShareLinks_success() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			SellerShareLink shareLink = SellerShareLink.create(member, TEST_SELLER_SHARE_TOKEN,
+					LocalDateTime.now().plusHours(1));
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
+			given(sellerShareLinkRepository.findLatestByMemberId(TEST_MEMBER_ID)).willReturn(Optional.of(shareLink));
+
+			// when & then
+			assertThat(sellerShareService.getMyShareLinks(TEST_MEMBER_ID)).hasSize(1);
+			verify(sellerShareLinkRepository).findLatestByMemberId(TEST_MEMBER_ID);
+		}
+
+		@Test
+		@DisplayName("공유 중단 성공")
+		void deactivateShareLink_success() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			SellerShareLink shareLink = SellerShareLink.create(member, TEST_SELLER_SHARE_TOKEN,
+					LocalDateTime.now().plusHours(1));
+			given(sellerShareLinkRepository.findByTokenForUpdate(TEST_SELLER_SHARE_TOKEN))
+				.willReturn(Optional.of(shareLink));
+
+			// when
+			sellerShareService.deactivateShareLink(TEST_MEMBER_ID, TEST_SELLER_SHARE_TOKEN);
+
+			// then
+			assertThat(shareLink.isActive()).isFalse();
 		}
 
 	}

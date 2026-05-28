@@ -42,11 +42,8 @@ class ReviewServiceUnitTest {
 	@Mock
 	private MemberRepository memberRepository;
 
-	@Mock
-	private ReputationService reputationService;
-
 	@Test
-	@DisplayName("리뷰 작성 성공: 예약이 확인되면 리뷰가 저장되고 신뢰도가 업데이트된다.")
+	@DisplayName("리뷰 작성 성공: 예약이 확인되면 리뷰가 저장된다.")
 	void createReview_Success() {
 		// given
 		Long reviewerId = 1L;
@@ -88,9 +85,6 @@ class ReviewServiceUnitTest {
 
 		// 1. 리뷰가 저장소에 저장되었는지 검증
 		verify(reviewRepository).save(any(Review.class));
-
-		// 2. 판매자의 신뢰도(Reputation) 업데이트 메서드가 호출되었는지 검증
-		verify(reputationService).changeReputation(mockSeller, score);
 	}
 
 	@Test

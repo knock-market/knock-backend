@@ -31,14 +31,40 @@ class SellerShareLinkRepositoryTest extends CoreDbContextTest {
 		// when
 		SellerShareLink savedShareLink = sellerShareLinkRepository.save(shareLink);
 		Optional<SellerShareLink> foundShareLink = sellerShareLinkRepository.findByToken("seller-share-token");
+		Optional<SellerShareLink> lockedShareLink = sellerShareLinkRepository
+			.findByTokenForUpdate("seller-share-token");
 
 		// then
 		assertThat(foundShareLink).isPresent();
+		assertThat(lockedShareLink).isPresent();
 		assertThat(foundShareLink.get().getId()).isEqualTo(savedShareLink.getId());
+		assertThat(lockedShareLink.get().getId()).isEqualTo(savedShareLink.getId());
 		assertThat(foundShareLink.get().getMember().getId()).isEqualTo(member.getId());
 		assertThat(sellerShareLinkRepository.existsByToken("seller-share-token")).isTrue();
 		assertThat(foundShareLink.get().isExpired(expiresAt.minusSeconds(1))).isFalse();
 		assertThat(foundShareLink.get().isExpired(expiresAt.plusSeconds(1))).isTrue();
+		assertThat(sellerShareLinkRepository.findAllByMemberId(member.getId())).hasSize(1);
+	}
+
+	@Test
+	@DisplayName("회원의 최신 공유 링크 1개 조회 성공")
+	void findLatestByMemberId() {
+		// given
+		Member member = memberRepository
+			.save(Member.create("seller-share-latest@test.com", "Name", "Pass", "Nick", "LOCAL"));
+		SellerShareLink firstShareLink = sellerShareLinkRepository
+			.save(SellerShareLink.create(member, "seller-share-first-token", LocalDateTime.now().plusHours(1)));
+		SellerShareLink latestShareLink = sellerShareLinkRepository
+			.save(SellerShareLink.create(member, "seller-share-latest-token", LocalDateTime.now().plusHours(2)));
+
+		// when
+		Optional<SellerShareLink> foundShareLink = sellerShareLinkRepository.findLatestByMemberId(member.getId());
+
+		// then
+		assertThat(foundShareLink).isPresent();
+		assertThat(foundShareLink.get().getId()).isNotEqualTo(firstShareLink.getId());
+		assertThat(foundShareLink.get().getId()).isEqualTo(latestShareLink.getId());
+		assertThat(foundShareLink.get().getToken()).isEqualTo("seller-share-latest-token");
 	}
 
 }

@@ -1,10 +1,8 @@
 package com.knock.core.support;
 
-import com.knock.core.enums.ItemCategory;
 import com.knock.core.enums.ItemType;
 import com.knock.core.enums.ReservationStatus;
 import com.knock.storage.db.core.bookmark.Bookmark;
-import com.knock.storage.db.core.group.Group;
 import com.knock.storage.db.core.item.Item;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.reservation.Reservation;
@@ -48,27 +46,10 @@ public final class TestFixtures {
 		return member;
 	}
 
-	public static Group createGroup() {
-		return createGroup(TEST_GROUP_ID, TEST_MEMBER_ID);
-	}
-
-	public static Group createGroup(Long id, Long ownerId) {
-		Group group = Group.create(TEST_GROUP_NAME, TEST_GROUP_DESCRIPTION, TEST_INVITE_CODE, ownerId);
-		ReflectionTestUtils.setField(group, "id", id);
-		return group;
-	}
-
-	public static Item createItem(Long id, Group group, Member member) {
-		Item item = Item.create(group, member, TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE, ItemType.SELL,
-				ItemCategory.DIGITAL_DEVICE);
-		ReflectionTestUtils.setField(item, "id", id);
-		return item;
-	}
-
 	public static Item createItem(Long id, Member member) {
-		Item item = Item.create(member, TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE, ItemType.SELL,
-				ItemCategory.DIGITAL_DEVICE);
+		Item item = Item.create(member, TEST_ITEM_TITLE, TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE, ItemType.SELL);
 		ReflectionTestUtils.setField(item, "id", id);
+		ReflectionTestUtils.setField(item, "publicId", TEST_ITEM_PUBLIC_ID);
 		return item;
 	}
 

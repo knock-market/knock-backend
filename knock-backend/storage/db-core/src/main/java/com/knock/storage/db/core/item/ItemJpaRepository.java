@@ -9,13 +9,7 @@ import java.util.Optional;
 
 public interface ItemJpaRepository extends JpaRepository<Item, Long> {
 
-	@Query("""
-			SELECT i, (SELECT img.imageUrl FROM ItemImage img WHERE img.item = i ORDER BY img.id ASC LIMIT 1),
-			(SELECT COUNT(b) FROM Bookmark b WHERE b.item = i)
-			FROM Item i JOIN FETCH i.member
-			WHERE i.group.id = :groupId
-			""")
-	List<Object[]> findItemsWithLikesByGroupId(Long groupId);
+	Optional<Item> findByPublicId(String publicId);
 
 	@Query("""
 			SELECT i, (SELECT img.imageUrl FROM ItemImage img WHERE img.item = i ORDER BY img.id ASC LIMIT 1),
@@ -35,6 +29,9 @@ public interface ItemJpaRepository extends JpaRepository<Item, Long> {
 
 	@Query("SELECT DISTINCT i FROM Item i JOIN FETCH i.member LEFT JOIN FETCH i.images WHERE i.id = :itemId")
 	Optional<Item> findByIdWithImages(Long itemId);
+
+	@Query("SELECT DISTINCT i FROM Item i JOIN FETCH i.member LEFT JOIN FETCH i.images WHERE i.publicId = :publicId")
+	Optional<Item> findByPublicIdWithImages(String publicId);
 
 	@Modifying(clearAutomatically = true)
 	@Query("UPDATE Item i SET i.viewCount = i.viewCount + 1 WHERE i.id = :itemId")

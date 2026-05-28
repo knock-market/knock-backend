@@ -9,13 +9,15 @@ public interface ItemRepository {
 
 	Optional<Item> findById(Long id);
 
-	List<Object[]> findByGroupIdWithLikes(Long groupId);
+	Optional<Item> findByPublicId(String publicId);
 
 	List<Object[]> findByMemberIdWithLikes(Long memberId);
 
 	List<Object[]> findAllWithLikes();
 
 	Optional<Item> findByIdWithImages(Long itemId);
+
+	Optional<Item> findByPublicIdWithImages(String publicId);
 
 	void delete(Item item);
 

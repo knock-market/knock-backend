@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -53,10 +52,13 @@ class TradeSocialJourneyIntegrationTest extends ContextTest {
 		Cookie strangerCookie = login(strangerEmail, password);
 
 		MvcResult createItemResult = mockMvc
-			.perform(post("/api/v1/items").cookie(sellerCookie)
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(Map.of("title", "맥북", "description", "거의 새 제품", "price",
-						1500000, "itemType", "SELL", "category", "DIGITAL_DEVICE", "imageUrls", List.of()))))
+			.perform(
+					post("/api/v1/items").cookie(sellerCookie)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(Map.of("title", "맥북", "description", "거의 새 제품",
+								"price", 1500000, "itemType", "SELL", "imageUrls", List.of(), "tradeLocationName",
+								"강남역 2번 출구", "tradeLocationAddress", "서울 강남구 강남대로 396", "tradeLatitude", 37.498095,
+								"tradeLongitude", 127.02761))))
 			.andExpect(status().isOk())
 			.andReturn();
 
@@ -128,43 +130,6 @@ class TradeSocialJourneyIntegrationTest extends ContextTest {
 		mockMvc.perform(delete("/api/v1/items/{itemId}", itemId).cookie(strangerCookie)).andExpect(status().isOk());
 	}
 
-	@Test
-	@DisplayName("소셜 플로우: 유저 차단/목록/해제 + 자기 자신 차단 실패")
-	void blockAndUnblockFlowWithValidationFailure() throws Exception {
-		String blockerEmail = uniqueEmail("blocker");
-		String targetEmail = uniqueEmail("target");
-		String password = "Password123!";
-
-		signUp(blockerEmail, "차단자", password, "차단자닉");
-		signUp(targetEmail, "대상자", password, "대상자닉");
-
-		Cookie blockerCookie = login(blockerEmail, password);
-		Cookie targetCookie = login(targetEmail, password);
-
-		long blockerId = getMyId(blockerCookie);
-		long targetId = getMyId(targetCookie);
-		assertThat(blockerId).isNotEqualTo(targetId);
-
-		mockMvc.perform(post("/api/v1/members/{memberId}/block", targetId).cookie(blockerCookie))
-			.andExpect(status().isOk());
-
-		mockMvc.perform(get("/api/v1/members/my/blocked").cookie(blockerCookie))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.data[0].id").value(targetId));
-
-		mockMvc.perform(delete("/api/v1/members/{memberId}/block", targetId).cookie(blockerCookie))
-			.andExpect(status().isOk());
-
-		mockMvc.perform(get("/api/v1/members/my/blocked").cookie(blockerCookie))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.data").isArray())
-			.andExpect(jsonPath("$.data").isEmpty());
-
-		mockMvc.perform(post("/api/v1/members/{memberId}/block", blockerId).cookie(blockerCookie))
-			.andExpect(status().isBadRequest())
-			.andExpect(jsonPath("$.error.code").value("E400"));
-	}
-
 	private void signUp(String email, String name, String password, String nickname) throws Exception {
 		mockMvc
 			.perform(post("/api/v1/members").contentType(MediaType.APPLICATION_JSON)
@@ -180,13 +145,6 @@ class TradeSocialJourneyIntegrationTest extends ContextTest {
 			.andExpect(status().isOk())
 			.andReturn();
 		return result.getResponse().getCookie("SESSION_ID");
-	}
-
-	private long getMyId(Cookie cookie) throws Exception {
-		MvcResult result = mockMvc.perform(get("/api/v1/members/my").cookie(cookie))
-			.andExpect(status().isOk())
-			.andReturn();
-		return readData(result).path("id").asLong();
 	}
 
 	private JsonNode readData(MvcResult result) throws Exception {

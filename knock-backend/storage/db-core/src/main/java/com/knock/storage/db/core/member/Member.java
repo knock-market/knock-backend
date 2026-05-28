@@ -40,9 +40,6 @@ public class Member extends BaseEntity {
 	@Column(name = "provider_id")
 	private String providerId;
 
-	@Column(name = "manner_temperature")
-	private Double mannerTemperature;
-
 	@Column(name = "notification_push_enabled", nullable = false)
 	private boolean notificationPushEnabled;
 
@@ -68,7 +65,6 @@ public class Member extends BaseEntity {
 		this.profileImageUrl = profileImageUrl;
 		this.provider = provider;
 		this.providerId = providerId;
-		this.mannerTemperature = 36.5;
 		this.notificationPushEnabled = true;
 		this.notificationNewItemsEnabled = true;
 		this.notificationChatEnabled = true;
@@ -89,10 +85,6 @@ public class Member extends BaseEntity {
 	public void updateProfile(String nickname, String profileImageUrl) {
 		this.nickname = nickname;
 		this.profileImageUrl = profileImageUrl;
-	}
-
-	public void updateMannerTemperature(double score) {
-		this.mannerTemperature = score;
 	}
 
 	public void updateNotificationSettings(boolean pushEnabled, boolean newItemsEnabled, boolean chatEnabled,

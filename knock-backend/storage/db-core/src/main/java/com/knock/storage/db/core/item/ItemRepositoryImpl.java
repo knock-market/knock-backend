@@ -32,8 +32,8 @@ public class ItemRepositoryImpl implements ItemRepository {
 	}
 
 	@Override
-	public List<Object[]> findByGroupIdWithLikes(Long groupId) {
-		return itemJpaRepository.findItemsWithLikesByGroupId(groupId);
+	public Optional<Item> findByPublicId(String publicId) {
+		return itemJpaRepository.findByPublicId(publicId);
 	}
 
 	@Override
@@ -54,6 +54,11 @@ public class ItemRepositoryImpl implements ItemRepository {
 	@Override
 	public Optional<Item> findByIdWithImages(Long itemId) {
 		return itemJpaRepository.findByIdWithImages(itemId);
+	}
+
+	@Override
+	public Optional<Item> findByPublicIdWithImages(String publicId) {
+		return itemJpaRepository.findByPublicIdWithImages(publicId);
 	}
 
 	@Override

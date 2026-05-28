@@ -4,7 +4,6 @@ import com.knock.core.domain.item.dto.ItemCreateData;
 import com.knock.core.domain.item.dto.ItemCreateResult;
 import com.knock.core.domain.item.dto.ItemListResult;
 import com.knock.core.domain.item.dto.ItemReadResult;
-import com.knock.core.enums.ItemCategory;
 import com.knock.core.enums.ReservationStatus;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
@@ -37,18 +36,25 @@ public class ItemService {
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 
-		Item item = Item.create(member, data.title(), data.description(), data.price(), data.type(),
-				data.category() == null ? ItemCategory.ETC : data.category());
+		Item item = Item.create(member, data.title(), data.description(), data.price(), data.type());
 		item.updateTradeLocation(normalizeText(data.tradeLocationName()), normalizeText(data.tradeLocationAddress()),
 				data.tradeLatitude(), data.tradeLongitude());
 
 		Item savedItem = itemRepository.save(item, data.imageUrls());
-		return new ItemCreateResult(savedItem.getId());
+		return new ItemCreateResult(savedItem.getId(), savedItem.getPublicId());
 	}
 
 	@Transactional(readOnly = true)
 	public ItemReadResult getItem(Long itemId) {
 		Item item = itemRepository.findByIdWithImages(itemId)
+			.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
+
+		return ItemReadResult.from(item, item.getImages());
+	}
+
+	@Transactional(readOnly = true)
+	public ItemReadResult getItemByPublicId(String publicId) {
+		Item item = itemRepository.findByPublicIdWithImages(publicId)
 			.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
 
 		return ItemReadResult.from(item, item.getImages());
@@ -106,9 +112,13 @@ public class ItemService {
 	}
 
 	private void validateTradeLocation(ItemCreateData data) {
+		if (isBlank(data.tradeLocationName()) || isBlank(data.tradeLocationAddress())) {
+			throw new CoreException(ErrorType.VALIDATION_ERROR);
+		}
+
 		boolean hasLatitude = data.tradeLatitude() != null;
 		boolean hasLongitude = data.tradeLongitude() != null;
-		if (hasLatitude != hasLongitude) {
+		if (!hasLatitude || !hasLongitude) {
 			throw new CoreException(ErrorType.VALIDATION_ERROR);
 		}
 		if (hasLatitude && (data.tradeLatitude() < -90 || data.tradeLatitude() > 90)) {
@@ -120,10 +130,14 @@ public class ItemService {
 	}
 
 	private String normalizeText(String value) {
-		if (value == null || value.isBlank()) {
+		if (isBlank(value)) {
 			return null;
 		}
 		return value.trim();
+	}
+
+	private boolean isBlank(String value) {
+		return value == null || value.isBlank();
 	}
 
 	// todo : 로직 완성 필요

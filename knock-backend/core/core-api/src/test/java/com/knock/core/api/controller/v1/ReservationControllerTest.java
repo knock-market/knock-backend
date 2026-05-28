@@ -87,7 +87,7 @@ class ReservationControllerTest extends RestDocsTest {
 	void getMyReservations_success() {
 		// given
 		Member member = createMember(TEST_MEMBER_ID);
-		Item item = createItem(TEST_ITEM_ID, createGroup(), member);
+		Item item = createItem(TEST_ITEM_ID, member);
 		Reservation reservation = createReservation(TEST_RESERVATION_ID, item, member, ReservationStatus.APPROVED);
 		ReservationResult result = ReservationResult.from(reservation);
 
@@ -115,7 +115,7 @@ class ReservationControllerTest extends RestDocsTest {
 		// given
 		Member owner = createMember(TEST_MEMBER_ID);
 		Member buyer = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
-		Item item = createItem(TEST_ITEM_ID, createGroup(), owner);
+		Item item = createItem(TEST_ITEM_ID, owner);
 		Reservation reservation = createReservation(TEST_RESERVATION_ID, item, buyer, ReservationStatus.WAITING);
 		ReservationResult result = ReservationResult.from(reservation);
 

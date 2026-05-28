@@ -2,6 +2,7 @@ package com.knock.core.domain.seller;
 
 import com.knock.core.domain.item.dto.ItemListResult;
 import com.knock.core.domain.seller.dto.SellerShareLinkCreateResult;
+import com.knock.core.domain.seller.dto.SellerShareLinkStatsResult;
 import com.knock.core.domain.seller.dto.SellerShopResult;
 import com.knock.core.enums.InviteDuration;
 import com.knock.core.support.error.CoreException;
@@ -37,23 +38,27 @@ public class SellerShareService {
 
 	@Transactional
 	public SellerShareLinkCreateResult createShareLink(Long memberId, InviteDuration duration) {
-		Member member = memberRepository.findById(memberId)
+		Member member = memberRepository.findByIdForUpdate(memberId)
 			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 		InviteDuration normalizedDuration = duration == null ? InviteDuration.ONE_DAY : duration;
 		LocalDateTime expiresAt = normalizedDuration.getDuration() == null ? null
 				: LocalDateTime.now().plus(normalizedDuration.getDuration());
+		sellerShareLinkRepository.findAllByMemberId(memberId).forEach(SellerShareLink::deactivate);
 		SellerShareLink saved = sellerShareLinkRepository
 			.save(SellerShareLink.create(member, generateUniqueToken(), expiresAt));
-		return new SellerShareLinkCreateResult(saved.getToken(), saved.getExpiresAt());
+		return new SellerShareLinkCreateResult(saved.getToken(), saved.getExpiresAt(), saved.isActive(),
+				saved.getClickCount(), saved.getUseCount());
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional
 	public SellerShopResult getSellerShop(String token) {
-		SellerShareLink shareLink = sellerShareLinkRepository.findByToken(token)
+		SellerShareLink shareLink = sellerShareLinkRepository.findByTokenForUpdate(token)
 			.orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
-		if (shareLink.isExpired(LocalDateTime.now())) {
+		shareLink.recordClick();
+		if (!shareLink.isAvailable(LocalDateTime.now())) {
 			throw new CoreException(ErrorType.NOT_FOUND);
 		}
+		shareLink.recordUse();
 		Member seller = shareLink.getMember();
 		List<ItemListResult> items = itemRepository.findByMemberIdWithLikes(seller.getId()).stream().map(row -> {
 			Item item = (Item) row[0];
@@ -62,6 +67,25 @@ public class SellerShareService {
 			return ItemListResult.from(item, thumbnailUrl, likesCount);
 		}).toList();
 		return SellerShopResult.from(seller, items);
+	}
+
+	@Transactional(readOnly = true)
+	public List<SellerShareLinkStatsResult> getMyShareLinks(Long memberId) {
+		memberRepository.findById(memberId).orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
+		return sellerShareLinkRepository.findLatestByMemberId(memberId)
+			.stream()
+			.map(SellerShareLinkStatsResult::from)
+			.toList();
+	}
+
+	@Transactional
+	public void deactivateShareLink(Long memberId, String token) {
+		SellerShareLink shareLink = sellerShareLinkRepository.findByTokenForUpdate(token)
+			.orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
+		if (!shareLink.getMember().getId().equals(memberId)) {
+			throw new CoreException(ErrorType.FORBIDDEN);
+		}
+		shareLink.deactivate();
 	}
 
 	private String generateUniqueToken() {

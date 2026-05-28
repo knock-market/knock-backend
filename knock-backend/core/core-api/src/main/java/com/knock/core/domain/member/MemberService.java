@@ -1,6 +1,5 @@
 package com.knock.core.domain.member;
 
-import com.knock.core.domain.member.dto.BlockedMemberResult;
 import com.knock.core.domain.member.dto.MemberNotificationSettingsResult;
 import com.knock.core.domain.member.dto.MemberNotificationSettingsUpdateData;
 import com.knock.core.domain.member.dto.MemberResult;
@@ -9,16 +8,11 @@ import com.knock.core.domain.member.dto.MemberSignupResult;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
 import com.knock.storage.db.core.member.Member;
-import com.knock.storage.db.core.member.MemberBlock;
-import com.knock.storage.db.core.member.MemberBlockRepository;
 import com.knock.storage.db.core.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,8 +21,6 @@ public class MemberService {
 	private final MemberRepository memberRepository;
 
 	private final PasswordEncoder passwordEncoder;
-
-	private final MemberBlockRepository memberBlockRepository;
 
 	@Transactional
 	public MemberSignupResult signup(MemberSignupData data) {
@@ -82,44 +74,6 @@ public class MemberService {
 	public void updateNotificationSettings(Long memberId, MemberNotificationSettingsUpdateData data) {
 		Member member = getMemberOrThrow(memberId);
 		member.updateNotificationSettings(data.push(), data.newItems(), data.chat(), data.marketing(), data.sound());
-	}
-
-	@Transactional(readOnly = true)
-	public List<BlockedMemberResult> getBlockedMembers(Long memberId) {
-		getMemberOrThrow(memberId);
-		return memberBlockRepository.findByBlockerId(memberId).stream().map(BlockedMemberResult::from).toList();
-	}
-
-	@Transactional
-	public void blockMember(Long blockerId, Long blockedId) {
-		if (blockerId.equals(blockedId)) {
-			throw new CoreException(ErrorType.VALIDATION_ERROR);
-		}
-
-		Member blocker = getMemberOrThrow(blockerId);
-		Member blocked = getMemberOrThrow(blockedId);
-
-		if (memberBlockRepository.existsByBlockerIdAndBlockedId(blockerId, blockedId)) {
-			return;
-		}
-
-		try {
-			memberBlockRepository.save(MemberBlock.create(blocker, blocked));
-		}
-		catch (DataIntegrityViolationException e) {
-			if (memberBlockRepository.existsByBlockerIdAndBlockedId(blockerId, blockedId)) {
-				return;
-			}
-			throw e;
-		}
-	}
-
-	@Transactional
-	public void unblockMember(Long blockerId, Long blockedId) {
-		getMemberOrThrow(blockerId);
-		getMemberOrThrow(blockedId);
-		memberBlockRepository.findByBlockerIdAndBlockedId(blockerId, blockedId)
-			.ifPresent(memberBlockRepository::delete);
 	}
 
 	private Member getMemberOrThrow(Long memberId) {
