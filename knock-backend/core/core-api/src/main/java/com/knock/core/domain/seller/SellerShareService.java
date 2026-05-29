@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
@@ -34,6 +35,8 @@ public class SellerShareService {
 
 	private final ItemRepository itemRepository;
 
+	private final Clock clock;
+
 	private final SecureRandom secureRandom = new SecureRandom();
 
 	@Transactional
@@ -42,7 +45,7 @@ public class SellerShareService {
 			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 		InviteDuration normalizedDuration = duration == null ? InviteDuration.ONE_DAY : duration;
 		LocalDateTime expiresAt = normalizedDuration.getDuration() == null ? null
-				: LocalDateTime.now().plus(normalizedDuration.getDuration());
+				: LocalDateTime.now(clock).plus(normalizedDuration.getDuration());
 		sellerShareLinkRepository.findAllByMemberId(memberId).forEach(SellerShareLink::deactivate);
 		SellerShareLink saved = sellerShareLinkRepository
 			.save(SellerShareLink.create(member, generateUniqueToken(), expiresAt));
@@ -55,7 +58,7 @@ public class SellerShareService {
 		SellerShareLink shareLink = sellerShareLinkRepository.findByTokenForUpdate(token)
 			.orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
 		shareLink.recordClick();
-		if (!shareLink.isAvailable(LocalDateTime.now())) {
+		if (!shareLink.isAvailable(LocalDateTime.now(clock))) {
 			throw new CoreException(ErrorType.NOT_FOUND);
 		}
 		shareLink.recordUse();

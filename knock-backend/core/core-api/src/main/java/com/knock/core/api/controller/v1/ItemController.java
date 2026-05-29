@@ -10,6 +10,7 @@ import com.knock.core.domain.item.dto.ItemCreateResult;
 import com.knock.core.domain.item.dto.ItemListResult;
 import com.knock.core.domain.item.dto.ItemReadResult;
 import com.knock.core.support.response.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -31,10 +32,11 @@ public class ItemController {
 
 	@GetMapping("/api/v1/items/{itemPublicId}")
 	public ApiResponse<ItemResponseDto> getItem(@AuthenticationPrincipal MemberPrincipal principal,
-			@PathVariable String itemPublicId) {
+			@PathVariable String itemPublicId, HttpServletRequest request) {
 		ItemReadResult result = itemService.getItemByPublicId(itemPublicId);
 		Long viewerMemberId = principal == null ? null : principal.getMemberId();
-		itemService.increaseViewCount(result.id(), viewerMemberId);
+		String viewerSessionId = principal == null ? request.getSession(true).getId() : null;
+		itemService.increaseViewCount(result.id(), result.writerId(), viewerMemberId, viewerSessionId);
 		return ApiResponse.success(ItemResponseDto.from(result));
 	}
 

@@ -36,7 +36,7 @@
 ## 3. Item API
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|
-| GET | `/api/v1/items` | 전체 마켓 상품 목록 | `(None)` | `List<ItemSummaryResponseDto>` | ✅ Implemented |
+| GET | `/api/v1/items` | 전체 마켓 상품 목록. 비로그인 조회 가능 | `(None)` | `List<ItemSummaryResponseDto>` | ✅ Implemented |
 | POST | `/api/v1/items` | 내 개인 매대에 상품 등록 | `ItemCreateRequestDto` <br> `{ title, description, price, itemType, imageUrls, tradeLocationName?, tradeLocationAddress?, tradeLatitude?, tradeLongitude? }` | `ItemIdResponseDto` <br> `{ id, publicId }` | ✅ Implemented |
 | GET | `/api/v1/items/{itemPublicId}` | 상품 상세 조회. UUID 형식 공개 식별자는 비로그인 조회 가능, 예약/북마크 같은 액션은 인증 필요 | `(None)` | `ItemResponseDto` <br> `{ id, publicId, title, description, price, type, status, imageUrls, writerId, writerNickname, writerProfileImageUrl, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }` | ✅ Implemented |
 | GET | `/api/v1/items/manage/{itemId}` | 판매자 관리 화면용 상품 상세 조회. 인증 필요 | `(None)` | `ItemResponseDto` <br> `{ id, publicId, title, description, price, type, status, imageUrls, writerId, writerNickname, writerProfileImageUrl, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }` | ✅ Implemented |
@@ -53,9 +53,17 @@
 - 상품 등록은 인증된 판매자의 개인 매대에 저장되며 `groupId`와 `category`를 받지 않습니다.
 - 상품 상세 URL은 `/item/{publicId}`를 사용합니다. UUID 형식 `publicId` 상세 조회는 공유 유입을 위해 공개하고, 내부 숫자 `id`는 예약/북마크 같은 인증 후 API payload에서만 사용합니다.
 
+### Item view count rules
+
+- 상품 상세 조회는 Redis TTL 키로 30분 내 중복 조회를 방지한 뒤 조회수를 증가시킵니다.
+- 로그인 사용자는 `memberId`, 비로그인 사용자는 `SESSION_ID` 기준으로 중복을 판단합니다.
+- 판매자 본인이 자신의 상품을 조회한 경우 조회수에 포함하지 않습니다.
+- Redis 오류가 발생해도 상세 조회 응답은 유지하고 조회수 집계만 생략합니다.
+
 ### Seller share rules
 
 - 공유 링크 유효시간은 `ONE_HOUR`(1시간), `ONE_DAY`(24시간), `PERMANENT`(무제한)만 사용합니다.
+- 공유 링크 만료 시간은 서버 애플리케이션의 `Asia/Seoul` Clock으로 계산한 KST-local `LocalDateTime` 값으로 저장/응답합니다.
 - 판매자 매대의 공유 상태는 구글 드라이브의 일반 액세스처럼 현재 링크 1개 기준으로 관리합니다.
 - 새 공유 링크를 만들면 기존 링크는 모두 비활성화되고, `GET /api/v1/seller-shares/my`는 최신 링크 0~1개만 반환합니다.
 - `clickCount`는 공유 링크 요청 수, `useCount`는 활성 상태에서 실제 판매 페이지가 열린 횟수입니다.
