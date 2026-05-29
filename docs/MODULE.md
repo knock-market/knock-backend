@@ -183,6 +183,7 @@ val javaVersion = property("javaVersion") as String
   - 그룹 장터 스키마(`Group`, `GroupMember`, `item.group_id`) 제거
   - 차단 스키마/API(`MemberBlock`, `/members/{memberId}/block`) 제거
   - 매너온도/평판 계산 스키마와 서비스 제거
+  - 운영 DB에 남아 있을 수 있는 레거시 컬럼/테이블 제거는 `docs/OPERATING_DB_MIGRATION_PLAN.md` 절차를 따른다.
   - 거래 위치 좌표 범위 검증 추가
   - 상품 삭제 시 활성 예약(`WAITING`, `APPROVED`) 자동 취소 후 소프트 삭제
   - 예약 승인 시 `FOR UPDATE` 조회 대상 누락을 예외 처리(`RESERVATION_NOT_FOUND`)

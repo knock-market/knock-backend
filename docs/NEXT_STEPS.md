@@ -74,15 +74,17 @@
 - 검증: `ONE_HOUR`, `ONE_DAY`, `PERMANENT`, 만료 직전/직후 테스트를 추가한다.
 - 결과: `TimeConfig`에서 `ZoneId.of("Asia/Seoul")` 기반 `Clock`을 주입하고, 공유 링크 만료 생성/검사는 `LocalDateTime.now(clock)`으로 통일했다. DB/API의 `LocalDateTime` 형태는 유지하며 KST-local 정책을 코드와 테스트에 명시했다. `ONE_HOUR`, `ONE_DAY`, `PERMANENT`, null 기본값, `expiresAt == now` 경계, 만료 직후 click/use count 동작을 고정 테스트로 검증했다.
 
-### P1. 운영 DB 마이그레이션 계획 작성
+### P1. 운영 DB 마이그레이션 계획 작성 - Done
 
 - 근거: `docs/REQUEST-v2.0.md`는 운영 DB 마이그레이션 자동화를 비목표로 두고, 다음 후보에 제거 스크립트 작성을 남겼다.
 - 위험: 로컬 스키마 재생성 기준 변경이 운영 DB에 그대로 반영되지 않을 수 있다.
 - 선택지:
   - A. Flyway/Liquibase 도입 후 마이그레이션을 코드화한다. 장점: 재현 가능하다. 단점: 초기 도입 비용이 있다. 위험: 기존 운영 상태 조사가 필요하다.
   - B. SQL 운영 절차서를 먼저 작성한다. 장점: 빠르게 위험을 드러낸다. 단점: 자동화가 약하다. 위험: 수동 실행 실수 가능성이 있다.
-- 권장: B로 현재 스키마 차이를 명확히 한 뒤 A 도입 여부를 결정한다.
-- 검증: 로컬 MySQL 스냅샷 기준으로 제거 컬럼/테이블 영향도를 확인한다.
+  - C. SQL 절차서로 1회 운영 실사/스테이징 검증을 끝낸 뒤, 확인된 스키마를 Flyway/Liquibase baseline으로 삼는다. 장점: 현재 불확실성을 낮추면서 이후 재현성을 확보한다. 단점: 수동 절차와 도구 도입을 모두 관리해야 한다.
+- 권장: C에 가까운 단계적 접근. 먼저 `docs/OPERATING_DB_MIGRATION_PLAN.md`의 expand → backfill/verify → compatible deploy → contract 절차로 운영 스키마 차이를 확인하고, 제거 DDL은 백업/아카이브와 롤링 배포 안정화 이후에 실행한다.
+- 검증: 운영과 동일한 스테이징/복제본에서 메타데이터 실사, `public_id` backfill/unique 검증, Hibernate `ddl-auto=validate` 부팅, 상품/공유 링크/예약/알림 smoke test를 통과해야 한다.
+- 결과: `docs/OPERATING_DB_MIGRATION_PLAN.md`에 제거 대상(`item.group_id`, `item.category`, `member.manner_temperature`, `member_block`, 그룹 테이블), 현재 코드가 요구하는 스키마, 위험, 선택지, 권장 절차, 검증/롤백/중단 기준을 문서화했다.
 
 ### P2. DTO 레이어 의존 정리
 
