@@ -1,6 +1,5 @@
 package com.knock.core.domain.review;
 
-import com.knock.core.api.controller.v1.response.ReviewResponse;
 import com.knock.core.domain.review.dto.request.ReviewCreateData;
 import com.knock.core.domain.review.dto.response.ReviewResult;
 import com.knock.core.support.error.CoreException;
@@ -51,11 +50,11 @@ public class ReviewService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ReviewResponse> getReviewList(Long writerId) {
+	public List<ReviewResult> getReviewList(Long writerId) {
 		validateMemberExists(writerId);
 		List<Review> reviewList = reviewRepository.findByRevieweeId(writerId);
 
-		return reviewList.stream().map(ReviewResponse::from).toList();
+		return reviewList.stream().map(ReviewResult::from).toList();
 	}
 
 	@Transactional(readOnly = true)

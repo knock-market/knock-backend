@@ -139,16 +139,16 @@
 
 아래는 즉시 수정 대상이 아니라, 신규 코드 작성 시 우선적으로 개선할 항목이다.
 
-- 일부 Domain DTO가 Controller DTO를 직접 참조한다.
-  - 예: `ItemCreateData.of(ItemCreateRequestDto)`
-  - 권장: Controller에서 Data를 조립하고 Domain DTO는 API 패키지 의존 제거.
-- 일부 Domain Service/Response DTO가 저장소 엔티티 또는 API 응답 타입에 직접 의존한다.
-  - 예: `ReviewService#getReviewList`가 `ReviewResponse` 반환
+- 일부 Domain DTO가 Controller DTO를 직접 참조하는 패턴은 신규 코드에서 금지한다.
+  - 2026-05-29 정리: `ItemCreateData`와 `ReviewCreateData`는 API request DTO 의존을 제거했고 Controller에서 Data를 조립한다.
+  - 권장: Controller에서 Data를 조립하고 Domain DTO는 API 패키지 의존을 만들지 않는다.
+- 일부 Domain Service/Response DTO가 저장소 엔티티 또는 API 응답 타입에 직접 의존하는 패턴은 신규 코드에서 금지한다.
+  - 2026-05-29 정리: `ReviewService#getReviewList`는 `ReviewResult`를 반환하고 `ReviewController`에서 `ReviewResponse`로 변환한다. `ReviewResponse`의 저장소 엔티티 매퍼도 제거했다.
   - 권장: Service는 `Result`만 반환하고 Controller에서 `Response`로 변환.
 - `LocalDateTime.now()` 사용 로직은 서버 타임존 의존성이 있다.
   - 권장: 비즈니스 시간 계산 지점에 타임존 정책(UTC/KST) 명시.
-- 위치 기반 기능은 좌표 범위와 null 조합을 Service에서 검증한다.
-  - 예: 위도/경도는 둘 다 없거나 둘 다 있어야 하며, 위도 `-90..90`, 경도 `-180..180`을 유지한다.
+- 위치 기반 기능은 HTTP 필수/범위 검증을 Request DTO에서 먼저 수행하고, Service에서도 도메인 경계 검증을 유지한다.
+  - 예: 상품 등록 위도 `-90..90`, 경도 `-180..180`, 거래 위치 이름/주소 필수 조건을 유지한다.
 
 ## 10. 신규 기능 체크리스트
 

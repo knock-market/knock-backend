@@ -18,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -102,6 +103,41 @@ class ReviewServiceUnitTest {
 		assertThatThrownBy(() -> reviewService.createReview(reviewerId, requestDto)).isInstanceOf(CoreException.class)
 			.extracting("errorType")
 			.isEqualTo(ErrorType.RESERVATION_NOT_COMPLETED);
+	}
+
+	@Test
+	@DisplayName("리뷰 목록 조회 성공: 도메인 결과 DTO를 반환한다.")
+	void getReviewList_Success() {
+		// given
+		Long writerId = 2L;
+		Review review = mock(Review.class);
+		given(memberRepository.existsById(writerId)).willReturn(true);
+		given(reviewRepository.findByRevieweeId(writerId)).willReturn(List.of(review));
+		given(review.getId()).willReturn(10L);
+		given(review.getContent()).willReturn("좋은 거래였습니다");
+		given(review.getScore()).willReturn(5);
+
+		// when
+		List<ReviewResult> results = reviewService.getReviewList(writerId);
+
+		// then
+		assertThat(results).hasSize(1);
+		assertThat(results.getFirst().reviewId()).isEqualTo(10L);
+		assertThat(results.getFirst().content()).isEqualTo("좋은 거래였습니다");
+		assertThat(results.getFirst().score()).isEqualTo(5);
+	}
+
+	@Test
+	@DisplayName("리뷰 목록 조회 실패: 회원이 없으면 예외가 발생한다.")
+	void getReviewList_Fail_MemberNotFound() {
+		// given
+		Long writerId = 2L;
+		given(memberRepository.existsById(writerId)).willReturn(false);
+
+		// when & then
+		assertThatThrownBy(() -> reviewService.getReviewList(writerId)).isInstanceOf(CoreException.class)
+			.extracting("errorType")
+			.isEqualTo(ErrorType.MEMBER_NOT_FOUND);
 	}
 
 }

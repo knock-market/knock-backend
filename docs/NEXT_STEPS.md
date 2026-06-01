@@ -37,7 +37,7 @@
 - Google OAuth는 구현되어 있고 Kakao OAuth 엔드포인트는 없다. API Reference의 "Kakao Not Implemented" 상태와 일치한다.
 - 그룹, 차단, 평판, 상품 카테고리 모델은 현재 검색 기준 주요 코드 경로에서 제거된 상태다.
 - 개인 매대, 판매자 공유 링크, 상품 `publicId`, 거래 위치 필드는 코드에 반영되어 있다.
-- `docs/BACKEND_CONVENTION.md`의 예외 항목은 아직 유효하다. 예를 들어 `ItemCreateData`가 controller request DTO를 참조하고, `ReviewService#getReviewList`가 API response DTO를 반환한다.
+- `docs/BACKEND_CONVENTION.md`에 기록된 DTO 예외 중 `ItemCreateData`, `ReviewCreateData`, `ReviewService#getReviewList`, `ReviewResponse#from(Review)`는 2026-05-29 품질 패스에서 정리됐다. 남은 입력 검증/문서 최신성/QA 후보는 아래 작업 후보에 계속 추적한다.
 
 ## 다음 작업 후보
 
@@ -86,17 +86,18 @@
 - 검증: 운영과 동일한 스테이징/복제본에서 메타데이터 실사, `public_id` backfill/unique 검증, Hibernate `ddl-auto=validate` 부팅, 상품/공유 링크/예약/알림 smoke test를 통과해야 한다.
 - 결과: `docs/OPERATING_DB_MIGRATION_PLAN.md`에 제거 대상(`item.group_id`, `item.category`, `member.manner_temperature`, `member_block`, 그룹 테이블), 현재 코드가 요구하는 스키마, 위험, 선택지, 권장 절차, 검증/롤백/중단 기준을 문서화했다.
 
-### P2. DTO 레이어 의존 정리
+### P2. DTO 레이어 의존 정리 - Done
 
-- 근거: `docs/BACKEND_CONVENTION.md`의 "현재 코드에서 확인된 예외/개선 권장" 항목이 여전히 재현된다.
+- 근거: `docs/BACKEND_CONVENTION.md`의 "현재 코드에서 확인된 예외/개선 권장" 항목이 `ItemCreateData`와 `ReviewService#getReviewList`에서 재현됐다.
 - 위험: 도메인 DTO가 API request/response에 묶여 모듈 경계가 흐려진다.
 - 선택지:
   - A. 신규 작업에서만 컨벤션을 지킨다. 장점: 변경 부담이 작다. 단점: 예외가 오래 남는다. 위험: 패턴이 계속 복제될 수 있다.
   - B. 작은 단위로 기존 예외를 정리한다. 장점: 구조가 명확해진다. 단점: 테스트/REST Docs 영향이 있다. 위험: 단순 이동 변경이 넓어질 수 있다.
 - 권장: B를 하되 `ItemCreateData`, `ReviewService#getReviewList`처럼 문서에 언급된 항목부터 작게 처리한다.
 - 검증: 관련 서비스/컨트롤러 단위 테스트와 REST Docs 테스트를 실행한다.
+- 결과: Controller에서 `ItemCreateData`와 `ReviewCreateData`를 직접 조립하도록 바꾸고, `ReviewService#getReviewList`는 `ReviewResult`를 반환하도록 정리했다. `ReviewResponse`의 저장소 엔티티 매퍼도 제거했다.
 
-### P2. 입력 검증 일관화
+### P2. 입력 검증 일관화 - Partially Done
 
 - 근거: 일부 request DTO는 `@Valid`와 Bean Validation을 사용하지만, 상품 등록/이미지/리뷰 등은 서비스 검증 또는 직접 사용이 섞여 있다.
 - 위험: 잘못된 입력이 서비스 깊은 곳까지 들어가거나 오류 메시지가 일관되지 않을 수 있다.
@@ -105,8 +106,10 @@
   - B. Service 검증으로 통일한다. 장점: 유스케이스 경계가 명확하다. 단점: HTTP 오류 필드 메시지 품질이 낮아질 수 있다.
 - 권장: HTTP 형식 검증은 DTO, 도메인 규칙은 Service로 나눈다.
 - 검증: 성공 경로와 실패 경로 REST Docs/컨트롤러 테스트를 추가한다.
+- 결과: 상품 등록과 리뷰 작성 request DTO에 Bean Validation을 추가하고 Controller에서 `@Valid`를 적용했다. 상품 등록 실패 컨트롤러 테스트로 HTTP 경계 차단과 서비스 미호출을 고정했다.
+- 남은 문제: 예약 생성, 이미지 업로드/삭제, 알림 설정처럼 아직 `@Valid` 또는 필드 제약이 없는 request 경계를 후속 작업으로 작게 점검한다.
 
-### P3. 문서 최신성 보강
+### P3. 문서 최신성 보강 - Partially Done
 
 - 근거: `docs/REQUEST-v1.1.md`는 archived이지만 최신 후보 작업과 겹치는 표현이 있고, `docs/API_REFERENCE.md`는 REST Docs HTML 생성 결과와 수동 표를 함께 참조한다.
 - 위험: 구현 변경 후 수동 문서가 뒤처질 수 있다.
@@ -115,6 +118,24 @@
   - B. API Reference에 "검증 명령/마지막 테스트 결과" 섹션을 추가한다. 장점: 최신성 판단이 쉬워진다. 단점: 매번 갱신해야 한다.
 - 권장: A를 유지하면서 API 변경이 있을 때만 B를 적용한다.
 - 검증: `./gradlew :core:core-api:asciidoctor` 생성 결과와 수동 표를 비교한다.
+- 결과: `docs/API_REFERENCE.md`의 상품 등록 필수 거래 위치 필드와 리뷰 점수 범위를 현재 DTO 검증과 맞췄고, `docs/BACKEND_CONVENTION.md`의 해결된 DTO 예외를 갱신했다.
+- 남은 문제: REST Docs HTML 재생성과 수동 표 비교는 별도 문서 품질 작업으로 남긴다.
+
+### P1. Fullstack UserFlow QA 재실행
+
+- 근거: 프론트엔드 `npm run typecheck`와 `npm run build`는 통과했지만, Vite 개발 서버는 현재 샌드박스에서 `listen EPERM: operation not permitted 127.0.0.1:3000`으로 실행되지 않았다. 권한 상승 재시도도 사용량 한도로 차단되어 실제 브라우저 UserFlow QA를 완료하지 못했다.
+- 위험: public home/detail/login redirect/share-link/create-item 흐름의 실제 프론트-백엔드 통합 회귀가 남아 있을 수 있다.
+- 선택지:
+  - A. 로컬 권한이 정상인 tmux pane에서 `npm run dev`와 `./gradlew :core:core-api:bootRun`을 띄운 뒤 Playwright로 QA한다. 장점: 실제 통합에 가깝다. 단점: 로컬 서비스/외부 API 의존성이 있다.
+  - B. 백엔드 없이 Playwright route mock으로 프론트 공개 흐름부터 검증한다. 장점: 외부 의존성이 작다. 단점: API 계약 회귀는 놓칠 수 있다.
+- 권장: A를 우선하고, OAuth/Naver/S3 같은 외부 의존성이 막히면 B로 공개/오류 상태 UI를 먼저 검증한다.
+- 검증: `http://localhost:3000/#/home`, `/#/item/{publicId}`, `/#/login?next=...`, `/#/seller/{memberId}`, `/#/shop/{token}`, 상품 등록 폼의 성공/실패 경로를 확인한다.
+
+### P2. 제품/비즈니스 아이디어 후보
+
+- 판매자 공유 링크 지표를 확장한다: 공유 링크별 유입/사용 전환율, 만료/중단 상태, 최근 클릭 시간을 판매자 화면에 노출한다.
+- 비로그인 상세 조회에서 예약/찜 CTA를 누르면 로그인 후 원래 상품으로 돌아오도록 `next` 경로를 표준화한다.
+- 거래 위치 기반 탐색을 강화한다: 홈 목록에 거리/지역 필터를 추가하고, 거래 위치가 없는 기존 상품에 보완 입력을 유도한다.
 
 ## 완료로 판단한 항목
 

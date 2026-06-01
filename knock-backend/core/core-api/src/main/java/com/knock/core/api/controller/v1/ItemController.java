@@ -11,6 +11,7 @@ import com.knock.core.domain.item.dto.ItemListResult;
 import com.knock.core.domain.item.dto.ItemReadResult;
 import com.knock.core.support.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +26,11 @@ public class ItemController {
 
 	@PostMapping("/api/v1/items")
 	public ApiResponse<ItemIdResponseDto> createItem(@AuthenticationPrincipal MemberPrincipal principal,
-			@RequestBody ItemCreateRequestDto request) {
-		ItemCreateResult result = itemService.createItem(principal.getMemberId(), ItemCreateData.of(request));
+			@Valid @RequestBody ItemCreateRequestDto request) {
+		ItemCreateData data = new ItemCreateData(request.title(), request.description(), request.price(),
+				request.itemType(), request.imageUrls(), request.tradeLocationName(), request.tradeLocationAddress(),
+				request.tradeLatitude(), request.tradeLongitude());
+		ItemCreateResult result = itemService.createItem(principal.getMemberId(), data);
 		return ApiResponse.success(new ItemIdResponseDto(result.id(), result.publicId()));
 	}
 

@@ -1,6 +1,6 @@
 # Knock API Reference
 
-업데이트 기준: 2026-05-27
+업데이트 기준: 2026-05-29
 
 문서화된 API는 `core-api` 모듈의 컨트롤러와 DTO를 기준으로 검수했습니다.
 상세한 Request/Response 스니펫은 `./gradlew :core:core-api:asciidoctor` 실행 후 생성되는 HTML 문서를 참고하세요.
@@ -37,7 +37,7 @@
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|
 | GET | `/api/v1/items` | 전체 마켓 상품 목록. 비로그인 조회 가능 | `(None)` | `List<ItemSummaryResponseDto>` | ✅ Implemented |
-| POST | `/api/v1/items` | 내 개인 매대에 상품 등록 | `ItemCreateRequestDto` <br> `{ title, description, price, itemType, imageUrls, tradeLocationName?, tradeLocationAddress?, tradeLatitude?, tradeLongitude? }` | `ItemIdResponseDto` <br> `{ id, publicId }` | ✅ Implemented |
+| POST | `/api/v1/items` | 내 개인 매대에 상품 등록 | `ItemCreateRequestDto` <br> `{ title, description, price, itemType, imageUrls, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }` | `ItemIdResponseDto` <br> `{ id, publicId }` | ✅ Implemented |
 | GET | `/api/v1/items/{itemPublicId}` | 상품 상세 조회. UUID 형식 공개 식별자는 비로그인 조회 가능, 예약/북마크 같은 액션은 인증 필요 | `(None)` | `ItemResponseDto` <br> `{ id, publicId, title, description, price, type, status, imageUrls, writerId, writerNickname, writerProfileImageUrl, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }` | ✅ Implemented |
 | GET | `/api/v1/items/manage/{itemId}` | 판매자 관리 화면용 상품 상세 조회. 인증 필요 | `(None)` | `ItemResponseDto` <br> `{ id, publicId, title, description, price, type, status, imageUrls, writerId, writerNickname, writerProfileImageUrl, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }` | ✅ Implemented |
 | GET | `/api/v1/items/my-selling` | 내 판매 상품 목록 | `(None)` | `List<ItemSummaryResponseDto>` <br> `[{ id, publicId, title, price, type, status, thumbnailUrl, writerId, writerNickname, writerProfileImageUrl, likesCount, postedAt, tradeLocationName, tradeLocationAddress, tradeLatitude, tradeLongitude }]` | ✅ Implemented |
@@ -46,7 +46,8 @@
 ### Item location field rules
 
 - `tradeLatitude`와 `tradeLongitude`는 둘 다 없거나 둘 다 있어야 합니다.
-- 상품 등록에는 `tradeLocationName`, `tradeLocationAddress`, `tradeLatitude`, `tradeLongitude`가 모두 필요합니다.
+- 상품 등록에는 `title`, `description`, `price`, `itemType`, `imageUrls`, `tradeLocationName`, `tradeLocationAddress`, `tradeLatitude`, `tradeLongitude`가 모두 필요합니다.
+- `price`는 0 이상이어야 합니다.
 - 위도 범위는 `-90..90`, 경도 범위는 `-180..180`입니다.
 - 프론트엔드는 `VITE_NAVER_MAP_CLIENT_ID`가 있으면 등록 화면에서 Naver Map 지도 선택을 사용합니다.
 - 장소 검색은 백엔드 `Location API`가 Naver Local Search/Geocoding API를 호출해 좌표를 반환합니다.
@@ -95,7 +96,7 @@
 ## 7. Review API
 | Method | URI | Description | Request Body | Response Body | Status |
 |---|---|---|---|---|---|
-| POST | `/api/v1/reviews` | 거래 후기 작성 | `ReviewCreateRequest` <br> `{ itemId, content, score }` | `ReviewResponse` <br> `{ id, content, score }` | ✅ Implemented |
+| POST | `/api/v1/reviews` | 거래 후기 작성 | `ReviewCreateRequest` <br> `{ itemId, content, score }` (`score`: 1..5) | `ReviewResponse` <br> `{ id, content, score }` | ✅ Implemented |
 | GET | `/api/v1/members/{memberId}/reviews` | 특정 회원의 후기 목록 조회 | `(None)` | `List<ReviewResponse>` <br> `[{ id, content, score }]` | ✅ Implemented |
 
 ## 8. Image API
