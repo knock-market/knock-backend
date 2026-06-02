@@ -1,6 +1,6 @@
 # Knock Next Steps Tracker
 
-업데이트 기준: 2026-05-29
+업데이트 기준: 2026-06-02
 
 ## Problem 1-Pager
 
@@ -121,7 +121,7 @@
 - 결과: `docs/API_REFERENCE.md`의 상품 등록 필수 거래 위치 필드와 리뷰 점수 범위를 현재 DTO 검증과 맞췄고, `docs/BACKEND_CONVENTION.md`의 해결된 DTO 예외를 갱신했다.
 - 남은 문제: REST Docs HTML 재생성과 수동 표 비교는 별도 문서 품질 작업으로 남긴다.
 
-### P1. Fullstack UserFlow QA 재실행
+### P1. Fullstack UserFlow QA 재실행 - Partially Done
 
 - 근거: 프론트엔드 `npm run typecheck`와 `npm run build`는 통과했지만, Vite 개발 서버는 현재 샌드박스에서 `listen EPERM: operation not permitted 127.0.0.1:3000`으로 실행되지 않았다. 권한 상승 재시도도 사용량 한도로 차단되어 실제 브라우저 UserFlow QA를 완료하지 못했다.
 - 위험: public home/detail/login redirect/share-link/create-item 흐름의 실제 프론트-백엔드 통합 회귀가 남아 있을 수 있다.
@@ -130,6 +130,8 @@
   - B. 백엔드 없이 Playwright route mock으로 프론트 공개 흐름부터 검증한다. 장점: 외부 의존성이 작다. 단점: API 계약 회귀는 놓칠 수 있다.
 - 권장: A를 우선하고, OAuth/Naver/S3 같은 외부 의존성이 막히면 B로 공개/오류 상태 UI를 먼저 검증한다.
 - 검증: `http://localhost:3000/#/home`, `/#/item/{publicId}`, `/#/login?next=...`, `/#/seller/{memberId}`, `/#/shop/{token}`, 상품 등록 폼의 성공/실패 경로를 확인한다.
+- 결과: 2026-06-02 QA에서 현재 커밋 기준 백엔드와 Vite proxy를 재기동한 뒤 회원가입 → 로그인 → 상품 등록 → 공개 목록/상세 조회 → 보호 API 비로그인 차단을 통과했다. QA 중 `/home`이 비로그인 사용자를 로그인 화면으로 보내고, `Home`이 `authApi.getMe()` 실패 시 공개 상품 목록까지 비우는 문제가 확인되어 `/home`을 공개 경로로 추가하고 공개 상품 조회와 선택적 사용자 조회를 분리했다.
+- 남은 문제: Headless Chrome screenshot으로 로그인 next 화면과 공개 상세 화면은 확인했지만, Playwright CLI는 패키지 다운로드가 네트워크 제한으로 실패했다. `/seller/{memberId}`, `/shop/{token}`, 상품 등록 폼의 실제 브라우저 클릭 흐름은 후속 QA로 남긴다.
 
 ### P2. 제품/비즈니스 아이디어 후보
 

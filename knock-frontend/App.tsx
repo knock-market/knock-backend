@@ -22,6 +22,7 @@ import { authApi } from './services';
 
 const PUBLIC_PATHS = new Set([
   '/',
+  '/home',
   '/login',
   '/signup',
   '/terms',
