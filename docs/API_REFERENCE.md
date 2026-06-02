@@ -1,6 +1,6 @@
 # Knock API Reference
 
-업데이트 기준: 2026-05-29
+업데이트 기준: 2026-06-02
 
 문서화된 API는 `core-api` 모듈의 컨트롤러와 DTO를 기준으로 검수했습니다.
 상세한 Request/Response 스니펫은 `./gradlew :core:core-api:asciidoctor` 실행 후 생성되는 HTML 문서를 참고하세요.
@@ -45,8 +45,8 @@
 
 ### Item location field rules
 
-- `tradeLatitude`와 `tradeLongitude`는 둘 다 없거나 둘 다 있어야 합니다.
 - 상품 등록에는 `title`, `description`, `price`, `itemType`, `imageUrls`, `tradeLocationName`, `tradeLocationAddress`, `tradeLatitude`, `tradeLongitude`가 모두 필요합니다.
+- `tradeLatitude`와 `tradeLongitude`는 상품 등록 요청에서 둘 다 필수이며, 도메인 검증에서도 한쪽만 누락된 좌표를 거부합니다.
 - `price`는 0 이상이어야 합니다.
 - 위도 범위는 `-90..90`, 경도 범위는 `-180..180`입니다.
 - 프론트엔드는 `VITE_NAVER_MAP_CLIENT_ID`가 있으면 등록 화면에서 Naver Map 지도 선택을 사용합니다.

@@ -43,6 +43,7 @@ make verify
 | `make backend-test` | 백엔드 전체 테스트를 실행합니다. |
 | `make backend-unit` | `unitTest` 태스크를 실행합니다. |
 | `make backend-context` | `contextTest` 태스크를 실행합니다. |
+| `./scripts/harness.sh backend:restdocs` | `restDocsTest` 태스크를 실행해 REST Docs 스니펫을 검증합니다. |
 | `make docs-serve` | 문서를 `http://localhost:8088`에서 제공합니다. |
 | `make frontend-install` | 프론트엔드 의존성을 설치합니다. |
 | `make frontend-run` | 프론트엔드 개발 서버를 실행합니다. |

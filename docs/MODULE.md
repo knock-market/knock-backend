@@ -2,7 +2,7 @@
 
 이 문서는 `knock-backend` 프로젝트의 멀티 모듈 구조, 각 모듈의 역할, 테스트 전략, 그리고 Gradle Kotlin DSL에 대해 설명합니다.
 
-검수일: 2026-05-27
+검수일: 2026-06-02
 
 ## 1. 프로젝트 구조 개요
 현재 프로젝트는 기능과 역할에 따라 여러 개의 모듈로 나뉘어 있습니다.
@@ -50,7 +50,7 @@ graph TD
 | | `core:core-auth` | **인증/인가 (Authentication Layer)**<br>- 세션 쿠키 기반 로그인/로그아웃 (`SessionAuthService`)<br>- Spring Security 관련 설정 | `storage:db-core`, `storage:memory`, `spring-security` |
 | **storage** | `storage:db-core` | **RDB 데이터 접근 (Persistence Layer)**<br>- JPA Repositories, Entities<br>- DB 설정 및 스키마 관리<br>- 실행 불가능(`jar` enabled, `bootJar` disabled) | `core-enum`, `spring-boot-starter-data-jpa`, `mysql-connector` |
 | | `storage:memory` | **인메모리 저장소 (Cache Layer)**<br>- Redis 설정 및 접근<br>- 임시 토큰 저장 등 | `spring-boot-starter-data-redis` |
-| **infra** | `infra:s3` | **인프라스트럭처 (Infrastructure Layer)**<br>- AWS S3 파일 업로드/다운로드 로직<br>- 외부 인프라스트럭처 연동 담당 | `aws-java-sdk-s3` |
+| **infra** | `infra:s3` | **인프라스트럭처 (Infrastructure Layer)**<br>- AWS S3 파일 업로드/다운로드 로직<br>- 외부 인프라스트럭처 연동 담당 | `software.amazon.awssdk:s3` |
 | **clients** | `clients:client-example` | **외부 연동 (External Client Layer)**<br>- 외부 API 요청 처리 (Feign Client 등)<br>- 타 서비스와의 통신 담당 | `spring-cloud-starter-openfeign` |
 | **support** | `support:logging` | **로깅 지원**<br>- 로깅 설정 및 커스텀 Appender | |
 | | `support:monitoring` | **모니터링**<br>- Actuator, Prometheus 등 모니터링 설정 | |
