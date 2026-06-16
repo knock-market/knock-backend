@@ -68,7 +68,7 @@ class S3ServiceImplTest {
 	@DisplayName("이미지 삭제 실패 - 유효하지 않은 URL은 S3 삭제를 호출하지 않는다")
 	void deleteImage_fail_invalidUrl() {
 		Stream.of(null, "", " ", "not a url", "items/photo.jpg", "https://test-bucket.s3.ap-northeast-2.amazonaws.com")
-			.forEach((imageUrl) -> {
+			.forEach(imageUrl -> {
 				assertThatThrownBy(() -> s3Service.deleteImage(imageUrl)).isInstanceOf(ResponseStatusException.class)
 					.hasMessageContaining("400 BAD_REQUEST")
 					.hasMessageContaining("Invalid image URL");

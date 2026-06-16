@@ -31,7 +31,7 @@ class ReviewControllerTest extends RestDocsTest {
 	private MemberPrincipal principal;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		reviewService = mock(ReviewService.class);
 		reviewController = new ReviewController(reviewService);
 		principal = new MemberPrincipal(1L, TEST_EMAIL, "ROLE_USER");

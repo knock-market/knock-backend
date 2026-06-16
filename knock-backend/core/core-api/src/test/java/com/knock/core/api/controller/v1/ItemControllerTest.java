@@ -25,7 +25,6 @@ import static com.knock.core.support.TestConstants.*;
 import static com.knock.test.api.RestDocsUtils.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -175,8 +174,7 @@ class ItemControllerTest extends RestDocsTest {
 		itemController.getItem(principal, TEST_ITEM_PUBLIC_ID, request);
 
 		// then
-		verify(itemService).increaseViewCount(eq(TEST_ITEM_ID), eq(TEST_MEMBER_ID_2), eq(principal.getMemberId()),
-				eq(null));
+		verify(itemService).increaseViewCount(TEST_ITEM_ID, TEST_MEMBER_ID_2, principal.getMemberId(), null);
 	}
 
 	@Test
