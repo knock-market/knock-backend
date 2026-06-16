@@ -14,21 +14,29 @@ import com.knock.storage.db.core.member.MemberRepository;
 import com.knock.storage.db.core.reservation.Reservation;
 import com.knock.storage.db.core.reservation.ReservationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ItemService {
 
+	private static final Duration VIEW_COUNT_DEDUP_TTL = Duration.ofMinutes(30);
+
+	private static final String VIEW_COUNT_DEDUP_KEY_PREFIX = "item:view:dedup:";
+
 	private final ItemRepository itemRepository;
 
 	private final MemberRepository memberRepository;
 
 	private final ReservationRepository reservationRepository;
+
+	private final RedisTemplate<String, Object> redisTemplate;
 
 	@Transactional
 	public ItemCreateResult createItem(Long memberId, ItemCreateData data) {
@@ -140,21 +148,41 @@ public class ItemService {
 		return value == null || value.isBlank();
 	}
 
-	// todo : 로직 완성 필요
 	@Async
 	@Transactional
-	public void increaseViewCount(Long itemId, Long memberId) {
-		// String logKey = "item:view:log:" + itemId + ":" + memberId;
-		// String countKey = "item:viewCount:" + itemId;
-		//
-		// Boolean hasViewed = redisTemplate.hasKey(logKey);
-		//
-		// if (!hasViewed) {
-		// redisTemplate.opsForValue().increment(countKey);
-		// redisTemplate.opsForValue().set(logKey, "1",
-		// java.time.Duration.ofMinutes(30));
-		// }
+	public void increaseViewCount(Long itemId, Long writerId, Long viewerMemberId, String viewerSessionId) {
+		if (itemId == null || isWriterView(writerId, viewerMemberId)) {
+			return;
+		}
+		String viewerKey = resolveViewerKey(viewerMemberId, viewerSessionId);
+		if (viewerKey == null || !markFirstView(itemId, viewerKey)) {
+			return;
+		}
 		itemRepository.increaseViewCountById(itemId);
+	}
+
+	private boolean isWriterView(Long writerId, Long viewerMemberId) {
+		return writerId != null && writerId.equals(viewerMemberId);
+	}
+
+	private String resolveViewerKey(Long viewerMemberId, String viewerSessionId) {
+		if (viewerMemberId != null) {
+			return "member:" + viewerMemberId;
+		}
+		if (viewerSessionId == null || viewerSessionId.isBlank()) {
+			return null;
+		}
+		return "session:" + viewerSessionId;
+	}
+
+	private boolean markFirstView(Long itemId, String viewerKey) {
+		try {
+			String key = VIEW_COUNT_DEDUP_KEY_PREFIX + itemId + ":" + viewerKey;
+			return Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent(key, "1", VIEW_COUNT_DEDUP_TTL));
+		}
+		catch (RuntimeException e) {
+			return false;
+		}
 	}
 
 }

@@ -11,6 +11,8 @@ import com.knock.core.enums.ItemStatus;
 import com.knock.core.enums.ItemType;
 import com.knock.test.api.RestDocsTest;
 import io.restassured.http.ContentType;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +29,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
@@ -64,20 +67,37 @@ class ItemControllerTest extends RestDocsTest {
 			.post("/api/v1/items")
 			.then()
 			.status(HttpStatus.OK)
-			.apply(document("api/v1/items/create", requestPreprocessor(), responsePreprocessor(), relaxedRequestFields(
-					fieldWithPath("title").type(JsonFieldType.STRING).description("상품 제목"),
-					fieldWithPath("description").type(JsonFieldType.STRING).description("상품 설명"),
-					fieldWithPath("price").type(JsonFieldType.NUMBER).description("가격"),
-					fieldWithPath("itemType").type(JsonFieldType.STRING).description("거래 유형 (SELL, BUY)"),
-					fieldWithPath("imageUrls").type(JsonFieldType.ARRAY).description("이미지 URL 목록"),
-					fieldWithPath("tradeLocationName").type(JsonFieldType.STRING).description("거래 위치 이름").optional(),
-					fieldWithPath("tradeLocationAddress").type(JsonFieldType.STRING).description("거래 위치 주소").optional(),
-					fieldWithPath("tradeLatitude").type(JsonFieldType.NUMBER).description("거래 위치 위도").optional(),
-					fieldWithPath("tradeLongitude").type(JsonFieldType.NUMBER).description("거래 위치 경도").optional()),
+			.apply(document("api/v1/items/create", requestPreprocessor(), responsePreprocessor(),
+					relaxedRequestFields(fieldWithPath("title").type(JsonFieldType.STRING).description("상품 제목"),
+							fieldWithPath("description").type(JsonFieldType.STRING).description("상품 설명"),
+							fieldWithPath("price").type(JsonFieldType.NUMBER).description("가격"),
+							fieldWithPath("itemType").type(JsonFieldType.STRING).description("거래 유형 (SELL, BUY)"),
+							fieldWithPath("imageUrls").type(JsonFieldType.ARRAY).description("이미지 URL 목록"),
+							fieldWithPath("tradeLocationName").type(JsonFieldType.STRING).description("거래 위치 이름"),
+							fieldWithPath("tradeLocationAddress").type(JsonFieldType.STRING).description("거래 위치 주소"),
+							fieldWithPath("tradeLatitude").type(JsonFieldType.NUMBER).description("거래 위치 위도"),
+							fieldWithPath("tradeLongitude").type(JsonFieldType.NUMBER).description("거래 위치 경도")),
 					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
 							fieldWithPath("data.id").type(JsonFieldType.NUMBER).description("생성된 상품 ID"),
 							fieldWithPath("data.publicId").type(JsonFieldType.STRING).description("공개 상품 식별자"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+	}
+
+	@Test
+	@DisplayName("상품 등록 실패 - 유효성 검증")
+	void createItem_fail_validation() {
+		// given
+		ItemCreateRequestDto request = new ItemCreateRequestDto("", TEST_ITEM_DESCRIPTION, -1L, null,
+				List.of(TEST_IMAGE_URL), "", TEST_TRADE_LOCATION_ADDRESS, 91.0, TEST_TRADE_LONGITUDE);
+
+		// when & then
+		restDocGiven().contentType(ContentType.JSON)
+			.body(request)
+			.post("/api/v1/items")
+			.then()
+			.status(HttpStatus.BAD_REQUEST);
+
+		verifyNoInteractions(itemService);
 	}
 
 	@Test
@@ -126,13 +146,35 @@ class ItemControllerTest extends RestDocsTest {
 				TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE, ItemType.SELL, ItemStatus.ON_SALE, List.of(TEST_IMAGE_URL),
 				TEST_MEMBER_ID, TEST_NICKNAME, TEST_IMAGE_URL, TEST_TRADE_LOCATION_NAME, TEST_TRADE_LOCATION_ADDRESS,
 				TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
+		HttpServletRequest request = mock(HttpServletRequest.class);
+		HttpSession session = mock(HttpSession.class);
+		given(itemService.getItemByPublicId(TEST_ITEM_PUBLIC_ID)).willReturn(result);
+		given(request.getSession(true)).willReturn(session);
+		given(session.getId()).willReturn("guest-session");
+
+		// when
+		itemController.getItem(null, TEST_ITEM_PUBLIC_ID, request);
+
+		// then
+		verify(itemService).increaseViewCount(TEST_ITEM_ID, TEST_MEMBER_ID, null, "guest-session");
+	}
+
+	@Test
+	@DisplayName("로그인 상품 상세 조회 시 회원 ID로 조회수를 기록한다")
+	void getItem_memberSuccess() {
+		// given
+		ItemReadResult result = new ItemReadResult(TEST_ITEM_ID, TEST_ITEM_PUBLIC_ID, TEST_ITEM_TITLE,
+				TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE, ItemType.SELL, ItemStatus.ON_SALE, List.of(TEST_IMAGE_URL),
+				TEST_MEMBER_ID_2, TEST_NICKNAME, TEST_IMAGE_URL, TEST_TRADE_LOCATION_NAME, TEST_TRADE_LOCATION_ADDRESS,
+				TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
+		HttpServletRequest request = mock(HttpServletRequest.class);
 		given(itemService.getItemByPublicId(TEST_ITEM_PUBLIC_ID)).willReturn(result);
 
 		// when
-		itemController.getItem(null, TEST_ITEM_PUBLIC_ID);
+		itemController.getItem(principal, TEST_ITEM_PUBLIC_ID, request);
 
 		// then
-		verify(itemService).increaseViewCount(TEST_ITEM_ID, null);
+		verify(itemService).increaseViewCount(TEST_ITEM_ID, TEST_MEMBER_ID_2, principal.getMemberId(), null);
 	}
 
 	@Test

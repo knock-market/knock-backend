@@ -10,6 +10,8 @@ import com.knock.core.domain.item.dto.ItemCreateResult;
 import com.knock.core.domain.item.dto.ItemListResult;
 import com.knock.core.domain.item.dto.ItemReadResult;
 import com.knock.core.support.response.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -24,17 +26,21 @@ public class ItemController {
 
 	@PostMapping("/api/v1/items")
 	public ApiResponse<ItemIdResponseDto> createItem(@AuthenticationPrincipal MemberPrincipal principal,
-			@RequestBody ItemCreateRequestDto request) {
-		ItemCreateResult result = itemService.createItem(principal.getMemberId(), ItemCreateData.of(request));
+			@Valid @RequestBody ItemCreateRequestDto request) {
+		ItemCreateData data = new ItemCreateData(request.title(), request.description(), request.price(),
+				request.itemType(), request.imageUrls(), request.tradeLocationName(), request.tradeLocationAddress(),
+				request.tradeLatitude(), request.tradeLongitude());
+		ItemCreateResult result = itemService.createItem(principal.getMemberId(), data);
 		return ApiResponse.success(new ItemIdResponseDto(result.id(), result.publicId()));
 	}
 
 	@GetMapping("/api/v1/items/{itemPublicId}")
 	public ApiResponse<ItemResponseDto> getItem(@AuthenticationPrincipal MemberPrincipal principal,
-			@PathVariable String itemPublicId) {
+			@PathVariable String itemPublicId, HttpServletRequest request) {
 		ItemReadResult result = itemService.getItemByPublicId(itemPublicId);
 		Long viewerMemberId = principal == null ? null : principal.getMemberId();
-		itemService.increaseViewCount(result.id(), viewerMemberId);
+		String viewerSessionId = principal == null ? request.getSession(true).getId() : null;
+		itemService.increaseViewCount(result.id(), result.writerId(), viewerMemberId, viewerSessionId);
 		return ApiResponse.success(ItemResponseDto.from(result));
 	}
 

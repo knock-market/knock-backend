@@ -6,6 +6,7 @@ import com.knock.core.api.controller.v1.request.AuthLoginRequestDto;
 import com.knock.core.support.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -26,17 +27,17 @@ public class AuthController {
 	private String googleLoginSuccessRedirectUri;
 
 	@PostMapping("/api/v1/auth/login")
-	public ApiResponse<?> login(@RequestBody AuthLoginRequestDto request, HttpServletRequest httpRequest,
+	public ApiResponse<Void> login(@Valid @RequestBody AuthLoginRequestDto request, HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse) {
 		authService.login(new SessionAuthService.LoginRequestData(request.email(), request.password()), httpRequest,
 				httpResponse);
-		return ApiResponse.success();
+		return ApiResponse.success(null);
 	}
 
 	@PostMapping("/api/v1/auth/logout")
-	public ApiResponse<?> logout(HttpServletRequest request) {
+	public ApiResponse<Void> logout(HttpServletRequest request) {
 		authService.logout(request);
-		return ApiResponse.success();
+		return ApiResponse.success(null);
 	}
 
 	@GetMapping("/api/v1/auth/social/google/start")

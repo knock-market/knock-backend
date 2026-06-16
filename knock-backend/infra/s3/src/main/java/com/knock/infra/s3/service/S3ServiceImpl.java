@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
@@ -13,12 +14,17 @@ import software.amazon.awssdk.services.s3.model.GetUrlRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.UUID;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class S3ServiceImpl implements S3Service {
+
+	private static final String INVALID_IMAGE_URL_REASON = "Invalid image URL";
 
 	private final S3Client s3Client;
 
@@ -55,7 +61,6 @@ public class S3ServiceImpl implements S3Service {
 
 	@Override
 	public void deleteImage(String imageUrl) {
-		// URL에서 Key 추출 (간단한 구현, 실제로는 URL 파싱 필요)
 		String key = extractKeyFromUrl(imageUrl);
 
 		DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(bucketName).key(key).build();
@@ -71,19 +76,30 @@ public class S3ServiceImpl implements S3Service {
 		return filename.substring(filename.lastIndexOf("."));
 	}
 
-	// 이 부분은 실제 URL 구조에 따라 달라질 수 있음.
-	// 예: https://bucket.s3.region.amazonaws.com/dir/file.jpg -> dir/file.jpg
 	private String extractKeyFromUrl(String imageUrl) {
-		// 임시 구현: 단순히 파일명만 추출하는 것이 아니라 전체 경로가 필요함.
-		// 여기서는 MVP 구현을 위해 일단 URL이 S3 Presigned URL이 아니라고 가정
+		if (imageUrl == null || imageUrl.isBlank()) {
+			throw invalidImageUrlException();
+		}
+
 		try {
-			java.net.URL url = java.net.URI.create(imageUrl).toURL();
-			return url.getPath().substring(1); // leading slash 제거
+			URI uri = URI.create(imageUrl);
+			if (uri.getScheme() == null || uri.getHost() == null) {
+				throw invalidImageUrlException();
+			}
+
+			String path = uri.getPath();
+			if (path == null || path.isBlank() || "/".equals(path)) {
+				throw invalidImageUrlException();
+			}
+			return path.substring(1);
 		}
-		catch (Exception e) {
-			log.warn("Failed to parse S3 key from URL: {}", imageUrl);
-			return imageUrl;
+		catch (IllegalArgumentException e) {
+			throw invalidImageUrlException();
 		}
+	}
+
+	private ResponseStatusException invalidImageUrlException() {
+		return new ResponseStatusException(BAD_REQUEST, INVALID_IMAGE_URL_REASON);
 	}
 
 }

@@ -14,16 +14,20 @@ const Home: React.FC = () => {
   useEffect(() => {
     const load = async () => {
       setIsLoading(true);
-      try {
-        const [marketItems, member] = await Promise.all([itemsApi.getMarketplaceItems(), authApi.getMe()]);
-        setItems(marketItems);
-        setMe(member);
-      } catch (error) {
-        console.error('Failed to fetch marketplace data', error);
+      const [marketItemsResult, memberResult] = await Promise.allSettled([
+        itemsApi.getMarketplaceItems(),
+        authApi.getMe(),
+      ]);
+
+      if (marketItemsResult.status === 'fulfilled') {
+        setItems(marketItemsResult.value);
+      } else {
+        console.error('Failed to fetch marketplace items', marketItemsResult.reason);
         setItems([]);
-      } finally {
-        setIsLoading(false);
       }
+
+      setMe(memberResult.status === 'fulfilled' ? memberResult.value : null);
+      setIsLoading(false);
     };
 
     load();

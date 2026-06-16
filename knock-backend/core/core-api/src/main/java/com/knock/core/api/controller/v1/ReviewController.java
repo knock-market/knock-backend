@@ -7,6 +7,7 @@ import com.knock.core.domain.review.ReviewService;
 import com.knock.core.domain.review.dto.request.ReviewCreateData;
 import com.knock.core.domain.review.dto.response.ReviewResult;
 import com.knock.core.support.response.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,18 +25,20 @@ public class ReviewController {
 
 	@PostMapping("/reviews")
 	public ApiResponse<ReviewResponse> createReview(@AuthenticationPrincipal MemberPrincipal principal,
-			@RequestBody ReviewCreateRequest reviewCreateRequest) {
-		ReviewResult reviewResult = reviewService.createReview(principal.getMemberId(),
-				ReviewCreateData.from(reviewCreateRequest));
+			@Valid @RequestBody ReviewCreateRequest reviewCreateRequest) {
+		ReviewCreateData data = new ReviewCreateData(reviewCreateRequest.itemId(), reviewCreateRequest.content(),
+				reviewCreateRequest.score());
+		ReviewResult reviewResult = reviewService.createReview(principal.getMemberId(), data);
 
 		return ApiResponse.success(ReviewResponse.from(reviewResult));
 	}
 
 	@GetMapping("/members/{memberId}/reviews")
 	public ApiResponse<List<ReviewResponse>> getReviewList(@PathVariable Long memberId) {
-		List<ReviewResponse> reviewList = reviewService.getReviewList(memberId);
+		List<ReviewResult> results = reviewService.getReviewList(memberId);
+		List<ReviewResponse> response = results.stream().map(ReviewResponse::from).toList();
 
-		return ApiResponse.success(reviewList);
+		return ApiResponse.success(response);
 	}
 
 }

@@ -8,6 +8,7 @@ import com.knock.core.domain.reservation.ReservationService;
 import com.knock.core.domain.reservation.dto.ReservationCreateData;
 import com.knock.core.domain.reservation.dto.ReservationResult;
 import com.knock.core.support.response.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,8 @@ public class ReservationController {
 
 	@PostMapping("/api/v1/reservations")
 	public ApiResponse<ReservationCreateResponseDto> createReservation(
-			@AuthenticationPrincipal MemberPrincipal principal, @RequestBody ReservationCreateRequestDto request) {
+			@AuthenticationPrincipal MemberPrincipal principal,
+			@Valid @RequestBody ReservationCreateRequestDto request) {
 		ReservationCreateData data = new ReservationCreateData(request.itemId(), principal.getMemberId());
 		ReservationCreateResponseDto response = new ReservationCreateResponseDto(
 				reservationService.createReservation(data));

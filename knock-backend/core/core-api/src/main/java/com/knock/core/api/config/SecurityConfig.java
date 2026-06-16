@@ -30,7 +30,8 @@ public class SecurityConfig {
 				securityContext.securityContextRepository(securityContextRepository);
 				securityContext.requireExplicitSave(true);
 			})
-			.authorizeHttpRequests(auth -> auth
+			.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.GET, "/api/v1/items")
+				.permitAll()
 				.requestMatchers(RegexRequestMatcher.regexMatcher(HttpMethod.GET, "/api/v1/members/\\d+/items"))
 				.permitAll()
 				.requestMatchers(RegexRequestMatcher.regexMatcher(HttpMethod.GET,
