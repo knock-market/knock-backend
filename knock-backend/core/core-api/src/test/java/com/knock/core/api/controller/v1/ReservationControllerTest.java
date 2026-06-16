@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
@@ -65,6 +66,51 @@ class ReservationControllerTest extends RestDocsTest {
 					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
 							fieldWithPath("data.reservationId").type(JsonFieldType.NUMBER).description("생성된 예약 ID"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+	}
+
+	@Test
+	@DisplayName("예약 생성 실패 - itemId 누락")
+	void createReservation_fail_missingItemId() {
+		// when & then
+		restDocGiven().contentType(ContentType.JSON)
+			.body("{}")
+			.post("/api/v1/reservations")
+			.then()
+			.status(HttpStatus.BAD_REQUEST);
+
+		verifyNoInteractions(reservationService);
+	}
+
+	@Test
+	@DisplayName("예약 생성 실패 - itemId 양수 검증")
+	void createReservation_fail_nonPositiveItemId() {
+		// given
+		ReservationCreateRequestDto request = new ReservationCreateRequestDto(0L);
+
+		// when & then
+		restDocGiven().contentType(ContentType.JSON)
+			.body(request)
+			.post("/api/v1/reservations")
+			.then()
+			.status(HttpStatus.BAD_REQUEST);
+
+		verifyNoInteractions(reservationService);
+	}
+
+	@Test
+	@DisplayName("예약 생성 실패 - itemId 음수")
+	void createReservation_fail_negativeItemId() {
+		// given
+		ReservationCreateRequestDto request = new ReservationCreateRequestDto(-1L);
+
+		// when & then
+		restDocGiven().contentType(ContentType.JSON)
+			.body(request)
+			.post("/api/v1/reservations")
+			.then()
+			.status(HttpStatus.BAD_REQUEST);
+
+		verifyNoInteractions(reservationService);
 	}
 
 	@Test

@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 
@@ -57,6 +58,86 @@ class AuthControllerTest extends RestDocsTest {
 					responseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
 							fieldWithPath("data").type(JsonFieldType.NULL).description("데이터"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
+	}
+
+	@Test
+	@DisplayName("로그인 실패 - 이메일 누락")
+	void login_fail_missingEmail() {
+		// when & then
+		restDocGiven().contentType(ContentType.JSON)
+			.body("{\"password\":\"" + TEST_PASSWORD + "\"}")
+			.post("/api/v1/auth/login")
+			.then()
+			.status(HttpStatus.BAD_REQUEST);
+
+		verifyNoInteractions(authService);
+	}
+
+	@Test
+	@DisplayName("로그인 실패 - 이메일 공백")
+	void login_fail_blankEmail() {
+		// given
+		AuthLoginRequestDto request = new AuthLoginRequestDto(" ", TEST_PASSWORD);
+
+		// when & then
+		restDocGiven().contentType(ContentType.JSON)
+			.body(request)
+			.post("/api/v1/auth/login")
+			.then()
+			.status(HttpStatus.BAD_REQUEST);
+
+		verifyNoInteractions(authService);
+	}
+
+	@Test
+	@DisplayName("로그인 실패 - 이메일 형식 오류")
+	void login_fail_invalidEmail() {
+		// given
+		AuthLoginRequestDto request = new AuthLoginRequestDto("invalid-email", TEST_PASSWORD);
+
+		// when & then
+		restDocGiven().contentType(ContentType.JSON)
+			.body(request)
+			.post("/api/v1/auth/login")
+			.then()
+			.status(HttpStatus.BAD_REQUEST)
+			.apply(document("api/v1/auth/login-fail-validation", requestPreprocessor(), responsePreprocessor(),
+					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
+							fieldWithPath("data").type(JsonFieldType.NULL).description("데이터"),
+							fieldWithPath("error.code").type(JsonFieldType.STRING).description("에러 코드"),
+							fieldWithPath("error.message").type(JsonFieldType.STRING).description("에러 메시지"),
+							fieldWithPath("error.data.email").type(JsonFieldType.STRING).description("이메일 검증 오류"))));
+
+		verifyNoInteractions(authService);
+	}
+
+	@Test
+	@DisplayName("로그인 실패 - 비밀번호 누락")
+	void login_fail_missingPassword() {
+		// when & then
+		restDocGiven().contentType(ContentType.JSON)
+			.body("{\"email\":\"" + TEST_EMAIL + "\"}")
+			.post("/api/v1/auth/login")
+			.then()
+			.status(HttpStatus.BAD_REQUEST);
+
+		verifyNoInteractions(authService);
+	}
+
+	@Test
+	@DisplayName("로그인 실패 - 비밀번호 공백")
+	void login_fail_blankPassword() {
+		// given
+		AuthLoginRequestDto request = new AuthLoginRequestDto(TEST_EMAIL, " ");
+
+		// when & then
+		restDocGiven().contentType(ContentType.JSON)
+			.body(request)
+			.post("/api/v1/auth/login")
+			.then()
+			.status(HttpStatus.BAD_REQUEST);
+
+		verifyNoInteractions(authService);
 	}
 
 	@Test

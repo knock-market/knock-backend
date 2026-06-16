@@ -155,7 +155,17 @@ const ItemDetail = () => {
           url: window.location.href,
         });
       } catch (error) {
-        console.log('Error sharing:', error);
+        const isShareCancelled =
+          typeof error === 'object' &&
+          error !== null &&
+          'name' in error &&
+          (error as { name?: unknown }).name === 'AbortError';
+
+        if (isShareCancelled) {
+          console.warn('Share was cancelled or unavailable', error);
+        } else {
+          console.error('Failed to share item', error);
+        }
       }
       return;
     }
