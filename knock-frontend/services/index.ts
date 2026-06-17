@@ -1,4 +1,5 @@
 import client from './client';
+import { clearAuthSession, hasAuthSessionHint, markAuthSession } from '../utils/authSession';
 import {
     BookmarkToggleResponseDto,
     ImageUploadResultDto,
@@ -26,6 +27,36 @@ const patch = <T, D = unknown>(url: string, data?: D, config?: object) =>
     client.patch<T, T, D>(url, data, config);
 const del = <T>(url: string, config?: object) => client.delete<T, T>(url, config);
 
+const getErrorStatus = (error: unknown): number | undefined => {
+    if (typeof error !== 'object' || error === null || !('status' in error)) {
+        return undefined;
+    }
+
+    const status = Number((error as { status?: number }).status);
+    return Number.isFinite(status) ? status : undefined;
+};
+
+const isAuthError = (error: unknown): boolean => {
+    const status = getErrorStatus(error);
+    return status === 401 || status === 403;
+};
+
+const getProtectedOptional = async <T>(request: () => Promise<T>, fallback: T): Promise<T> => {
+    if (!hasAuthSessionHint()) {
+        return fallback;
+    }
+
+    try {
+        return await request();
+    } catch (error) {
+        if (isAuthError(error)) {
+            clearAuthSession();
+            return fallback;
+        }
+        throw error;
+    }
+};
+
 type ItemCreatePayload = {
     title: string;
     description: string;
@@ -40,15 +71,24 @@ type ItemCreatePayload = {
 
 // ============== Auth API ==============
 export const authApi = {
-    emailLogin: (data: { email: string; password: string }) =>
-        post<void, { email: string; password: string }>('/auth/login', data),
+    emailLogin: async (data: { email: string; password: string }) => {
+        await post<void, { email: string; password: string }>('/auth/login', data);
+        markAuthSession();
+    },
     signup: (data: { email: string; name: string; password: string; nickname: string; profileImageUrl?: string }) =>
       post<void, { email: string; name: string; password: string; nickname: string; profileImageUrl?: string }>(
             '/members',
             data
         ),
-    logout: () => post<void>('/auth/logout'),
+    logout: async () => {
+        try {
+            await post<void>('/auth/logout');
+        } finally {
+            clearAuthSession();
+        }
+    },
     getMe: () => get<MemberResponseDto>('/members/my'),
+    getOptionalMe: () => getProtectedOptional(() => get<MemberResponseDto>('/members/my'), null),
     updateProfile: (data: { nickname?: string; profileImageUrl?: string }) =>
         put<void, { nickname?: string; profileImageUrl?: string }>('/members/my', data),
 };
@@ -84,6 +124,8 @@ export const bookmarksApi = {
     toggle: (itemId: number | string) =>
         post<BookmarkToggleResponseDto>(`/items/${itemId}/bookmarks`),
     getMyBookmarks: () => get<MyBookmarkResponseDto[]>('/items/my-bookmarks'),
+    getOptionalMyBookmarks: () =>
+        getProtectedOptional(() => get<MyBookmarkResponseDto[]>('/items/my-bookmarks'), []),
 };
 
 // ============== Reservation API ==============

@@ -6,6 +6,7 @@ import { ItemDetailSkeleton } from '../components/Skeletons';
 import ImageWithFallback from '../components/ImageWithFallback';
 import NaverMap from '../components/NaverMap';
 import { ItemResponseDto, ItemStatus } from '../types';
+import { hasAuthSessionHint } from '../utils/authSession';
 
 const getErrorStatus = (error: unknown): number | undefined => {
   if (typeof error !== 'object' || error === null || !('status' in error)) {
@@ -54,7 +55,7 @@ const ItemDetail = () => {
       try {
         const [itemResult, bookmarkResult] = await Promise.allSettled([
           itemsApi.getItem(itemPublicId),
-          bookmarksApi.getMyBookmarks(),
+          bookmarksApi.getOptionalMyBookmarks(),
         ]);
 
         if (itemResult.status === 'rejected') {
@@ -106,6 +107,10 @@ const ItemDetail = () => {
 
   const handleReserveClick = () => {
     if (hasRequested || isUnavailable) return;
+    if (!hasAuthSessionHint()) {
+      navigate(`/login?next=${encodeURIComponent(`/item/${itemPublicId}`)}`);
+      return;
+    }
     setShowReserveModal(true);
   };
 
@@ -132,6 +137,10 @@ const ItemDetail = () => {
 
   const toggleLike = async () => {
     if (!item) return;
+    if (!hasAuthSessionHint()) {
+      navigate(`/login?next=${encodeURIComponent(`/item/${itemPublicId}`)}`);
+      return;
+    }
 
     try {
       const result = await bookmarksApi.toggle(item.id);

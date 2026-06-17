@@ -16,7 +16,7 @@ const Home: React.FC = () => {
       setIsLoading(true);
       const [marketItemsResult, memberResult] = await Promise.allSettled([
         itemsApi.getMarketplaceItems(),
-        authApi.getMe(),
+        authApi.getOptionalMe(),
       ]);
 
       if (marketItemsResult.status === 'fulfilled') {

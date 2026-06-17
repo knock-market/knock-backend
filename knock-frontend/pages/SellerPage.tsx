@@ -49,7 +49,7 @@ const SellerPage = () => {
       setLoadError('');
       const [itemResult, meResult] = await Promise.allSettled([
         token ? sellerShareApi.getShop(token) : itemsApi.getSellerItems(sellerId),
-        authApi.getMe(),
+        authApi.getOptionalMe(),
       ]);
 
       if (itemResult.status === 'fulfilled') {

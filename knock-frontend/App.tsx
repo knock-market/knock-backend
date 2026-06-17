@@ -19,6 +19,7 @@ import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import BottomNav from './components/BottomNav';
 import { authApi } from './services';
+import { clearAuthSession, markAuthSession } from './utils/authSession';
 
 const PUBLIC_PATHS = new Set([
   '/',
@@ -75,12 +76,14 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     authApi.getMe()
       .then(() => {
         if (mounted) {
+          markAuthSession();
           setIsAuthenticated(true);
           setCheckedPathname(location.pathname);
         }
       })
       .catch(() => {
         if (mounted) {
+          clearAuthSession();
           setIsAuthenticated(false);
           setCheckedPathname(location.pathname);
         }
