@@ -1,5 +1,6 @@
 package com.knock.core.domain.review;
 
+import com.knock.core.domain.block.BlockService;
 import com.knock.core.domain.review.dto.request.ReviewCreateData;
 import com.knock.core.domain.review.dto.response.ReviewResult;
 import com.knock.core.support.error.CoreException;
@@ -29,6 +30,8 @@ public class ReviewService {
 
 	private final ReservationRepository reservationRepository;
 
+	private final BlockService blockService;
+
 	@Transactional
 	public ReviewResult createReview(Long memberId, ReviewCreateData reviewCreateData) {
 		Reservation reservation = findReservation(memberId, reviewCreateData.itemId());
@@ -36,6 +39,7 @@ public class ReviewService {
 
 		Member buyer = reservation.getMember();
 		Member seller = reservation.getItem().getMember();
+		blockService.validateInteractionAllowed(buyer.getId(), seller.getId());
 
 		try {
 			Review savedReview = reviewRepository

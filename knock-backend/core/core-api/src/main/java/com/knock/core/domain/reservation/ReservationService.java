@@ -1,5 +1,6 @@
 package com.knock.core.domain.reservation;
 
+import com.knock.core.domain.block.BlockService;
 import com.knock.core.domain.notification.NotificationService;
 import com.knock.core.domain.notification.dto.NotificationCreateData;
 import com.knock.core.domain.reservation.dto.ReservationCreateData;
@@ -34,6 +35,8 @@ public class ReservationService {
 
 	private final NotificationService notificationService;
 
+	private final BlockService blockService;
+
 	@Transactional
 	public Long createReservation(ReservationCreateData data) {
 		Member requester = memberRepository.findById(data.memberId())
@@ -43,6 +46,7 @@ public class ReservationService {
 		if (item.getMember().getId().equals(requester.getId())) {
 			throw new CoreException(ErrorType.FORBIDDEN);
 		}
+		blockService.validateInteractionAllowed(requester.getId(), item.getMember().getId());
 
 		int created = reservationRepository.createIfNotApproved(data.itemId(), data.memberId());
 

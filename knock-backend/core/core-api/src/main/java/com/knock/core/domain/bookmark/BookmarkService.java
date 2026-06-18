@@ -1,5 +1,6 @@
 package com.knock.core.domain.bookmark;
 
+import com.knock.core.domain.block.BlockService;
 import com.knock.core.domain.bookmark.dto.BookmarkResult;
 import com.knock.core.domain.bookmark.dto.BookmarkToggleData;
 import com.knock.core.support.error.CoreException;
@@ -28,12 +29,15 @@ public class BookmarkService {
 
 	private final ItemRepository itemRepository;
 
+	private final BlockService blockService;
+
 	@Transactional
 	public boolean toggleBookmark(Long memberId, BookmarkToggleData data) {
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 		Item item = itemRepository.findById(data.itemId())
 			.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
+		blockService.validateInteractionAllowed(memberId, item.getMember().getId());
 
 		// 현재 북마크 상태 반환
 		return bookmarkRepository.findByMemberAndItemWithDeleted(memberId, data.itemId()).map(bookmark -> {

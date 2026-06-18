@@ -38,6 +38,10 @@ public enum ErrorType {
 	// Review
 	DUPLICATE_REVIEW(HttpStatus.BAD_REQUEST, ErrorCode.RV001, "중복된 리뷰 요청입니다.", LogLevel.WARN),
 
+	// Block
+	SELF_BLOCK_NOT_ALLOWED(HttpStatus.BAD_REQUEST, ErrorCode.B001, "자기 자신은 차단할 수 없습니다.", LogLevel.WARN),
+	BLOCKED_INTERACTION(HttpStatus.FORBIDDEN, ErrorCode.B002, "차단 관계에서는 이 상호작용을 할 수 없습니다.", LogLevel.WARN),
+
 	// Report
 	SELF_REPORT_NOT_ALLOWED(HttpStatus.BAD_REQUEST, ErrorCode.RP001, "자기 자신 또는 자신의 콘텐츠는 신고할 수 없습니다.", LogLevel.WARN),
 	DUPLICATE_REPORT(HttpStatus.CONFLICT, ErrorCode.RP002, "이미 접수된 신고입니다.", LogLevel.WARN);
