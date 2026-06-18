@@ -158,6 +158,14 @@ export type ReportReason =
 
 export type ReportStatus = 'RECEIVED' | 'REVIEWING' | 'RESOLVED' | 'DISMISSED';
 
+
+export interface BlockResponseDto {
+  memberId: number;
+  nickname: string;
+  profileImageUrl?: string;
+  blockedAt?: string;
+}
+
 export interface ReportCreateRequestDto {
   targetType: ReportTargetType;
   targetId: number;

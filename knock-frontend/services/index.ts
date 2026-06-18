@@ -1,5 +1,6 @@
 import client from './client';
 import {
+    BlockResponseDto,
     BookmarkToggleResponseDto,
     ImageUploadResultDto,
     InviteDuration,
@@ -107,6 +108,14 @@ export const reservationsApi = {
     cancel: (id: number) => patch<void>(`/reservations/${id}/cancel`),
 };
 
+
+
+// ============== Block API ==============
+export const blocksApi = {
+    block: (memberId: number | string) => post<BlockResponseDto>(`/blocks/${memberId}`),
+    unblock: (memberId: number | string) => del<void>(`/blocks/${memberId}`),
+    getMyBlocks: () => get<BlockResponseDto[]>('/blocks/my'),
+};
 
 // ============== Report API ==============
 export const reportsApi = {
