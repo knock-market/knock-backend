@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify Trust & Safety P0 contract guardrails across docs and frontend API types.
+"""Verify Trust & Safety P0 contract guardrails across docs and app contracts.
 
 This is intentionally lightweight: it catches drift in the agreed MVP contract while
 backend/frontend implementation lanes evolve in parallel.
@@ -24,6 +24,13 @@ CHECKS: list[tuple[str, str, str | re.Pattern[str]]] = [
     ("REFERENCE documents CANCELED-only taxonomy", "docs/REFERENCE.md", "`CANCELLED` 또는 `REJECTED` 상태를 추가하지 않는다"),
     ("Frontend service calls policy preflight", "knock-frontend/services/index.ts", "'/item-policy/warnings'"),
     ("Frontend types restrict warning severity", "knock-frontend/types.ts", "export type ItemPolicyWarningSeverity = 'NONE' | 'WARNING';"),
+    ("Backend exposes policy preflight", "knock-backend/core/core-api/src/main/java/com/knock/core/api/controller/v1/ItemPolicyController.java", "/api/v1/item-policy/warnings"),
+    ("Backend policy MVP has no blocking severity", "knock-backend/core/core-api/src/main/java/com/knock/core/domain/itempolicy/ItemPolicyWarningService.java", "private static final String WARNING = \"WARNING\";"),
+    ("REST Docs includes policy preflight", "knock-backend/core/core-api/src/docs/asciidoc/index.adoc", "api/v1/item-policy/warnings"),
+    ("Frontend safe meetup checklist is rendered", "knock-frontend/components/ReservationSafetyModal.tsx", "Safe meetup checklist"),
+    ("Frontend blocked interaction is not treated as login", "knock-frontend/pages/ItemDetail.tsx", "code !== BLOCKED_INTERACTION_CODE"),
+    ("Frontend policy link has a route", "knock-frontend/App.tsx", "/docs/marketplace-item-policy"),
+    ("Policy page documents safe trade guidance", "knock-frontend/pages/MarketplaceItemPolicy.tsx", "Safe meetup guidance"),
 ]
 
 FORBIDDEN: list[tuple[str, str, re.Pattern[str]]] = [

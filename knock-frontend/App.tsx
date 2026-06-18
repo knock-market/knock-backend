@@ -17,6 +17,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import MarketplaceItemPolicy from './pages/MarketplaceItemPolicy';
 import BottomNav from './components/BottomNav';
 import { authApi } from './services';
 
@@ -27,6 +28,7 @@ const PUBLIC_PATHS = new Set([
   '/signup',
   '/terms',
   '/privacy',
+  '/docs/marketplace-item-policy',
 ]);
 
 const isPublicPath = (pathname: string): boolean => {
@@ -140,6 +142,7 @@ const App: React.FC = () => {
             <Route path="/saved" element={<Bookmarks />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/docs/marketplace-item-policy" element={<MarketplaceItemPolicy />} />
           </Routes>
         </Layout>
       </AuthGuard>

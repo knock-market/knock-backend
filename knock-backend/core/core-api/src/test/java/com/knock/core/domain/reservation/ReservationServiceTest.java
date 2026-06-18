@@ -229,6 +229,29 @@ class ReservationServiceTest {
 		}
 
 		@Test
+		@DisplayName("실패 - 승인 직전 차단 관계")
+		void fail_blockedInteractionBeforeApproveNotification() {
+			// given
+			Member owner = createMember(TEST_MEMBER_ID);
+			Member buyer = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
+			Item item = createItem(TEST_ITEM_ID, owner);
+			Reservation reservation = createReservation(TEST_RESERVATION_ID, item, buyer);
+
+			given(reservationRepository.findByIdWithItemAndMember(TEST_RESERVATION_ID))
+				.willReturn(Optional.of(reservation));
+			given(reservationRepository.findByItemIdForUpdate(TEST_ITEM_ID)).willReturn(List.of(reservation));
+			willThrow(new CoreException(ErrorType.BLOCKED_INTERACTION)).given(blockService)
+				.validateInteractionAllowed(TEST_MEMBER_ID, TEST_MEMBER_ID_2);
+
+			// when & then
+			assertThatThrownBy(() -> reservationService.approveReservation(TEST_MEMBER_ID, TEST_RESERVATION_ID))
+				.isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.BLOCKED_INTERACTION);
+			assertThat(reservation.getStatus()).isEqualTo(ReservationStatus.WAITING);
+			verify(notificationService, never()).createNotification(any());
+		}
+
+		@Test
 		@DisplayName("실패 - 잠금 대상 예약 없음")
 		void fail_targetNotFoundInLockedRows() {
 			// given

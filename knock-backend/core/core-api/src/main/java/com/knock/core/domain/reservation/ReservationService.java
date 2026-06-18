@@ -90,6 +90,7 @@ public class ReservationService {
 			throw new CoreException(ErrorType.VALIDATION_ERROR);
 		}
 
+		blockService.validateInteractionAllowed(memberId, target.getMember().getId());
 		target.approve();
 		notifyCounterparty(target.getMember().getId(), memberId, NotificationType.RESERVATION_APPROVED,
 				"'" + target.getItem().getTitle() + "' 예약이 승인되었습니다.", "/item/" + target.getItem().getPublicId());

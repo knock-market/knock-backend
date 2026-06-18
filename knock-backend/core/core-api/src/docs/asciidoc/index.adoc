@@ -127,6 +127,18 @@ include::{snippets}/api/v1/items/delete/path-parameters.adoc[]
 include::{snippets}/api/v1/items/delete/http-response.adoc[]
 include::{snippets}/api/v1/items/delete/response-fields.adoc[]
 
+[[item-policy-warning]]
+=== 3.5 Item Policy Warning Preflight
+`POST /api/v1/item-policy/warnings`
+
+==== Request
+include::{snippets}/api/v1/item-policy/warnings/http-request.adoc[]
+include::{snippets}/api/v1/item-policy/warnings/request-fields.adoc[]
+
+==== Response
+include::{snippets}/api/v1/item-policy/warnings/http-response.adoc[]
+include::{snippets}/api/v1/item-policy/warnings/response-fields.adoc[]
+
 [[bookmark-api]]
 == 4. Bookmark API
 

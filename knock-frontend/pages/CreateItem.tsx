@@ -402,9 +402,7 @@ const CreateItem: React.FC = () => {
                 )}
                 {policyDialogPolicyUrl && (
                   <a
-                    href={policyDialogPolicyUrl}
-                    target="_blank"
-                    rel="noreferrer"
+                    href={`#${policyDialogPolicyUrl}`}
                     className="mt-3 inline-flex text-sm font-bold text-emerald-700 underline decoration-emerald-200 underline-offset-4"
                   >
                     Read marketplace item policy

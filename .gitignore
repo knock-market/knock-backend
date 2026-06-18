@@ -47,3 +47,7 @@ dist/
 .env*
 .DS_Store
 .codex
+
+### Python ###
+__pycache__/
+*.py[cod]

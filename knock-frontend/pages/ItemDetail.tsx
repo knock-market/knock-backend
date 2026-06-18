@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { AlertCircle, ArrowLeft, CheckCircle, Clock, Flag, Heart, MapPin, Share } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Clock, Flag, Heart, MapPin, Share } from 'lucide-react';
 import { blocksApi, bookmarksApi, itemsApi, reportsApi, reservationsApi } from '../services';
 import { ItemDetailSkeleton } from '../components/Skeletons';
 import ImageWithFallback from '../components/ImageWithFallback';
 import NaverMap from '../components/NaverMap';
+import ReservationSafetyModal from '../components/ReservationSafetyModal';
 import { ItemResponseDto, ItemStatus, ReportReason } from '../types';
+
+const BLOCKED_INTERACTION_CODE = 'B002';
 
 const reportReasonOptions: { value: ReportReason; label: string }[] = [
   { value: 'PROHIBITED_ITEM', label: 'Prohibited item' },
@@ -26,9 +29,19 @@ const getErrorStatus = (error: unknown): number | undefined => {
   return Number.isFinite(status) ? status : undefined;
 };
 
+const getErrorCode = (error: unknown): string | undefined => {
+  if (typeof error !== 'object' || error === null || !('code' in error)) {
+    return undefined;
+  }
+
+  const code = (error as { code?: unknown }).code;
+  return typeof code === 'string' ? code : undefined;
+};
+
 const isAuthError = (error: unknown): boolean => {
   const status = getErrorStatus(error);
-  return status === 401 || status === 403;
+  const code = getErrorCode(error);
+  return status === 401 || (status === 403 && code !== BLOCKED_INTERACTION_CODE);
 };
 
 const ItemDetail = () => {
@@ -265,38 +278,13 @@ const ItemDetail = () => {
       )}
 
       {showReserveModal && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center px-6">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setShowReserveModal(false)}
-          ></div>
-          <div className="bg-white w-full max-w-sm rounded-lg p-6 relative z-10 shadow-2xl animate-in fade-in zoom-in duration-200">
-            <div className="flex flex-col items-center text-center">
-              <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4 text-emerald-700">
-                <AlertCircle size={24} strokeWidth={2.5} />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Request Reservation?</h2>
-              <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-                This will notify the seller that you are interested.
-              </p>
-              <div className="flex space-x-3 w-full">
-                <button
-                  onClick={() => setShowReserveModal(false)}
-                  className="flex-1 py-3 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition-colors focus-visible:ring-2 focus-visible:ring-gray-500"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={confirmReservation}
-                  disabled={isSubmitting}
-                  className="flex-1 py-3 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 shadow-lg shadow-emerald-200 transition-colors disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-emerald-700"
-                >
-                  {isSubmitting ? 'Submitting...' : 'Confirm'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ReservationSafetyModal
+          locationName={item.tradeLocationName}
+          locationAddress={item.tradeLocationAddress}
+          isSubmitting={isSubmitting}
+          onCancel={() => setShowReserveModal(false)}
+          onConfirm={confirmReservation}
+        />
       )}
 
       {showReportModal && (
