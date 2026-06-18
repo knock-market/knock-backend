@@ -108,6 +108,23 @@ export interface ItemResponseDto {
   tradeLongitude?: number;
 }
 
+
+export type ItemPolicyWarningSeverity = 'NONE' | 'WARNING';
+
+export interface ItemPolicyWarningRequestDto {
+  title: string;
+  description: string;
+  itemType?: 'SELL' | 'GIVE';
+}
+
+export interface ItemPolicyWarningResponseDto {
+  policyVersion: string;
+  warningCategories: string[];
+  policyUrl: string;
+  severity: ItemPolicyWarningSeverity;
+  message: string;
+}
+
 export interface MyBookmarkResponseDto {
   bookmarkId: number;
   itemId: number;

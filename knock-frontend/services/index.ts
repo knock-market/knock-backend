@@ -3,6 +3,8 @@ import {
     BookmarkToggleResponseDto,
     ImageUploadResultDto,
     InviteDuration,
+    ItemPolicyWarningRequestDto,
+    ItemPolicyWarningResponseDto,
     ItemResponseDto,
     ItemSummaryResponseDto,
     LocationSearchResponseDto,
@@ -62,6 +64,12 @@ export const itemsApi = {
     getMySelling: () => get<ItemSummaryResponseDto[]>('/items/my-selling'),
     getSellerItems: (memberId: number | string) => get<ItemSummaryResponseDto[]>(`/members/${memberId}/items`),
     deleteItem: (itemId: number | string) => del<void>(`/items/${itemId}`),
+};
+
+// ============== Item Policy API ==============
+export const itemPolicyApi = {
+    getWarnings: (data: ItemPolicyWarningRequestDto) =>
+        post<ItemPolicyWarningResponseDto, ItemPolicyWarningRequestDto>('/item-policy/warnings', data),
 };
 
 // ============== Location API ==============
