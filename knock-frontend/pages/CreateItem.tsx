@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AlertTriangle, ArrowLeft, Camera, Loader2, ShieldCheck, X } from 'lucide-react';
 import { imagesApi, itemPolicyApi, itemsApi } from '../services';
 import TradeLocationFields from '../components/TradeLocationFields';
-import { ItemPolicyWarningResponseDto } from '../types';
+import type { ItemPolicyWarningResponseDto } from '../types';
 
 type CreateItemDraft = {
   transactionType?: 'free' | 'sale';
@@ -298,7 +298,10 @@ const CreateItem: React.FC = () => {
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={() => setTransactionType('free')}
+              onClick={() => {
+                setTransactionType('free');
+                resetPolicyAcknowledgement();
+              }}
               className={`py-3 rounded-lg text-sm font-bold transition-colors focus-visible:ring-2 focus-visible:ring-emerald-600 ${transactionType === 'free' ? 'bg-emerald-600 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
             >
               Free
@@ -356,7 +359,7 @@ const CreateItem: React.FC = () => {
           )}
           <button
             type="button"
-            onClick={handleSubmit}
+            onClick={() => void handleSubmit()}
             disabled={isPostButtonDisabled}
             className={`w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-lg shadow-lg shadow-emerald-200 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 ${isPostButtonDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
