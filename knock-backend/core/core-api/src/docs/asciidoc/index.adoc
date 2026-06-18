@@ -127,6 +127,18 @@ include::{snippets}/api/v1/items/delete/path-parameters.adoc[]
 include::{snippets}/api/v1/items/delete/http-response.adoc[]
 include::{snippets}/api/v1/items/delete/response-fields.adoc[]
 
+[[item-policy-warning]]
+=== 3.5 Item Policy Warning Preflight
+`POST /api/v1/item-policy/warnings`
+
+==== Request
+include::{snippets}/api/v1/item-policy/warnings/http-request.adoc[]
+include::{snippets}/api/v1/item-policy/warnings/request-fields.adoc[]
+
+==== Response
+include::{snippets}/api/v1/item-policy/warnings/http-response.adoc[]
+include::{snippets}/api/v1/item-policy/warnings/response-fields.adoc[]
+
 [[bookmark-api]]
 == 4. Bookmark API
 
@@ -256,3 +268,51 @@ include::{snippets}/api/v1/locations/search/query-parameters.adoc[]
 ==== Response
 include::{snippets}/api/v1/locations/search/http-response.adoc[]
 include::{snippets}/api/v1/locations/search/response-fields.adoc[]
+[[report-api]]
+== 9. Report API
+
+[[report-create]]
+=== 9.1 Create Report
+`POST /api/v1/reports`
+
+==== Request
+include::{snippets}/api/v1/reports/create/http-request.adoc[]
+include::{snippets}/api/v1/reports/create/request-fields.adoc[]
+
+==== Response
+include::{snippets}/api/v1/reports/create/http-response.adoc[]
+include::{snippets}/api/v1/reports/create/response-fields.adoc[]
+[[block-api]]
+== 10. Block API
+
+[[block-create]]
+=== 10.1 Block Member
+`POST /api/v1/blocks/{memberId}`
+
+==== Request
+include::{snippets}/api/v1/blocks/create/http-request.adoc[]
+include::{snippets}/api/v1/blocks/create/path-parameters.adoc[]
+
+==== Response
+include::{snippets}/api/v1/blocks/create/http-response.adoc[]
+include::{snippets}/api/v1/blocks/create/response-fields.adoc[]
+
+[[block-delete]]
+=== 10.2 Unblock Member
+`DELETE /api/v1/blocks/{memberId}`
+
+==== Request
+include::{snippets}/api/v1/blocks/delete/http-request.adoc[]
+include::{snippets}/api/v1/blocks/delete/path-parameters.adoc[]
+
+==== Response
+include::{snippets}/api/v1/blocks/delete/http-response.adoc[]
+include::{snippets}/api/v1/blocks/delete/response-fields.adoc[]
+
+[[block-my]]
+=== 10.3 My Blocks
+`GET /api/v1/blocks/my`
+
+==== Response
+include::{snippets}/api/v1/blocks/my-list/http-response.adoc[]
+include::{snippets}/api/v1/blocks/my-list/response-fields.adoc[]

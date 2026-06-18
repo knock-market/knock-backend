@@ -1,11 +1,24 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { AlertCircle, ArrowLeft, CheckCircle, Clock, Heart, MapPin, Share } from 'lucide-react';
-import { bookmarksApi, itemsApi, reservationsApi } from '../services';
+import { ArrowLeft, CheckCircle, Clock, Flag, Heart, MapPin, Share } from 'lucide-react';
+import { blocksApi, bookmarksApi, itemsApi, reportsApi, reservationsApi } from '../services';
 import { ItemDetailSkeleton } from '../components/Skeletons';
 import ImageWithFallback from '../components/ImageWithFallback';
 import NaverMap from '../components/NaverMap';
-import { ItemResponseDto, ItemStatus } from '../types';
+import ReservationSafetyModal from '../components/ReservationSafetyModal';
+import { ItemResponseDto, ItemStatus, ReportReason } from '../types';
+
+const BLOCKED_INTERACTION_CODE = 'B002';
+
+const reportReasonOptions: { value: ReportReason; label: string }[] = [
+  { value: 'PROHIBITED_ITEM', label: 'Prohibited item' },
+  { value: 'SUSPECTED_FRAUD', label: 'Suspected fraud' },
+  { value: 'OFF_PLATFORM_PAYMENT', label: 'Off-platform payment' },
+  { value: 'PERSONAL_INFO_OR_CODE_REQUEST', label: 'Personal info or code request' },
+  { value: 'HARASSMENT_OR_THREAT', label: 'Harassment or threat' },
+  { value: 'COUNTERFEIT_OR_STOLEN_SUSPECTED', label: 'Counterfeit or stolen item' },
+  { value: 'OTHER', label: 'Other' },
+];
 
 const getErrorStatus = (error: unknown): number | undefined => {
   if (typeof error !== 'object' || error === null || !('status' in error)) {
@@ -16,9 +29,19 @@ const getErrorStatus = (error: unknown): number | undefined => {
   return Number.isFinite(status) ? status : undefined;
 };
 
+const getErrorCode = (error: unknown): string | undefined => {
+  if (typeof error !== 'object' || error === null || !('code' in error)) {
+    return undefined;
+  }
+
+  const code = (error as { code?: unknown }).code;
+  return typeof code === 'string' ? code : undefined;
+};
+
 const isAuthError = (error: unknown): boolean => {
   const status = getErrorStatus(error);
-  return status === 401 || status === 403;
+  const code = getErrorCode(error);
+  return status === 401 || (status === 403 && code !== BLOCKED_INTERACTION_CODE);
 };
 
 const ItemDetail = () => {
@@ -32,8 +55,15 @@ const ItemDetail = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [showCopyToast, setShowCopyToast] = useState(false);
   const [showReserveModal, setShowReserveModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState<ReportReason>('PROHIBITED_ITEM');
+  const [reportDescription, setReportDescription] = useState('');
+  const [reportNotice, setReportNotice] = useState('');
+  const [blockNotice, setBlockNotice] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isReportSubmitting, setIsReportSubmitting] = useState(false);
+  const [isBlockSubmitting, setIsBlockSubmitting] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -109,6 +139,11 @@ const ItemDetail = () => {
     setShowReserveModal(true);
   };
 
+  const handleReportClick = () => {
+    setReportNotice('');
+    setShowReportModal(true);
+  };
+
   const confirmReservation = async () => {
     if (!item) return;
 
@@ -143,6 +178,52 @@ const ItemDetail = () => {
       }
       const message = error instanceof Error ? error.message : 'Failed to update bookmark.';
       alert(message);
+    }
+  };
+
+  const submitReport = async () => {
+    if (!item) return;
+
+    setIsReportSubmitting(true);
+    setReportNotice('');
+    try {
+      await reportsApi.create({
+        targetType: 'ITEM',
+        targetId: item.id,
+        reason: reportReason,
+        description: reportDescription.trim() || undefined,
+      });
+      setReportNotice('Report received. The seller will not see your identity from this report.');
+      setReportDescription('');
+    } catch (error) {
+      if (isAuthError(error)) {
+        navigate(`/login?next=${encodeURIComponent(`/item/${itemPublicId}`)}`);
+        return;
+      }
+      const message = error instanceof Error ? error.message : 'Failed to submit report.';
+      setReportNotice(message);
+    } finally {
+      setIsReportSubmitting(false);
+    }
+  };
+
+  const blockSeller = async () => {
+    if (!item?.writerId) return;
+
+    setIsBlockSubmitting(true);
+    setBlockNotice('');
+    try {
+      await blocksApi.block(item.writerId);
+      setBlockNotice('Seller blocked. Public pages stay visible, but new reservations, bookmarks, reviews, and notifications are restricted.');
+    } catch (error) {
+      if (isAuthError(error)) {
+        navigate(`/login?next=${encodeURIComponent(`/item/${itemPublicId}`)}`);
+        return;
+      }
+      const message = error instanceof Error ? error.message : 'Failed to block seller.';
+      setBlockNotice(message);
+    } finally {
+      setIsBlockSubmitting(false);
     }
   };
 
@@ -197,34 +278,98 @@ const ItemDetail = () => {
       )}
 
       {showReserveModal && (
+        <ReservationSafetyModal
+          locationName={item.tradeLocationName}
+          locationAddress={item.tradeLocationAddress}
+          isSubmitting={isSubmitting}
+          onCancel={() => setShowReserveModal(false)}
+          onConfirm={confirmReservation}
+        />
+      )}
+
+      {showReportModal && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center px-6">
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setShowReserveModal(false)}
+            onClick={() => setShowReportModal(false)}
           ></div>
           <div className="bg-white w-full max-w-sm rounded-lg p-6 relative z-10 shadow-2xl animate-in fade-in zoom-in duration-200">
-            <div className="flex flex-col items-center text-center">
-              <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4 text-emerald-700">
-                <AlertCircle size={24} strokeWidth={2.5} />
+            <div className="flex items-start space-x-3 mb-5">
+              <div className="w-11 h-11 bg-red-50 rounded-lg flex items-center justify-center text-red-600">
+                <Flag size={22} strokeWidth={2.5} />
               </div>
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Request Reservation?</h2>
-              <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-                This will notify the seller that you are interested.
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Report this item</h2>
+                <p className="mt-1 text-xs text-gray-500 leading-relaxed">
+                  Reports are private and help Knock review prohibited items, fraud, and unsafe behavior.
+                </p>
+              </div>
+            </div>
+
+            <label className="block text-sm font-bold text-gray-900 mb-2" htmlFor="report-reason">
+              Reason
+            </label>
+            <select
+              id="report-reason"
+              value={reportReason}
+              onChange={(event) => setReportReason(event.target.value as ReportReason)}
+              className="w-full rounded-lg border border-gray-200 px-3 py-3 text-sm focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none"
+            >
+              {reportReasonOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+
+            <label className="block text-sm font-bold text-gray-900 mt-4 mb-2" htmlFor="report-description">
+              Details <span className="font-normal text-gray-400">(optional)</span>
+            </label>
+            <textarea
+              id="report-description"
+              value={reportDescription}
+              onChange={(event) => setReportDescription(event.target.value)}
+              maxLength={1000}
+              rows={4}
+              className="w-full resize-none rounded-lg border border-gray-200 px-3 py-3 text-sm focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none"
+              placeholder="Add helpful context without sharing passwords, codes, or payment details."
+            />
+
+            {reportNotice && (
+              <p className="mt-3 rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold text-gray-700">
+                {reportNotice}
               </p>
-              <div className="flex space-x-3 w-full">
+            )}
+            {blockNotice && (
+              <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs font-semibold text-red-700">
+                {blockNotice}
+              </p>
+            )}
+
+            <div className="mt-5 space-y-3">
+              {item.writerId && (
                 <button
-                  onClick={() => setShowReserveModal(false)}
-                  className="flex-1 py-3 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition-colors focus-visible:ring-2 focus-visible:ring-gray-500"
+                  onClick={blockSeller}
+                  disabled={isBlockSubmitting}
+                  className="w-full py-3 border border-red-200 text-red-700 font-bold rounded-lg hover:bg-red-50 transition-colors disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-red-700"
                 >
-                  Cancel
+                  {isBlockSubmitting ? 'Blocking...' : 'Block seller'}
                 </button>
-                <button
-                  onClick={confirmReservation}
-                  disabled={isSubmitting}
-                  className="flex-1 py-3 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 shadow-lg shadow-emerald-200 transition-colors disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-emerald-700"
-                >
-                  {isSubmitting ? 'Submitting...' : 'Confirm'}
-                </button>
+              )}
+              <div className="flex space-x-3">
+              <button
+                onClick={() => setShowReportModal(false)}
+                className="flex-1 py-3 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition-colors focus-visible:ring-2 focus-visible:ring-gray-500"
+              >
+                Close
+              </button>
+              <button
+                onClick={submitReport}
+                disabled={isReportSubmitting}
+                className="flex-1 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-red-700"
+              >
+                {isReportSubmitting ? 'Submitting...' : 'Submit'}
+              </button>
               </div>
             </div>
           </div>
@@ -296,6 +441,14 @@ const ItemDetail = () => {
                 <p className="text-xs text-gray-500">Seller</p>
               </div>
             </div>
+          </button>
+          <button
+            type="button"
+            onClick={handleReportClick}
+            className="mt-4 inline-flex items-center space-x-2 text-sm font-semibold text-red-600 hover:text-red-700 focus-visible:ring-2 focus-visible:ring-red-500 rounded-md"
+          >
+            <Flag size={16} />
+            <span>Report item or block seller</span>
           </button>
         </div>
       </div>

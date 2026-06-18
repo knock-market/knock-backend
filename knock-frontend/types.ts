@@ -108,6 +108,23 @@ export interface ItemResponseDto {
   tradeLongitude?: number;
 }
 
+
+export type ItemPolicyWarningSeverity = 'NONE' | 'WARNING';
+
+export interface ItemPolicyWarningRequestDto {
+  title: string;
+  description: string;
+  itemType?: 'SELL' | 'GIVE';
+}
+
+export interface ItemPolicyWarningResponseDto {
+  policyVersion: string;
+  warningCategories: string[];
+  policyUrl: string;
+  severity: ItemPolicyWarningSeverity;
+  message: string;
+}
+
 export interface MyBookmarkResponseDto {
   bookmarkId: number;
   itemId: number;
@@ -124,6 +141,42 @@ export interface MyBookmarkResponseDto {
 export interface BookmarkToggleResponseDto {
   itemId: number;
   toggleOn: boolean;
+}
+
+
+export type ReportTargetType = 'MEMBER' | 'ITEM' | 'RESERVATION' | 'REVIEW';
+
+export type ReportReason =
+  | 'PROHIBITED_ITEM'
+  | 'SUSPECTED_FRAUD'
+  | 'OFF_PLATFORM_PAYMENT'
+  | 'PERSONAL_INFO_OR_CODE_REQUEST'
+  | 'HARASSMENT_OR_THREAT'
+  | 'NO_SHOW'
+  | 'COUNTERFEIT_OR_STOLEN_SUSPECTED'
+  | 'OTHER';
+
+export type ReportStatus = 'RECEIVED' | 'REVIEWING' | 'RESOLVED' | 'DISMISSED';
+
+
+export interface BlockResponseDto {
+  memberId: number;
+  nickname: string;
+  profileImageUrl?: string;
+  blockedAt?: string;
+}
+
+export interface ReportCreateRequestDto {
+  targetType: ReportTargetType;
+  targetId: number;
+  reason: ReportReason;
+  description?: string;
+}
+
+export interface ReportResponseDto {
+  reportId: number;
+  status: ReportStatus;
+  createdAt?: string;
 }
 
 export interface ReservationCreateResponseDto {

@@ -1,8 +1,11 @@
 import client from './client';
 import {
+    BlockResponseDto,
     BookmarkToggleResponseDto,
     ImageUploadResultDto,
     InviteDuration,
+    ItemPolicyWarningRequestDto,
+    ItemPolicyWarningResponseDto,
     ItemResponseDto,
     ItemSummaryResponseDto,
     LocationSearchResponseDto,
@@ -12,6 +15,8 @@ import {
     NotificationSettingsResponseDto,
     ReservationCreateResponseDto,
     ReservationResponseDto,
+    ReportCreateRequestDto,
+    ReportResponseDto,
     SellerShareLinkResponseDto,
     SellerShareLinkSummaryResponseDto,
     SellerShopResponseDto,
@@ -64,6 +69,12 @@ export const itemsApi = {
     deleteItem: (itemId: number | string) => del<void>(`/items/${itemId}`),
 };
 
+// ============== Item Policy API ==============
+export const itemPolicyApi = {
+    getWarnings: (data: ItemPolicyWarningRequestDto) =>
+        post<ItemPolicyWarningResponseDto, ItemPolicyWarningRequestDto>('/item-policy/warnings', data),
+};
+
 // ============== Location API ==============
 export const locationsApi = {
     search: (query: string) =>
@@ -95,6 +106,20 @@ export const reservationsApi = {
     approve: (id: number) => patch<void>(`/reservations/${id}/approve`),
     complete: (id: number) => patch<void>(`/reservations/${id}/complete`),
     cancel: (id: number) => patch<void>(`/reservations/${id}/cancel`),
+};
+
+
+
+// ============== Block API ==============
+export const blocksApi = {
+    block: (memberId: number | string) => post<BlockResponseDto>(`/blocks/${memberId}`),
+    unblock: (memberId: number | string) => del<void>(`/blocks/${memberId}`),
+    getMyBlocks: () => get<BlockResponseDto[]>('/blocks/my'),
+};
+
+// ============== Report API ==============
+export const reportsApi = {
+    create: (data: ReportCreateRequestDto) => post<ReportResponseDto, ReportCreateRequestDto>('/reports', data),
 };
 
 // ============== Notification API ==============

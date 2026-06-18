@@ -1,5 +1,6 @@
 package com.knock.core.domain.bookmark;
 
+import com.knock.core.domain.block.BlockService;
 import com.knock.core.domain.bookmark.dto.BookmarkResult;
 import com.knock.core.domain.bookmark.dto.BookmarkToggleData;
 import com.knock.core.enums.ItemStatus;
@@ -31,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,6 +49,9 @@ class BookmarkServiceTest {
 
 	@Mock
 	private ItemRepository itemRepository;
+
+	@Mock
+	private BlockService blockService;
 
 	@Nested
 	@DisplayName("북마크 토글")
@@ -116,6 +121,25 @@ class BookmarkServiceTest {
 			// then
 			assertThat(result).isTrue();
 			assertThat(bookmark.getDeletedAt()).isNull();
+		}
+
+		@Test
+		@DisplayName("실패 - 차단 관계")
+		void fail_blockedInteraction() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2));
+			BookmarkToggleData data = new BookmarkToggleData(TEST_ITEM_ID);
+
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
+			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
+			willThrow(new CoreException(ErrorType.BLOCKED_INTERACTION)).given(blockService)
+				.validateInteractionAllowed(TEST_MEMBER_ID, TEST_MEMBER_ID_2);
+
+			// when & then
+			assertThatThrownBy(() -> bookmarkService.toggleBookmark(TEST_MEMBER_ID, data))
+				.isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.BLOCKED_INTERACTION);
 		}
 
 		@Test
