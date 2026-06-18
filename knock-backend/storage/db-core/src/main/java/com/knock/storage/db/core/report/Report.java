@@ -13,8 +13,9 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
-@Table(name = "report", uniqueConstraints = {
-		@UniqueConstraint(columnNames = { "reporter_id", "target_type", "target_id", "reason" }) })
+@Table(name = "report",
+		uniqueConstraints = {
+				@UniqueConstraint(columnNames = { "reporter_id", "target_type", "target_id", "reason" }) })
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE report SET deleted_at = NOW() WHERE id = ?")
@@ -43,7 +44,8 @@ public class Report extends BaseEntity {
 	@Column(nullable = false, length = 32)
 	private ReportStatus status;
 
-	private Report(Member reporter, ReportTargetType targetType, Long targetId, ReportReason reason, String description) {
+	private Report(Member reporter, ReportTargetType targetType, Long targetId, ReportReason reason,
+			String description) {
 		this.reporter = reporter;
 		this.targetType = targetType;
 		this.targetId = targetId;

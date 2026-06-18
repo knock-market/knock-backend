@@ -65,9 +65,9 @@ class ReportControllerTest extends RestDocsTest {
 								.description("신고 대상 타입: MEMBER, ITEM, RESERVATION, REVIEW"),
 							fieldWithPath("targetId").type(JsonFieldType.NUMBER).description("신고 대상 ID"),
 							fieldWithPath("reason").type(JsonFieldType.STRING)
-								.description("신고 사유: PROHIBITED_ITEM, SUSPECTED_FRAUD, OFF_PLATFORM_PAYMENT, PERSONAL_INFO_OR_CODE_REQUEST, HARASSMENT_OR_THREAT, NO_SHOW, COUNTERFEIT_OR_STOLEN_SUSPECTED, OTHER"),
-							fieldWithPath("description").type(JsonFieldType.STRING)
-								.description("선택 설명. 최대 1000자.")),
+								.description(
+										"신고 사유: PROHIBITED_ITEM, SUSPECTED_FRAUD, OFF_PLATFORM_PAYMENT, PERSONAL_INFO_OR_CODE_REQUEST, HARASSMENT_OR_THREAT, NO_SHOW, COUNTERFEIT_OR_STOLEN_SUSPECTED, OTHER"),
+							fieldWithPath("description").type(JsonFieldType.STRING).description("선택 설명. 최대 1000자.")),
 					relaxedResponseFields(fieldWithPath("result").type(JsonFieldType.STRING).description("결과 코드"),
 							fieldWithPath("data.reportId").type(JsonFieldType.NUMBER).description("신고 ID"),
 							fieldWithPath("data.status").type(JsonFieldType.STRING).description("신고 상태"),

@@ -66,7 +66,8 @@ class ReportServiceTest {
 		given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(reporter));
 		given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
 		given(reportRepository.findDuplicate(TEST_MEMBER_ID, ReportTargetType.ITEM, TEST_ITEM_ID,
-				ReportReason.PROHIBITED_ITEM)).willReturn(Optional.empty());
+				ReportReason.PROHIBITED_ITEM))
+			.willReturn(Optional.empty());
 		given(reportRepository.save(any(Report.class))).willAnswer(invocation -> {
 			Report report = invocation.getArgument(0);
 			ReflectionTestUtils.setField(report, "id", 10L);
@@ -109,7 +110,8 @@ class ReportServiceTest {
 		given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(reporter));
 		given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
 		given(reportRepository.findDuplicate(TEST_MEMBER_ID, ReportTargetType.ITEM, TEST_ITEM_ID,
-				ReportReason.PROHIBITED_ITEM)).willReturn(Optional.of(existing));
+				ReportReason.PROHIBITED_ITEM))
+			.willReturn(Optional.of(existing));
 
 		assertThatThrownBy(() -> reportService.createReport(TEST_MEMBER_ID, data)).isInstanceOf(CoreException.class)
 			.hasFieldOrPropertyWithValue("errorType", ErrorType.DUPLICATE_REPORT);

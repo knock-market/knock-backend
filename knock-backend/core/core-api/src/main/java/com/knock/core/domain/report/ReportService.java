@@ -41,9 +41,10 @@ public class ReportService {
 			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 
 		validateTargetExistsAndNotSelf(reporterId, data.targetType(), data.targetId());
-		reportRepository.findDuplicate(reporterId, data.targetType(), data.targetId(), data.reason()).ifPresent(report -> {
-			throw new CoreException(ErrorType.DUPLICATE_REPORT);
-		});
+		reportRepository.findDuplicate(reporterId, data.targetType(), data.targetId(), data.reason())
+			.ifPresent(report -> {
+				throw new CoreException(ErrorType.DUPLICATE_REPORT);
+			});
 
 		try {
 			Report saved = reportRepository
@@ -85,8 +86,7 @@ public class ReportService {
 	}
 
 	private void validateReviewTarget(Long reporterId, Long targetId) {
-		Review target = reviewRepository.findById(targetId)
-			.orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
+		Review target = reviewRepository.findById(targetId).orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
 		if (target.getReviewer().getId().equals(reporterId)) {
 			throw new CoreException(ErrorType.SELF_REPORT_NOT_ALLOWED);
 		}
