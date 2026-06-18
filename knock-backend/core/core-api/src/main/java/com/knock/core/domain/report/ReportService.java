@@ -60,7 +60,7 @@ public class ReportService {
 		switch (targetType) {
 			case MEMBER -> validateMemberTarget(reporterId, targetId);
 			case ITEM -> validateItemTarget(reporterId, targetId);
-			case RESERVATION -> validateReservationTarget(targetId);
+			case RESERVATION -> validateReservationTarget(reporterId, targetId);
 			case REVIEW -> validateReviewTarget(reporterId, targetId);
 		}
 	}
@@ -80,9 +80,14 @@ public class ReportService {
 		}
 	}
 
-	private void validateReservationTarget(Long targetId) {
-		reservationRepository.findByIdWithItemAndMember(targetId)
+	private void validateReservationTarget(Long reporterId, Long targetId) {
+		Reservation target = reservationRepository.findByIdWithItemAndMember(targetId)
 			.orElseThrow(() -> new CoreException(ErrorType.RESERVATION_NOT_FOUND));
+		boolean isSeller = target.getItem().getMember().getId().equals(reporterId);
+		boolean isRequester = target.getMember().getId().equals(reporterId);
+		if (isSeller || isRequester) {
+			throw new CoreException(ErrorType.SELF_REPORT_NOT_ALLOWED);
+		}
 	}
 
 	private void validateReviewTarget(Long reporterId, Long targetId) {

@@ -12,6 +12,7 @@ import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
 import com.knock.storage.db.core.report.Report;
 import com.knock.storage.db.core.report.ReportRepository;
+import com.knock.storage.db.core.reservation.Reservation;
 import com.knock.storage.db.core.reservation.ReservationRepository;
 import com.knock.storage.db.core.review.ReviewRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -27,6 +28,7 @@ import java.util.Optional;
 import static com.knock.core.support.TestConstants.*;
 import static com.knock.core.support.TestFixtures.createItem;
 import static com.knock.core.support.TestFixtures.createMember;
+import static com.knock.core.support.TestFixtures.createReservation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -93,6 +95,24 @@ class ReportServiceTest {
 		given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
 
 		assertThatThrownBy(() -> reportService.createReport(TEST_MEMBER_ID, data)).isInstanceOf(CoreException.class)
+			.hasFieldOrPropertyWithValue("errorType", ErrorType.SELF_REPORT_NOT_ALLOWED);
+	}
+
+	@Test
+	@DisplayName("실패 - 본인 예약 신고 차단")
+	void createReport_failSelfReservation() {
+		Member seller = createMember(TEST_MEMBER_ID);
+		Member requester = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
+		Item item = createItem(TEST_ITEM_ID, seller);
+		Reservation reservation = createReservation(TEST_RESERVATION_ID, item, requester);
+		ReportCreateData data = new ReportCreateData(ReportTargetType.RESERVATION, TEST_RESERVATION_ID,
+				ReportReason.NO_SHOW, null);
+
+		given(memberRepository.findById(TEST_MEMBER_ID_2)).willReturn(Optional.of(requester));
+		given(reservationRepository.findByIdWithItemAndMember(TEST_RESERVATION_ID))
+			.willReturn(Optional.of(reservation));
+
+		assertThatThrownBy(() -> reportService.createReport(TEST_MEMBER_ID_2, data)).isInstanceOf(CoreException.class)
 			.hasFieldOrPropertyWithValue("errorType", ErrorType.SELF_REPORT_NOT_ALLOWED);
 	}
 
