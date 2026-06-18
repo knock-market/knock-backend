@@ -1,5 +1,6 @@
 package com.knock.core.domain.review;
 
+import com.knock.core.domain.block.BlockService;
 import com.knock.core.domain.review.dto.request.ReviewCreateData;
 import com.knock.core.domain.review.dto.response.ReviewResult;
 import com.knock.core.support.error.CoreException;
@@ -25,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -42,6 +44,9 @@ class ReviewServiceUnitTest {
 
 	@Mock
 	private MemberRepository memberRepository;
+
+	@Mock
+	private BlockService blockService;
 
 	@Test
 	@DisplayName("리뷰 작성 성공: 예약이 확인되면 리뷰가 저장된다.")
@@ -68,6 +73,8 @@ class ReviewServiceUnitTest {
 		given(mockReservation.getItem()).willReturn(mockItem);
 		given(mockReservation.getMember()).willReturn(mockBuyer); // 구매자
 		given(mockItem.getMember()).willReturn(mockSeller); // 판매자
+		given(mockBuyer.getId()).willReturn(reviewerId);
+		given(mockSeller.getId()).willReturn(2L);
 
 		// Stubbing: 리뷰 저장 시 저장된 리뷰 반환 설정
 		given(reviewRepository.save(any(Review.class))).willReturn(mockSavedReview);
@@ -103,6 +110,35 @@ class ReviewServiceUnitTest {
 		assertThatThrownBy(() -> reviewService.createReview(reviewerId, requestDto)).isInstanceOf(CoreException.class)
 			.extracting("errorType")
 			.isEqualTo(ErrorType.RESERVATION_NOT_COMPLETED);
+	}
+
+	@Test
+	@DisplayName("리뷰 작성 실패: 차단 관계에서는 리뷰를 작성할 수 없다.")
+	void createReview_Fail_BlockedInteraction() {
+		// given
+		Long reviewerId = 1L;
+		Long sellerId = 2L;
+		Long itemId = 100L;
+		ReviewCreateData requestDto = new ReviewCreateData(itemId, "내용", 5);
+		Reservation mockReservation = mock(Reservation.class);
+		Item mockItem = mock(Item.class);
+		Member mockSeller = mock(Member.class);
+		Member mockBuyer = mock(Member.class);
+
+		given(reservationRepository.findReservationForReview(reviewerId, itemId))
+			.willReturn(Optional.of(mockReservation));
+		given(mockReservation.getItem()).willReturn(mockItem);
+		given(mockReservation.getMember()).willReturn(mockBuyer);
+		given(mockItem.getMember()).willReturn(mockSeller);
+		given(mockBuyer.getId()).willReturn(reviewerId);
+		given(mockSeller.getId()).willReturn(sellerId);
+		willThrow(new CoreException(ErrorType.BLOCKED_INTERACTION)).given(blockService)
+			.validateInteractionAllowed(reviewerId, sellerId);
+
+		// when & then
+		assertThatThrownBy(() -> reviewService.createReview(reviewerId, requestDto)).isInstanceOf(CoreException.class)
+			.extracting("errorType")
+			.isEqualTo(ErrorType.BLOCKED_INTERACTION);
 	}
 
 	@Test

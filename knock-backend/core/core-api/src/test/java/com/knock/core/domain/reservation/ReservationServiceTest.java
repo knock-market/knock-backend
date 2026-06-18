@@ -1,5 +1,6 @@
 package com.knock.core.domain.reservation;
 
+import com.knock.core.domain.block.BlockService;
 import com.knock.core.domain.notification.NotificationService;
 import com.knock.core.domain.notification.dto.NotificationCreateData;
 import com.knock.core.domain.reservation.dto.ReservationCreateData;
@@ -32,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -52,6 +54,9 @@ class ReservationServiceTest {
 
 	@Mock
 	private NotificationService notificationService;
+
+	@Mock
+	private BlockService blockService;
 
 	@Nested
 	@DisplayName("예약 생성")
@@ -116,6 +121,26 @@ class ReservationServiceTest {
 			// when & then
 			assertThatThrownBy(() -> reservationService.createReservation(data)).isInstanceOf(CoreException.class)
 				.hasFieldOrPropertyWithValue("errorType", ErrorType.MEMBER_NOT_FOUND);
+			verify(reservationRepository, never()).createIfNotApproved(any(), any());
+			verify(notificationService, never()).createNotification(any());
+		}
+
+		@Test
+		@DisplayName("실패 - 차단 관계 예약")
+		void fail_blockedInteraction() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2));
+			ReservationCreateData data = new ReservationCreateData(TEST_ITEM_ID, TEST_MEMBER_ID);
+
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
+			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
+			willThrow(new CoreException(ErrorType.BLOCKED_INTERACTION)).given(blockService)
+				.validateInteractionAllowed(TEST_MEMBER_ID, TEST_MEMBER_ID_2);
+
+			// when & then
+			assertThatThrownBy(() -> reservationService.createReservation(data)).isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.BLOCKED_INTERACTION);
 			verify(reservationRepository, never()).createIfNotApproved(any(), any());
 			verify(notificationService, never()).createNotification(any());
 		}
