@@ -76,6 +76,7 @@ Google OAuth의 `next`는 `/start` 요청에서 받은 값을 세션에 저장�
 | Reservation | `PATCH /api/v1/reservations/{id}/cancel` | 예약 취소 | ✅ |
 | Reservation | `GET /api/v1/items/{itemId}/reservations` | 상품별 예약 목록 | ✅ |
 | Reservation | `GET /api/v1/reservations/my` | 내 예약 내역 | ✅ |
+| Report | `POST /api/v1/reports` | 상품/회원/예약/후기 신고 접수 | ✅ |
 | Notification | `GET /api/v1/notifications` | 알림 목록 | ✅ |
 | Notification | `PATCH /api/v1/notifications/{id}/read` | 알림 읽음 처리 | ✅ |
 | Notification | `PATCH /api/v1/notifications/read-all` | 전체 읽음 처리 | ✅ |
@@ -83,6 +84,8 @@ Google OAuth의 `next`는 `/start` 요청에서 받은 값을 세션에 저장�
 | Review | `GET /api/v1/members/{memberId}/reviews` | 특정 회원 후기 목록 | ✅ |
 
 예약 신청 request body는 양수 `itemId`가 필수다. `itemId` 누락, `null`, `0`, 음수 값은 HTTP 경계에서 400 `VALIDATION_ERROR`로 차단한다.
+
+신고 생성 request body는 `targetType`(`MEMBER`, `ITEM`, `RESERVATION`, `REVIEW`), 양수 `targetId`, `reason`(`PROHIBITED_ITEM`, `SUSPECTED_FRAUD`, `OFF_PLATFORM_PAYMENT`, `PERSONAL_INFO_OR_CODE_REQUEST`, `HARASSMENT_OR_THREAT`, `NO_SHOW`, `COUNTERFEIT_OR_STOLEN_SUSPECTED`, `OTHER`)이 필수다. 중복 기준은 `(reporterId, targetType, targetId, reason)`이며 자기 자신 또는 본인 상품/후기 신고는 차단한다.
 
 ### Image / Location API
 

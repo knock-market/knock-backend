@@ -1,11 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { AlertCircle, ArrowLeft, CheckCircle, Clock, Heart, MapPin, Share } from 'lucide-react';
-import { bookmarksApi, itemsApi, reservationsApi } from '../services';
+import { AlertCircle, ArrowLeft, CheckCircle, Clock, Flag, Heart, MapPin, Share } from 'lucide-react';
+import { bookmarksApi, itemsApi, reportsApi, reservationsApi } from '../services';
 import { ItemDetailSkeleton } from '../components/Skeletons';
 import ImageWithFallback from '../components/ImageWithFallback';
 import NaverMap from '../components/NaverMap';
-import { ItemResponseDto, ItemStatus } from '../types';
+import { ItemResponseDto, ItemStatus, ReportReason } from '../types';
+
+const reportReasonOptions: { value: ReportReason; label: string }[] = [
+  { value: 'PROHIBITED_ITEM', label: 'Prohibited item' },
+  { value: 'SUSPECTED_FRAUD', label: 'Suspected fraud' },
+  { value: 'OFF_PLATFORM_PAYMENT', label: 'Off-platform payment' },
+  { value: 'PERSONAL_INFO_OR_CODE_REQUEST', label: 'Personal info or code request' },
+  { value: 'HARASSMENT_OR_THREAT', label: 'Harassment or threat' },
+  { value: 'COUNTERFEIT_OR_STOLEN_SUSPECTED', label: 'Counterfeit or stolen item' },
+  { value: 'OTHER', label: 'Other' },
+];
 
 const getErrorStatus = (error: unknown): number | undefined => {
   if (typeof error !== 'object' || error === null || !('status' in error)) {
@@ -32,8 +42,13 @@ const ItemDetail = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [showCopyToast, setShowCopyToast] = useState(false);
   const [showReserveModal, setShowReserveModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState<ReportReason>('PROHIBITED_ITEM');
+  const [reportDescription, setReportDescription] = useState('');
+  const [reportNotice, setReportNotice] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isReportSubmitting, setIsReportSubmitting] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -109,6 +124,11 @@ const ItemDetail = () => {
     setShowReserveModal(true);
   };
 
+  const handleReportClick = () => {
+    setReportNotice('');
+    setShowReportModal(true);
+  };
+
   const confirmReservation = async () => {
     if (!item) return;
 
@@ -143,6 +163,32 @@ const ItemDetail = () => {
       }
       const message = error instanceof Error ? error.message : 'Failed to update bookmark.';
       alert(message);
+    }
+  };
+
+  const submitReport = async () => {
+    if (!item) return;
+
+    setIsReportSubmitting(true);
+    setReportNotice('');
+    try {
+      await reportsApi.create({
+        targetType: 'ITEM',
+        targetId: item.id,
+        reason: reportReason,
+        description: reportDescription.trim() || undefined,
+      });
+      setReportNotice('Report received. The seller will not see your identity from this report.');
+      setReportDescription('');
+    } catch (error) {
+      if (isAuthError(error)) {
+        navigate(`/login?next=${encodeURIComponent(`/item/${itemPublicId}`)}`);
+        return;
+      }
+      const message = error instanceof Error ? error.message : 'Failed to submit report.';
+      setReportNotice(message);
+    } finally {
+      setIsReportSubmitting(false);
     }
   };
 
@@ -231,6 +277,79 @@ const ItemDetail = () => {
         </div>
       )}
 
+      {showReportModal && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center px-6">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowReportModal(false)}
+          ></div>
+          <div className="bg-white w-full max-w-sm rounded-lg p-6 relative z-10 shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="flex items-start space-x-3 mb-5">
+              <div className="w-11 h-11 bg-red-50 rounded-lg flex items-center justify-center text-red-600">
+                <Flag size={22} strokeWidth={2.5} />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Report this item</h2>
+                <p className="mt-1 text-xs text-gray-500 leading-relaxed">
+                  Reports are private and help Knock review prohibited items, fraud, and unsafe behavior.
+                </p>
+              </div>
+            </div>
+
+            <label className="block text-sm font-bold text-gray-900 mb-2" htmlFor="report-reason">
+              Reason
+            </label>
+            <select
+              id="report-reason"
+              value={reportReason}
+              onChange={(event) => setReportReason(event.target.value as ReportReason)}
+              className="w-full rounded-lg border border-gray-200 px-3 py-3 text-sm focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none"
+            >
+              {reportReasonOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+
+            <label className="block text-sm font-bold text-gray-900 mt-4 mb-2" htmlFor="report-description">
+              Details <span className="font-normal text-gray-400">(optional)</span>
+            </label>
+            <textarea
+              id="report-description"
+              value={reportDescription}
+              onChange={(event) => setReportDescription(event.target.value)}
+              maxLength={1000}
+              rows={4}
+              className="w-full resize-none rounded-lg border border-gray-200 px-3 py-3 text-sm focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none"
+              placeholder="Add helpful context without sharing passwords, codes, or payment details."
+            />
+
+            {reportNotice && (
+              <p className="mt-3 rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold text-gray-700">
+                {reportNotice}
+              </p>
+            )}
+
+            <div className="mt-5 flex space-x-3">
+              <button
+                onClick={() => setShowReportModal(false)}
+                className="flex-1 py-3 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition-colors focus-visible:ring-2 focus-visible:ring-gray-500"
+              >
+                Close
+              </button>
+              <button
+                onClick={submitReport}
+                disabled={isReportSubmitting}
+                className="flex-1 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-red-700"
+              >
+                {isReportSubmitting ? 'Submitting...' : 'Submit'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="relative h-80 bg-gray-100">
         <ImageWithFallback src={item.imageUrls?.[0]} alt={item.title} className="w-full h-full object-cover" />
         <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start bg-gradient-to-b from-black/30 to-transparent z-20">
@@ -296,6 +415,14 @@ const ItemDetail = () => {
                 <p className="text-xs text-gray-500">Seller</p>
               </div>
             </div>
+          </button>
+          <button
+            type="button"
+            onClick={handleReportClick}
+            className="mt-4 inline-flex items-center space-x-2 text-sm font-semibold text-red-600 hover:text-red-700 focus-visible:ring-2 focus-visible:ring-red-500 rounded-md"
+          >
+            <Flag size={16} />
+            <span>Report item</span>
           </button>
         </div>
       </div>

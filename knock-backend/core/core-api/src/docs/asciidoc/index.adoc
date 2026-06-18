@@ -256,3 +256,17 @@ include::{snippets}/api/v1/locations/search/query-parameters.adoc[]
 ==== Response
 include::{snippets}/api/v1/locations/search/http-response.adoc[]
 include::{snippets}/api/v1/locations/search/response-fields.adoc[]
+[[report-api]]
+== 9. Report API
+
+[[report-create]]
+=== 9.1 Create Report
+`POST /api/v1/reports`
+
+==== Request
+include::{snippets}/api/v1/reports/create/http-request.adoc[]
+include::{snippets}/api/v1/reports/create/request-fields.adoc[]
+
+==== Response
+include::{snippets}/api/v1/reports/create/http-response.adoc[]
+include::{snippets}/api/v1/reports/create/response-fields.adoc[]
