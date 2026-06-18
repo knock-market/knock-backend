@@ -9,7 +9,8 @@ import java.util.Optional;
 
 interface MemberBlockJpaRepository extends JpaRepository<MemberBlock, Long> {
 
-	@Query(value = "SELECT * FROM member_block WHERE blocker_id = :blockerId AND blocked_id = :blockedId", nativeQuery = true)
+	@Query(value = "SELECT * FROM member_block WHERE blocker_id = :blockerId AND blocked_id = :blockedId",
+			nativeQuery = true)
 	Optional<MemberBlock> findByBlockerAndBlockedWithDeleted(@Param("blockerId") Long blockerId,
 			@Param("blockedId") Long blockedId);
 

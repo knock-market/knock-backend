@@ -137,7 +137,8 @@ class BookmarkServiceTest {
 				.validateInteractionAllowed(TEST_MEMBER_ID, TEST_MEMBER_ID_2);
 
 			// when & then
-			assertThatThrownBy(() -> bookmarkService.toggleBookmark(TEST_MEMBER_ID, data)).isInstanceOf(CoreException.class)
+			assertThatThrownBy(() -> bookmarkService.toggleBookmark(TEST_MEMBER_ID, data))
+				.isInstanceOf(CoreException.class)
 				.hasFieldOrPropertyWithValue("errorType", ErrorType.BLOCKED_INTERACTION);
 		}
 

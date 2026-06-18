@@ -30,12 +30,14 @@ public class BlockService {
 		Member blocked = memberRepository.findById(blockedId)
 			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 
-		MemberBlock block = memberBlockRepository.findByBlockerAndBlockedWithDeleted(blockerId, blockedId).map(existing -> {
-			if (existing.getDeletedAt() != null) {
-				existing.restore();
-			}
-			return existing;
-		}).orElseGet(() -> memberBlockRepository.save(MemberBlock.create(blocker, blocked)));
+		MemberBlock block = memberBlockRepository.findByBlockerAndBlockedWithDeleted(blockerId, blockedId)
+			.map(existing -> {
+				if (existing.getDeletedAt() != null) {
+					existing.restore();
+				}
+				return existing;
+			})
+			.orElseGet(() -> memberBlockRepository.save(MemberBlock.create(blocker, blocked)));
 
 		return BlockResult.from(block);
 	}

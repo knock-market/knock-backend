@@ -79,9 +79,8 @@ class BlockControllerTest extends RestDocsTest {
 	@Test
 	@DisplayName("내 차단 목록 조회 성공")
 	void getMyBlocks_success() {
-		given(blockService.getMyBlocks(anyLong()))
-			.willReturn(List.of(new BlockResult(TEST_MEMBER_ID_2, TEST_NICKNAME, null,
-					LocalDateTime.of(2026, 6, 18, 12, 0))));
+		given(blockService.getMyBlocks(anyLong())).willReturn(
+				List.of(new BlockResult(TEST_MEMBER_ID_2, TEST_NICKNAME, null, LocalDateTime.of(2026, 6, 18, 12, 0))));
 
 		restDocGiven().get("/api/v1/blocks/my")
 			.then()

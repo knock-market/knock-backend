@@ -11,8 +11,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
-@Table(name = "member_block", uniqueConstraints = {
-		@UniqueConstraint(columnNames = { "blocker_id", "blocked_id" }) })
+@Table(name = "member_block", uniqueConstraints = { @UniqueConstraint(columnNames = { "blocker_id", "blocked_id" }) })
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE member_block SET deleted_at = NOW() WHERE id = ?")

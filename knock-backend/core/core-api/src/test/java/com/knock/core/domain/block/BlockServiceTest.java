@@ -96,14 +96,16 @@ class BlockServiceTest {
 	@Test
 	@DisplayName("자기 자신 차단은 실패한다")
 	void blockMember_failSelfBlock() {
-		assertThatThrownBy(() -> blockService.blockMember(TEST_MEMBER_ID, TEST_MEMBER_ID)).isInstanceOf(CoreException.class)
+		assertThatThrownBy(() -> blockService.blockMember(TEST_MEMBER_ID, TEST_MEMBER_ID))
+			.isInstanceOf(CoreException.class)
 			.hasFieldOrPropertyWithValue("errorType", ErrorType.SELF_BLOCK_NOT_ALLOWED);
 	}
 
 	@Test
 	@DisplayName("차단 해제는 소유자에게 멱등적으로 동작한다")
 	void unblockMember_success() {
-		MemberBlock existing = MemberBlock.create(createMember(TEST_MEMBER_ID), createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2));
+		MemberBlock existing = MemberBlock.create(createMember(TEST_MEMBER_ID),
+				createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2));
 		given(memberBlockRepository.findActiveByBlockerAndBlocked(TEST_MEMBER_ID, TEST_MEMBER_ID_2))
 			.willReturn(Optional.of(existing));
 
@@ -115,7 +117,8 @@ class BlockServiceTest {
 	@Test
 	@DisplayName("내 차단 목록 조회")
 	void getMyBlocks_success() {
-		MemberBlock block = MemberBlock.create(createMember(TEST_MEMBER_ID), createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2));
+		MemberBlock block = MemberBlock.create(createMember(TEST_MEMBER_ID),
+				createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2));
 		given(memberBlockRepository.findAllActiveByBlockerId(TEST_MEMBER_ID)).willReturn(List.of(block));
 
 		List<BlockResult> results = blockService.getMyBlocks(TEST_MEMBER_ID);
