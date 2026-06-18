@@ -15,14 +15,6 @@ sonar {
     properties {
         property("sonar.projectKey", "knock-market_knock-backend")
         property("sonar.organization", "knock-market")
-        property(
-            "sonar.coverage.jacoco.xmlReportPaths",
-            subprojects
-                .filter { it.file("src/test").exists() }
-                .joinToString(",") {
-                    it.layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml").get().asFile.absolutePath
-                }
-        )
     }
 }
 
@@ -117,6 +109,17 @@ subprojects {
         reports {
             xml.required.set(true)
             html.required.set(true)
+        }
+    }
+
+    if (file("src/test").exists()) {
+        sonar {
+            properties {
+                property(
+                    "sonar.coverage.jacoco.xmlReportPaths",
+                    layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml").get().asFile.absolutePath
+                )
+            }
         }
     }
 
