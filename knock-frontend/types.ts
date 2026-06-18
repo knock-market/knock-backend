@@ -143,6 +143,34 @@ export interface BookmarkToggleResponseDto {
   toggleOn: boolean;
 }
 
+
+export type ReportTargetType = 'MEMBER' | 'ITEM' | 'RESERVATION' | 'REVIEW';
+
+export type ReportReason =
+  | 'PROHIBITED_ITEM'
+  | 'SUSPECTED_FRAUD'
+  | 'OFF_PLATFORM_PAYMENT'
+  | 'PERSONAL_INFO_OR_CODE_REQUEST'
+  | 'HARASSMENT_OR_THREAT'
+  | 'NO_SHOW'
+  | 'COUNTERFEIT_OR_STOLEN_SUSPECTED'
+  | 'OTHER';
+
+export type ReportStatus = 'RECEIVED' | 'REVIEWING' | 'RESOLVED' | 'DISMISSED';
+
+export interface ReportCreateRequestDto {
+  targetType: ReportTargetType;
+  targetId: number;
+  reason: ReportReason;
+  description?: string;
+}
+
+export interface ReportResponseDto {
+  reportId: number;
+  status: ReportStatus;
+  createdAt?: string;
+}
+
 export interface ReservationCreateResponseDto {
   reservationId: number;
 }

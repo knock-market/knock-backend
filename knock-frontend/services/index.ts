@@ -14,6 +14,8 @@ import {
     NotificationSettingsResponseDto,
     ReservationCreateResponseDto,
     ReservationResponseDto,
+    ReportCreateRequestDto,
+    ReportResponseDto,
     SellerShareLinkResponseDto,
     SellerShareLinkSummaryResponseDto,
     SellerShopResponseDto,
@@ -103,6 +105,12 @@ export const reservationsApi = {
     approve: (id: number) => patch<void>(`/reservations/${id}/approve`),
     complete: (id: number) => patch<void>(`/reservations/${id}/complete`),
     cancel: (id: number) => patch<void>(`/reservations/${id}/cancel`),
+};
+
+
+// ============== Report API ==============
+export const reportsApi = {
+    create: (data: ReportCreateRequestDto) => post<ReportResponseDto, ReportCreateRequestDto>('/reports', data),
 };
 
 // ============== Notification API ==============

@@ -81,7 +81,11 @@ class ReportControllerTest extends RestDocsTest {
 		ReportCreateRequestDto request = new ReportCreateRequestDto(ReportTargetType.ITEM, 0L,
 				ReportReason.PROHIBITED_ITEM, null);
 
-		restDocGiven().contentType(ContentType.JSON).body(request).post("/api/v1/reports").then().status(HttpStatus.BAD_REQUEST);
+		restDocGiven().contentType(ContentType.JSON)
+			.body(request)
+			.post("/api/v1/reports")
+			.then()
+			.status(HttpStatus.BAD_REQUEST);
 
 		verifyNoInteractions(reportService);
 	}
