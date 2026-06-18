@@ -1,6 +1,6 @@
 # Knock Technical Reference
 
-업데이트 기준: 2026-06-16
+업데이트 기준: 2026-06-18
 상태: technical/API/module reference source of truth
 
 이 문서는 Knock의 API 요약, 백엔드 모듈 구조, 레이어/DTO/테스트 기준을 모은 기술 참조다. 제품 요구사항은 `docs/SPEC.md`, 개발 관행은 `docs/PRACTICES.md`, 운영 절차는 `docs/RUNBOOK.md`를 따른다.
@@ -59,10 +59,13 @@ Google OAuth의 `next`는 `/start` 요청에서 받은 값을 세션에 저장�
 | GET | `/api/v1/items/manage/{itemId}` | 판매자 관리 화면용 상품 상세 | ✅ |
 | GET | `/api/v1/items/my-selling` | 내 판매 상품 목록 | ✅ |
 | DELETE | `/api/v1/items/{itemId}` | 내 상품 삭제, 활성 예약 자동 취소 | ✅ |
+| POST | `/api/v1/item-policy/warnings` | 상품 등록 전 금지 품목 warning preflight | P0 |
 
-상품 등록에는 `title`, `description`, `price`, `itemType`, `imageUrls`, `tradeLocationName`, `tradeLocationAddress`, `tradeLatitude`, `tradeLongitude`가 필요하다. 위도 범위는 `-90..90`, 경도 범위는 `-180..180`이다. 상품 상세 URL은 `/item/{publicId}`를 사용한다.
+상품 등록에는 `title`, `description`, `price`, `itemType`, `imageUrls`, `tradeLocationName`, `tradeLocationAddress`, `tradeLatitude`, `tradeLongitude`가 필요하다. 위도 범위는 `-90..90`, 경도 범위는 `-180..180`이다. 상품 상세 URL은 `/item/{publicId}`를 사용한다. 금지 품목 안내는 item create 응답을 변경하지 않고 `POST /api/v1/item-policy/warnings` preflight로 처리한다.
 
 조회수는 Redis TTL 키로 30분 내 중복 조회를 방지한 뒤 증가한다. 판매자 본인 조회는 집계하지 않고, Redis 오류가 발생해도 상세 조회 응답은 유지한다.
+
+`POST /api/v1/item-policy/warnings` request body는 `title`, `description`, 선택 `itemType`을 받는다. response body는 `policyVersion`, `warningCategories[]`, `policyUrl`, `severity`, `message`를 반환한다. MVP `severity` 값은 `NONE` 또는 `WARNING`만 허용한다. `BLOCKING`은 법무/운영 ADR 전까지 사용하지 않는다. 서버 warning API가 정책 source of truth이며, preflight 실패 시 클라이언트는 hard block하지 않고 안전 안내 fallback 후 기존 `POST /api/v1/items`를 호출할 수 있어야 한다.
 
 ### Reservation / Bookmark / Notification / Review API
 
@@ -85,7 +88,23 @@ Google OAuth의 `next`는 `/start` 요청에서 받은 값을 세션에 저장�
 
 예약 신청 request body는 양수 `itemId`가 필수다. `itemId` 누락, `null`, `0`, 음수 값은 HTTP 경계에서 400 `VALIDATION_ERROR`로 차단한다.
 
-신고 생성 request body는 `targetType`(`MEMBER`, `ITEM`, `RESERVATION`, `REVIEW`), 양수 `targetId`, `reason`(`PROHIBITED_ITEM`, `SUSPECTED_FRAUD`, `OFF_PLATFORM_PAYMENT`, `PERSONAL_INFO_OR_CODE_REQUEST`, `HARASSMENT_OR_THREAT`, `NO_SHOW`, `COUNTERFEIT_OR_STOLEN_SUSPECTED`, `OTHER`)이 필수다. 중복 기준은 `(reporterId, targetType, targetId, reason)`이며 자기 자신 또는 본인 상품/후기 신고는 차단한다.
+### Trust & Safety API
+
+| 영역 | 주요 URI | 설명 | 상태 |
+|---|---|---|---|
+| Report | `POST /api/v1/reports` | 신고 생성 | P0 |
+| Report | `GET /api/v1/reports/my` | 내 신고 목록 | Future |
+| Block | `POST /api/v1/blocks/{memberId}` | 사용자 차단 | P0 |
+| Block | `DELETE /api/v1/blocks/{memberId}` | 사용자 차단 해제 | P0 |
+| Block | `GET /api/v1/blocks/my` | 내 차단 목록 | P0 |
+
+신고 request body는 `targetType`, `targetId`, `reason`, 선택 `description`이다. response body는 `reportId`, `status`, `createdAt`이다. MVP 중복 키는 `(reporterId, targetType, targetId, reason)`이고 `description`은 중복 키에서 제외한다. 같은 신고자가 같은 대상/사유를 반복 제출하면 기존 신고를 반환하거나 409를 반환하되 중복 row를 만들지 않는다.
+
+신고 사유 enum은 `PROHIBITED_ITEM`, `SUSPECTED_FRAUD`, `OFF_PLATFORM_PAYMENT`, `PERSONAL_INFO_OR_CODE_REQUEST`, `HARASSMENT_OR_THREAT`, `NO_SHOW`, `COUNTERFEIT_OR_STOLEN_SUSPECTED`, `OTHER`를 사용한다. 신고 대상은 user, item, reservation, review로 연결 가능해야 하며, 자기 자신 신고는 400 또는 도메인 오류로 차단한다. 신고자 정보, 비밀값, 세션, 원문 IP는 피신고자 API/알림/공개 응답에 노출하거나 저장하지 않는다.
+
+차단은 authenticated owner 기준 멱등 API다. 자기 자신 차단은 실패하고, 차단 해제는 차단 owner만 수행한다. 차단 상태는 공개 프로필/상품/매대 응답에 노출하지 않는다. MVP block matrix는 공개 home/item/seller/shop read를 허용하되 bookmark, reservation create, review create, 상대 알림을 발생시키는 새 상호작용을 서비스 유스케이스 경계에서 차단한다. 차단 전 생성된 예약은 권한자가 취소/완료 같은 안전한 정리를 수행할 수 있다. report는 block 관계와 별개로 허용한다.
+
+예약 상태 계약은 기존 `WAITING`, `APPROVED`, `COMPLETED`, `CANCELED`를 유지한다. `CANCELLED` 또는 `REJECTED` 상태를 추가하지 않는다. 판매자 거절은 P1에서 status=`CANCELED` + `rejectReason` metadata로 다루고, no-show는 `APPROVED` 예약의 수동 incident metadata로만 다룬다. 후기 API는 현재 `itemId` 기반 완료 거래 구매자→판매자 모델을 유지하며, 판매자→구매자 후기는 future `reservationId` + explicit `revieweeId` ADR 전까지 추가하지 않는다.
 
 ### Image / Location API
 
@@ -160,6 +179,7 @@ v1 JSON API 성공 응답은 `ApiResponse<T>`를 기본으로 한다. `/health` 
 - 예약 승인처럼 잠금 대상에서 누락된 엔티티는 즉시 예외로 처리한다.
 - 소프트 삭제와 연계된 도메인 상태 전이는 삭제 전에 명시적으로 처리한다.
 - 공개 조회 API를 추가할 때는 SecurityConfig permit rule과 개인정보 노출 필드를 함께 검토한다.
+- Trust & Safety API는 공개 조회와 인증 상호작용을 분리한다. 차단 상태와 신고 정보는 공개 응답 필드에 포함하지 않고, block check는 reservation/bookmark/review/notification 같은 서비스 유스케이스 경계에서 적용한다.
 - 비밀번호, 비밀키, 토큰, 외부 API credential은 로그와 응답에 노출하지 않는다.
 
 ## 5. 테스트와 Gradle 기준
@@ -196,6 +216,7 @@ Gradle Kotlin DSL 기준:
 - 상품 등록은 인증된 판매자의 개인 매대에 저장되며 `groupId`와 `category`를 받지 않는다.
 - 그룹 장터, 차단, 매너온도/평판 계산 스키마와 서비스는 주요 코드 경로에서 제거됐다.
 - 예약 승인 시 `FOR UPDATE` 조회 대상 누락을 예외 처리한다.
+- Trust & Safety P0는 report duplicate policy, block idempotency/self-block rejection, item-policy warning severity(`NONE`/`WARNING`), block matrix 상호작용 차단을 REST Docs와 테스트로 고정한다.
 - 상품 삭제 시 활성 예약을 자동 취소한 뒤 소프트 삭제한다.
 - 프론트는 `/seller/:memberId`, `/shop/:token`, Naver Map 기반 거래 위치 입력, UUID `publicId` 공개 상세를 지원한다.
 

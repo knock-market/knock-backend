@@ -1,6 +1,6 @@
 # Knock Product Specification
 
-업데이트 기준: 2026-06-15
+업데이트 기준: 2026-06-18
 상태: active product requirements source of truth
 
 이 문서는 Knock Market의 제품 정의, 활성 요구사항, 우선순위, 수용 기준을 관리하는 단일 기준 문서다. 이전 요구사항/작업 추적 문서의 유효한 내용은 이 문서로 통합했고, 이미 해결된 작업 추적 항목은 active queue에서 제거했다.
@@ -26,7 +26,7 @@ Knock Market은 그룹형 중고거래 장터에서 개인 판매자가 자신�
 
 - 이 문서 작업에서 기능 코드를 변경하지 않는다.
 - 외부 OAuth, Naver, S3 실서비스 호출을 수행하지 않는다.
-- 그룹/차단/평판/카테고리 중심 모델을 active 제품 흐름으로 되돌리지 않는다.
+- 과거 그룹/평판/카테고리 중심 모델을 active 제품 흐름으로 되돌리지 않는다. 단, P0 Trust & Safety의 사용자 차단은 과거 평판/그룹 모델이 아니라 상호작용 제한 안전장치로 새로 정의한다.
 
 ### 제약
 
@@ -34,6 +34,7 @@ Knock Market은 그룹형 중고거래 장터에서 개인 판매자가 자신�
 - 공개 API는 판매자 공개 프로필, 상품 공개 정보, 거래 위치처럼 의도된 공개 필드만 반환해야 한다.
 - 시간 계산은 서버 기본 타임존에 암묵적으로 의존하지 않는다.
 - API 변경 시 `docs/REFERENCE.md`, REST Docs, 관련 테스트를 함께 갱신한다.
+- Trust & Safety P0는 공개 조회와 인증 상호작용 경계를 분리하고, 신고/차단/정책 데이터에 비밀값·원문 IP·불필요한 개인정보를 저장하지 않는다.
 
 ## 2. 현재 제품 정의
 
@@ -62,7 +63,8 @@ Knock Market은 개인 판매자가 자신의 판매 매대를 만들고, 지인
 - 개인 매대/공유 링크: 공유 링크 생성, 최신 링크 0~1개 조회, 중단, click/use count가 구현되어 있다.
 - 상품: `publicId`, 판매자 공개 프로필, 거래 위치 필드, Naver Map UI/검색 연동이 반영되어 있다.
 - 예약/알림: 예약 생성/승인/완료/취소와 거래 이벤트 알림 경로가 구현되어 있다.
-- 제거 완료: 그룹, 차단, 평판/매너온도, 상품 카테고리 중심 모델은 주요 코드 경로에서 제거되어 있다.
+- Trust & Safety P0: 신고/차단/금지 품목 preflight warning/안전 거래 안내는 신규 P0 계약으로 정의한다. 기존 상품 등록 성공 응답은 변경하지 않고, 금지 품목 안내는 `POST /api/v1/item-policy/warnings` preflight를 source of truth로 사용한다.
+- 제거 완료: 그룹, 평판/매너온도, 상품 카테고리 중심 모델은 주요 코드 경로에서 제거되어 있다. 과거 차단 모델은 복구하지 않고 P0 사용자 차단 정책으로 새로 정의한다.
 - 품질 보강 완료: 공개 홈 인증 정책, 조회수 중복 방지, 공유 링크 KST Clock 정책, DTO 의존 정리, 예약 생성 입력 검증, 문서 최신화가 반영되어 있다.
 
 ## 3. 제품 원칙
@@ -72,8 +74,41 @@ Knock Market은 개인 판매자가 자신의 판매 매대를 만들고, 지인
 - 거래 의사 표현은 가볍게 시작하고, 실제 예약/거래 상태 변경은 인증 후 수행한다.
 - 판매자에게는 공유 성과와 다음 행동이 명확해야 한다.
 - 지도/픽업 위치는 거래 신뢰를 높이는 핵심 정보다.
+- 안전 기능은 먼저 안내하고, 필요한 경우에만 상호작용을 제한한다. 신고/차단/정책 warning은 공개 응답에 상대의 안전 상태나 신고 정보를 누설하지 않는다.
 
 ## 4. 활성 요구사항과 우선순위
+
+### P0. Trust & Safety MVP
+
+목표: 신고, 사용자 차단, 금지 품목 사전 안내, 안전 거래 체크리스트를 MVP 거래 흐름에 추가해 사용자가 위험을 빠르게 줄이고 안전한 만남을 준비할 수 있게 한다.
+
+결정:
+
+- 신고와 차단은 인증 사용자 기능이다. 신고는 운영 검토 입력이고, 차단은 공개 정보 은닉이 아니라 거래·알림성 상호작용 제한이다.
+- 금지 품목 안내는 상품 등록 성공 응답을 변경하지 않는다. 프론트는 submit 직전 `POST /api/v1/item-policy/warnings`를 호출하고, warning이 있거나 preflight가 실패하면 안내 후 사용자가 계속 진행할 수 있게 한다.
+- 예약/픽업 위치 UX에는 공개 장소, 낮 시간, 물건 확인 후 결제, 사전 송금 금지, 앱 밖 연락처·인증코드·외부 결제 유도 주의 문구를 행동 가능한 체크리스트로 표시한다.
+- 예약 상태는 기존 `CANCELED`만 사용한다. `CANCELLED` 또는 `REJECTED` 상태를 추가하지 않는다. 판매자 거절/취소/노쇼 사유는 P1 metadata로 분리한다.
+- 후기 MVP는 현재 Review API 계약을 유지해 완료 거래 구매자→판매자만 허용한다. 판매자→구매자 후기는 future ADR 후 별도 API로 다룬다.
+
+수용 기준:
+
+- 신고 API는 `targetType`, `targetId`, `reason`, 선택 `description`을 받고 `reportId`, `status`, `createdAt`을 반환한다. 중복 기준은 `(reporterId, targetType, targetId, reason)`이며 `description`은 unique key에 포함하지 않는다.
+- 신고 사유는 `PROHIBITED_ITEM`, `SUSPECTED_FRAUD`, `OFF_PLATFORM_PAYMENT`, `PERSONAL_INFO_OR_CODE_REQUEST`, `HARASSMENT_OR_THREAT`, `NO_SHOW`, `COUNTERFEIT_OR_STOLEN_SUSPECTED`, `OTHER`를 지원한다.
+- 자기 자신 신고/차단은 실패한다. 신고자 정보와 차단 상태는 상대 공개 프로필, 상품 상세, 알림 응답에 노출하지 않는다.
+- 차단은 멱등적이며 owner만 해제할 수 있다. 차단 관계에서도 공개 home/item/seller/shop 조회는 허용하되 bookmark, reservation create, review create, 상대 알림을 만드는 새 상호작용은 서비스 유스케이스 경계에서 차단한다.
+- `POST /api/v1/item-policy/warnings` 응답은 `policyVersion`, `warningCategories[]`, `policyUrl`, `severity`, `message`를 포함한다. MVP severity는 `NONE` 또는 `WARNING`만 사용하고 `BLOCKING`은 future ADR 전까지 사용하지 않는다.
+- warning source of truth는 서버 preflight API다. 클라이언트 detector가 있더라도 advisory일 뿐이며 policyVersion drift 시 서버 응답을 우선한다.
+- preflight 네트워크/서버 오류는 상품 등록을 hard block하지 않는다. 일반 안전 안내 fallback을 표시하고 사용자가 계속 진행할 수 있게 한다.
+- 안전 거래 안내는 예약 확인 모달과 픽업 위치 확인 맥락에서 CTA를 가리지 않고 모바일/키보드/스크린리더로 읽을 수 있어야 한다.
+
+검증:
+
+- 신고: 인증 필요, 자기 자신 신고 실패, 중복 policy, 긴 description/HTML/script 안전 저장 또는 검증, 존재하지 않는 target 오류, 피신고자 정보 비노출.
+- 차단: 반복 차단 멱등성, owner 해제, 공개 조회 허용과 block 상태 비노출, bookmark/reservation/review/notification 상호작용 차단.
+- 금지 품목 warning: title/description keyword warning, 정상 상품 `NONE`, warning 확인 후 기존 item create 호출, preflight 실패 fallback, policyVersion/URL/message 렌더링.
+- 안전 거래 UX: 예약 전 체크리스트, 픽업 위치 안내, 모바일 폭, 키보드/스크린리더 접근성.
+
+지표: 신고 제출 성공률, 중복 신고 비율, 차단 후 예약/후기 차단 오류율, warning 확인 후 등록 전환율, 예약 모달 안전 안내 노출률.
 
 ### P1. 관심 있어요 UX
 
@@ -164,6 +199,7 @@ Knock Market은 개인 판매자가 자신의 판매 매대를 만들고, 지인
 
 | 우선순위 | 작업 | 산출물 | 성공 기준 |
 |---|---|---|---|
+| P0 | Trust & Safety MVP | 신고/차단/API warning/안전 거래 안내 | 공개 조회 비누설 + 인증 상호작용 제한 검증 |
 | P1 | 관심 UX 실험 | 관심/북마크 기반 UI/API 개선 | 관심→예약 전환 측정 가능 |
 | P1 | 공유 링크 분석 확장 | 이벤트/집계/판매자 화면 | 링크→상세→관심→예약 퍼널 확인 |
 | P1 | 공개 매대 품질 | 셀러 소개/필터/빈 상태 | 공유 진입 후 상품 상세 클릭률 개선 |
@@ -172,7 +208,7 @@ Knock Market은 개인 판매자가 자신의 판매 매대를 만들고, 지인
 
 ## 6. UserFlow QA 기준
 
-릴리스 후보마다 프론트/백엔드 실행 후 공개 홈(`/#/home`), 공개 상세(`/#/item/{publicId}`), 로그인 리다이렉트(`/#/login?next=...`), 판매자 매대(`/#/seller/{memberId}`), 공유 링크(`/#/shop/{token}`), 상품 등록, 예약 생성/승인/완료/알림 흐름을 확인한다.
+릴리스 후보마다 프론트/백엔드 실행 후 공개 홈(`/#/home`), 공개 상세(`/#/item/{publicId}`), 로그인 리다이렉트(`/#/login?next=...`), 판매자 매대(`/#/seller/{memberId}`), 공유 링크(`/#/shop/{token}`), 상품 등록, 예약 생성/승인/완료/알림 흐름을 확인한다. Trust & Safety 릴리스 후보는 여기에 상품 등록 preflight warning, 신고 제출, 신고 후 차단 CTA, 차단 관계 예약/후기 제한, 예약 안전 거래 안내 확인을 추가한다.
 
 ## 7. 결정 이력과 보존 맥락
 
@@ -180,6 +216,7 @@ Knock Market은 개인 판매자가 자신의 판매 매대를 만들고, 지인
 - 2026-05-27: 상품은 판매자 개인(`member_id`) 매대에 속하고, 상품 상세 URL은 공개 식별자(`publicId`)를 사용하도록 정리했다.
 - 2026-06-02: 기술 실현 가능성은 높다. 주요 리스크는 모듈 부재가 아니라 Naver/S3 런타임 설정, 공개/인증 경계, manual/generated API 문서 drift다.
 - 2026-06-15: 요구사항 문서를 `SPEC.md`로 통합하고, 이전 문서 통합 작업 자체는 완료된 항목으로 active queue에서 제거했다.
+- 2026-06-18: Trust & Safety P0 계약을 신고/차단/금지 품목 warning preflight/안전 거래 안내로 확정했다. 공개 조회는 유지하고 상호작용만 차단하며, `CANCELED` 외 예약 상태와 판매자→구매자 후기 API는 future scope로 보존한다.
 
 ## 8. Retired / resolved summary
 
