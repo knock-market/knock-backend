@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AlertCircle, ArrowLeft, CheckCircle, Clock, Flag, Heart, MapPin, Share } from 'lucide-react';
-import { bookmarksApi, itemsApi, reportsApi, reservationsApi } from '../services';
+import { blocksApi, bookmarksApi, itemsApi, reportsApi, reservationsApi } from '../services';
 import { ItemDetailSkeleton } from '../components/Skeletons';
 import ImageWithFallback from '../components/ImageWithFallback';
 import NaverMap from '../components/NaverMap';
@@ -46,9 +46,11 @@ const ItemDetail = () => {
   const [reportReason, setReportReason] = useState<ReportReason>('PROHIBITED_ITEM');
   const [reportDescription, setReportDescription] = useState('');
   const [reportNotice, setReportNotice] = useState('');
+  const [blockNotice, setBlockNotice] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isReportSubmitting, setIsReportSubmitting] = useState(false);
+  const [isBlockSubmitting, setIsBlockSubmitting] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -192,6 +194,26 @@ const ItemDetail = () => {
     }
   };
 
+  const blockSeller = async () => {
+    if (!item?.writerId) return;
+
+    setIsBlockSubmitting(true);
+    setBlockNotice('');
+    try {
+      await blocksApi.block(item.writerId);
+      setBlockNotice('Seller blocked. Public pages stay visible, but new reservations, bookmarks, reviews, and notifications are restricted.');
+    } catch (error) {
+      if (isAuthError(error)) {
+        navigate(`/login?next=${encodeURIComponent(`/item/${itemPublicId}`)}`);
+        return;
+      }
+      const message = error instanceof Error ? error.message : 'Failed to block seller.';
+      setBlockNotice(message);
+    } finally {
+      setIsBlockSubmitting(false);
+    }
+  };
+
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -330,8 +352,23 @@ const ItemDetail = () => {
                 {reportNotice}
               </p>
             )}
+            {blockNotice && (
+              <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs font-semibold text-red-700">
+                {blockNotice}
+              </p>
+            )}
 
-            <div className="mt-5 flex space-x-3">
+            <div className="mt-5 space-y-3">
+              {item.writerId && (
+                <button
+                  onClick={blockSeller}
+                  disabled={isBlockSubmitting}
+                  className="w-full py-3 border border-red-200 text-red-700 font-bold rounded-lg hover:bg-red-50 transition-colors disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-red-700"
+                >
+                  {isBlockSubmitting ? 'Blocking...' : 'Block seller'}
+                </button>
+              )}
+              <div className="flex space-x-3">
               <button
                 onClick={() => setShowReportModal(false)}
                 className="flex-1 py-3 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition-colors focus-visible:ring-2 focus-visible:ring-gray-500"
@@ -345,6 +382,7 @@ const ItemDetail = () => {
               >
                 {isReportSubmitting ? 'Submitting...' : 'Submit'}
               </button>
+              </div>
             </div>
           </div>
         </div>
@@ -422,7 +460,7 @@ const ItemDetail = () => {
             className="mt-4 inline-flex items-center space-x-2 text-sm font-semibold text-red-600 hover:text-red-700 focus-visible:ring-2 focus-visible:ring-red-500 rounded-md"
           >
             <Flag size={16} />
-            <span>Report item</span>
+            <span>Report item or block seller</span>
           </button>
         </div>
       </div>

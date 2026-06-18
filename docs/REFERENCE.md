@@ -80,6 +80,9 @@ Google OAuth의 `next`는 `/start` 요청에서 받은 값을 세션에 저장�
 | Reservation | `GET /api/v1/items/{itemId}/reservations` | 상품별 예약 목록 | ✅ |
 | Reservation | `GET /api/v1/reservations/my` | 내 예약 내역 | ✅ |
 | Report | `POST /api/v1/reports` | 상품/회원/예약/후기 신고 접수 | ✅ |
+| Block | `POST /api/v1/blocks/{memberId}` | 사용자 차단 | ✅ |
+| Block | `DELETE /api/v1/blocks/{memberId}` | 사용자 차단 해제 | ✅ |
+| Block | `GET /api/v1/blocks/my` | 내 차단 목록 조회 | ✅ |
 | Notification | `GET /api/v1/notifications` | 알림 목록 | ✅ |
 | Notification | `PATCH /api/v1/notifications/{id}/read` | 알림 읽음 처리 | ✅ |
 | Notification | `PATCH /api/v1/notifications/read-all` | 전체 읽음 처리 | ✅ |
@@ -105,6 +108,8 @@ Google OAuth의 `next`는 `/start` 요청에서 받은 값을 세션에 저장�
 차단은 authenticated owner 기준 멱등 API다. 자기 자신 차단은 실패하고, 차단 해제는 차단 owner만 수행한다. 차단 상태는 공개 프로필/상품/매대 응답에 노출하지 않는다. MVP block matrix는 공개 home/item/seller/shop read를 허용하되 bookmark, reservation create, review create, 상대 알림을 발생시키는 새 상호작용을 서비스 유스케이스 경계에서 차단한다. 차단 전 생성된 예약은 권한자가 취소/완료 같은 안전한 정리를 수행할 수 있다. report는 block 관계와 별개로 허용한다.
 
 예약 상태 계약은 기존 `WAITING`, `APPROVED`, `COMPLETED`, `CANCELED`를 유지한다. `CANCELLED` 또는 `REJECTED` 상태를 추가하지 않는다. 판매자 거절은 P1에서 status=`CANCELED` + `rejectReason` metadata로 다루고, no-show는 `APPROVED` 예약의 수동 incident metadata로만 다룬다. 후기 API는 현재 `itemId` 기반 완료 거래 구매자→판매자 모델을 유지하며, 판매자→구매자 후기는 future `reservationId` + explicit `revieweeId` ADR 전까지 추가하지 않는다.
+
+차단 MVP는 공개 조회를 막지 않고 상호작용만 제한한다. 차단 관계에서는 새 예약, 북마크/관심, 후기 생성이 `BLOCKED_INTERACTION`으로 차단되고 상대 알림을 생성하지 않는다. 차단 생성은 멱등적이며 차단 해제도 owner 기준으로 멱등 처리한다.
 
 ### Image / Location API
 
