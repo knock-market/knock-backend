@@ -88,7 +88,23 @@ Google OAuth의 `next`는 `/start` 요청에서 받은 값을 세션에 저장�
 
 예약 신청 request body는 양수 `itemId`가 필수다. `itemId` 누락, `null`, `0`, 음수 값은 HTTP 경계에서 400 `VALIDATION_ERROR`로 차단한다.
 
-신고 생성 request body는 `targetType`(`MEMBER`, `ITEM`, `RESERVATION`, `REVIEW`), 양수 `targetId`, `reason`(`PROHIBITED_ITEM`, `SUSPECTED_FRAUD`, `OFF_PLATFORM_PAYMENT`, `PERSONAL_INFO_OR_CODE_REQUEST`, `HARASSMENT_OR_THREAT`, `NO_SHOW`, `COUNTERFEIT_OR_STOLEN_SUSPECTED`, `OTHER`)이 필수다. 중복 기준은 `(reporterId, targetType, targetId, reason)`이며 자기 자신 또는 본인 상품/후기 신고는 차단한다.
+### Trust & Safety API
+
+| 영역 | 주요 URI | 설명 | 상태 |
+|---|---|---|---|
+| Report | `POST /api/v1/reports` | 신고 생성 | P0 |
+| Report | `GET /api/v1/reports/my` | 내 신고 목록 | Future |
+| Block | `POST /api/v1/blocks/{memberId}` | 사용자 차단 | P0 |
+| Block | `DELETE /api/v1/blocks/{memberId}` | 사용자 차단 해제 | P0 |
+| Block | `GET /api/v1/blocks/my` | 내 차단 목록 | P0 |
+
+신고 request body는 `targetType`, `targetId`, `reason`, 선택 `description`이다. response body는 `reportId`, `status`, `createdAt`이다. MVP 중복 키는 `(reporterId, targetType, targetId, reason)`이고 `description`은 중복 키에서 제외한다. 같은 신고자가 같은 대상/사유를 반복 제출하면 기존 신고를 반환하거나 409를 반환하되 중복 row를 만들지 않는다.
+
+신고 사유 enum은 `PROHIBITED_ITEM`, `SUSPECTED_FRAUD`, `OFF_PLATFORM_PAYMENT`, `PERSONAL_INFO_OR_CODE_REQUEST`, `HARASSMENT_OR_THREAT`, `NO_SHOW`, `COUNTERFEIT_OR_STOLEN_SUSPECTED`, `OTHER`를 사용한다. 신고 대상은 user, item, reservation, review로 연결 가능해야 하며, 자기 자신 신고는 400 또는 도메인 오류로 차단한다. 신고자 정보, 비밀값, 세션, 원문 IP는 피신고자 API/알림/공개 응답에 노출하거나 저장하지 않는다.
+
+차단은 authenticated owner 기준 멱등 API다. 자기 자신 차단은 실패하고, 차단 해제는 차단 owner만 수행한다. 차단 상태는 공개 프로필/상품/매대 응답에 노출하지 않는다. MVP block matrix는 공개 home/item/seller/shop read를 허용하되 bookmark, reservation create, review create, 상대 알림을 발생시키는 새 상호작용을 서비스 유스케이스 경계에서 차단한다. 차단 전 생성된 예약은 권한자가 취소/완료 같은 안전한 정리를 수행할 수 있다. report는 block 관계와 별개로 허용한다.
+
+예약 상태 계약은 기존 `WAITING`, `APPROVED`, `COMPLETED`, `CANCELED`를 유지한다. `CANCELLED` 또는 `REJECTED` 상태를 추가하지 않는다. 판매자 거절은 P1에서 status=`CANCELED` + `rejectReason` metadata로 다루고, no-show는 `APPROVED` 예약의 수동 incident metadata로만 다룬다. 후기 API는 현재 `itemId` 기반 완료 거래 구매자→판매자 모델을 유지하며, 판매자→구매자 후기는 future `reservationId` + explicit `revieweeId` ADR 전까지 추가하지 않는다.
 
 ### Image / Location API
 
