@@ -2,8 +2,10 @@ package com.knock.core.api.controller.v1;
 
 import com.knock.auth.MemberPrincipal;
 import com.knock.core.api.controller.v1.request.ItemCreateRequestDto;
+import com.knock.core.api.controller.v1.request.ItemListRequestDto;
 import com.knock.core.api.controller.v1.response.ItemResponseDto;
 import com.knock.core.api.controller.v1.response.ItemSummaryResponseDto;
+import com.knock.core.api.controller.v1.response.MySellingItemSummaryResponseDto;
 import com.knock.core.domain.item.ItemService;
 import com.knock.core.domain.item.dto.ItemCreateData;
 import com.knock.core.domain.item.dto.ItemCreateResult;
@@ -52,22 +54,26 @@ public class ItemController {
 	}
 
 	@GetMapping("/api/v1/items")
-	public ApiResponse<List<ItemSummaryResponseDto>> getMarketplaceItems() {
-		List<ItemListResult> results = itemService.getMarketplaceItems();
+	public ApiResponse<List<ItemSummaryResponseDto>> getMarketplaceItems(@ModelAttribute ItemListRequestDto request) {
+		List<ItemListResult> results = itemService.getMarketplaceItems(request.toQuery());
 		List<ItemSummaryResponseDto> response = results.stream().map(ItemSummaryResponseDto::from).toList();
 		return ApiResponse.success(response);
 	}
 
 	@GetMapping("/api/v1/items/my-selling")
-	public ApiResponse<List<ItemSummaryResponseDto>> getMySelling(@AuthenticationPrincipal MemberPrincipal principal) {
+	public ApiResponse<List<MySellingItemSummaryResponseDto>> getMySelling(
+			@AuthenticationPrincipal MemberPrincipal principal) {
 		List<ItemListResult> results = itemService.getMySellingItems(principal.getMemberId());
-		List<ItemSummaryResponseDto> response = results.stream().map(ItemSummaryResponseDto::from).toList();
+		List<MySellingItemSummaryResponseDto> response = results.stream()
+			.map(MySellingItemSummaryResponseDto::from)
+			.toList();
 		return ApiResponse.success(response);
 	}
 
 	@GetMapping("/api/v1/members/{memberId}/items")
-	public ApiResponse<List<ItemSummaryResponseDto>> getSellingItemsByMember(@PathVariable Long memberId) {
-		List<ItemListResult> results = itemService.getSellingItemsByMember(memberId);
+	public ApiResponse<List<ItemSummaryResponseDto>> getSellingItemsByMember(@PathVariable Long memberId,
+			@ModelAttribute ItemListRequestDto request) {
+		List<ItemListResult> results = itemService.getSellingItemsByMember(memberId, request.toQuery());
 		List<ItemSummaryResponseDto> response = results.stream().map(ItemSummaryResponseDto::from).toList();
 		return ApiResponse.success(response);
 	}

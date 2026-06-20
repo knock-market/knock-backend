@@ -1,12 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, Store } from 'lucide-react';
 import ImageWithFallback from '../components/ImageWithFallback';
+import ListingFilterBar from '../components/ListingFilterBar';
+import ListingPagination from '../components/ListingPagination';
 import { authApi, itemsApi } from '../services';
 import { ItemStatus, ItemSummaryResponseDto, ItemType, MemberResponseDto } from '../types';
+import {
+  hasActiveListingFilters,
+  ListingFilters,
+  readListingFilters,
+  toListingQueryParams,
+  toSearchParams,
+} from '../utils/listingFilters';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filters = readListingFilters(searchParams);
+  const activeFilters = hasActiveListingFilters(filters);
   const [items, setItems] = useState<ItemSummaryResponseDto[]>([]);
   const [me, setMe] = useState<MemberResponseDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -15,7 +27,7 @@ const Home: React.FC = () => {
     const load = async () => {
       setIsLoading(true);
       const [marketItemsResult, memberResult] = await Promise.allSettled([
-        itemsApi.getMarketplaceItems(),
+        itemsApi.getMarketplaceItems(toListingQueryParams(filters)),
         authApi.getMe(),
       ]);
 
@@ -31,7 +43,11 @@ const Home: React.FC = () => {
     };
 
     load();
-  }, []);
+  }, [searchParams]);
+
+  const applyFilters = (nextFilters: ListingFilters) => {
+    setSearchParams(toSearchParams({ ...nextFilters, page: 0 }));
+  };
 
   if (isLoading) {
     return <div className="min-h-screen bg-gray-50 flex items-center justify-center text-gray-500">Loading market...</div>;
@@ -66,6 +82,10 @@ const Home: React.FC = () => {
           </button>
         )}
       </header>
+
+      <section className="px-4 pt-4">
+        <ListingFilterBar filters={filters} onApply={applyFilters} />
+      </section>
 
       <main className="p-4 grid grid-cols-2 gap-4">
         {items.length > 0 ? (
@@ -105,11 +125,15 @@ const Home: React.FC = () => {
             </div>
             <h2 className="text-lg font-bold text-gray-900 mb-2">No shelves yet</h2>
             <p className="text-sm text-gray-500 max-w-[220px] mx-auto leading-relaxed">
-              List your first item and share your seller page.
+              {activeFilters ? 'No items match these filters. Try a broader search.' : 'List your first item and share your seller page.'}
             </p>
           </div>
         )}
       </main>
+
+      {items.length > 0 && (
+        <ListingPagination filters={filters} itemCount={items.length} onChange={setSearchParams} />
+      )}
     </div>
   );
 };

@@ -37,6 +37,7 @@ public class BookmarkService {
 			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 		Item item = itemRepository.findById(data.itemId())
 			.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
+		validateNotOwnItem(memberId, item);
 		blockService.validateInteractionAllowed(memberId, item.getMember().getId());
 
 		// 현재 북마크 상태 반환
@@ -53,6 +54,12 @@ public class BookmarkService {
 			bookmarkRepository.save(bookmark);
 			return true;
 		});
+	}
+
+	private void validateNotOwnItem(Long memberId, Item item) {
+		if (item.getMember().getId().equals(memberId)) {
+			throw new CoreException(ErrorType.VALIDATION_ERROR);
+		}
 	}
 
 	@Transactional(readOnly = true)

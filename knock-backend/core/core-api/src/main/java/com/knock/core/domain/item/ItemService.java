@@ -8,6 +8,7 @@ import com.knock.core.enums.ReservationStatus;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
 import com.knock.storage.db.core.item.Item;
+import com.knock.storage.db.core.item.ItemListQuery;
 import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
@@ -70,7 +71,7 @@ public class ItemService {
 
 	@Transactional(readOnly = true)
 	public List<ItemListResult> getMySellingItems(Long memberId) {
-		return itemRepository.findByMemberIdWithLikes(memberId).stream().map(row -> {
+		return itemRepository.findOwnerInventoryWithLikes(memberId).stream().map(row -> {
 			Item item = (Item) row[0];
 			String thumbnailUrl = (String) row[1];
 			long likesCount = (Long) row[2];
@@ -80,7 +81,12 @@ public class ItemService {
 
 	@Transactional(readOnly = true)
 	public List<ItemListResult> getMarketplaceItems() {
-		return itemRepository.findAllWithLikes().stream().map(row -> {
+		return getMarketplaceItems(ItemListQuery.defaultQuery());
+	}
+
+	@Transactional(readOnly = true)
+	public List<ItemListResult> getMarketplaceItems(ItemListQuery query) {
+		return itemRepository.findPublicListingsWithLikes(query).stream().map(row -> {
 			Item item = (Item) row[0];
 			String thumbnailUrl = (String) row[1];
 			long likesCount = (Long) row[2];
@@ -90,8 +96,13 @@ public class ItemService {
 
 	@Transactional(readOnly = true)
 	public List<ItemListResult> getSellingItemsByMember(Long memberId) {
+		return getSellingItemsByMember(memberId, ItemListQuery.defaultQuery());
+	}
+
+	@Transactional(readOnly = true)
+	public List<ItemListResult> getSellingItemsByMember(Long memberId, ItemListQuery query) {
 		memberRepository.findById(memberId).orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
-		return itemRepository.findByMemberIdWithLikes(memberId).stream().map(row -> {
+		return itemRepository.findPublicListingsByMemberIdWithLikes(memberId, query).stream().map(row -> {
 			Item item = (Item) row[0];
 			String thumbnailUrl = (String) row[1];
 			long likesCount = (Long) row[2];
@@ -103,8 +114,15 @@ public class ItemService {
 	public void deleteItem(Long memberId, Long itemId) {
 		Item item = itemRepository.findById(itemId).orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
 
+		validateItemOwner(memberId, item);
 		cancelActiveReservations(itemId);
 		itemRepository.delete(item);
+	}
+
+	private void validateItemOwner(Long memberId, Item item) {
+		if (!item.getMember().getId().equals(memberId)) {
+			throw new CoreException(ErrorType.FORBIDDEN);
+		}
 	}
 
 	private void cancelActiveReservations(Long itemId) {

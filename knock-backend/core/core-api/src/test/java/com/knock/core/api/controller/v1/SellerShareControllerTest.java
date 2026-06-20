@@ -1,6 +1,7 @@
 package com.knock.core.api.controller.v1;
 
 import com.knock.auth.MemberPrincipal;
+import com.knock.core.api.controller.v1.request.ItemListRequestDto;
 import com.knock.core.api.controller.v1.request.SellerShareLinkCreateRequestDto;
 import com.knock.core.api.controller.v1.response.SellerShareLinkResponseDto;
 import com.knock.core.api.controller.v1.response.SellerShareLinkSummaryResponseDto;
@@ -23,6 +24,8 @@ import java.util.List;
 
 import static com.knock.core.support.TestConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -62,10 +65,11 @@ class SellerShareControllerTest {
 		// given
 		SellerShopResult result = new SellerShopResult(TEST_MEMBER_ID, TEST_NAME, TEST_NICKNAME, TEST_IMAGE_URL,
 				List.of());
-		given(sellerShareService.getSellerShop(TEST_SELLER_SHARE_TOKEN)).willReturn(result);
+		given(sellerShareService.getSellerShop(eq(TEST_SELLER_SHARE_TOKEN), any())).willReturn(result);
 
 		// when
-		ApiResponse<SellerShopResponseDto> response = sellerShareController.getSellerShop(TEST_SELLER_SHARE_TOKEN);
+		ApiResponse<SellerShopResponseDto> response = sellerShareController.getSellerShop(TEST_SELLER_SHARE_TOKEN,
+				new ItemListRequestDto(null, null, null, null, null, null));
 
 		// then
 		SellerShopResponseDto data = (SellerShopResponseDto) response.getData();

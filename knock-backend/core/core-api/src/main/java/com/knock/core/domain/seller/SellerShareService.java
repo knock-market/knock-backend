@@ -8,6 +8,7 @@ import com.knock.core.enums.InviteDuration;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
 import com.knock.storage.db.core.item.Item;
+import com.knock.storage.db.core.item.ItemListQuery;
 import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
@@ -55,6 +56,11 @@ public class SellerShareService {
 
 	@Transactional
 	public SellerShopResult getSellerShop(String token) {
+		return getSellerShop(token, ItemListQuery.defaultQuery());
+	}
+
+	@Transactional
+	public SellerShopResult getSellerShop(String token, ItemListQuery query) {
 		SellerShareLink shareLink = sellerShareLinkRepository.findByTokenForUpdate(token)
 			.orElseThrow(() -> new CoreException(ErrorType.NOT_FOUND));
 		shareLink.recordClick();
@@ -63,7 +69,7 @@ public class SellerShareService {
 		}
 		shareLink.recordUse();
 		Member seller = shareLink.getMember();
-		List<ItemListResult> items = itemRepository.findByMemberIdWithLikes(seller.getId()).stream().map(row -> {
+		List<ItemListResult> items = itemRepository.findPublicListingsByMemberIdWithLikes(seller.getId(), query).stream().map(row -> {
 			Item item = (Item) row[0];
 			String thumbnailUrl = (String) row[1];
 			long likesCount = (Long) row[2];

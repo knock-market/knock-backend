@@ -23,6 +23,21 @@ export enum ItemStatus {
   SOLD = 'SOLD',
 }
 
+export type ItemListSort =
+  | 'LATEST'
+  | 'POPULAR'
+  | 'PRICE_ASC'
+  | 'PRICE_DESC';
+
+export interface ItemListQueryParams {
+  keyword?: string;
+  location?: string;
+  status?: ItemStatus;
+  sort?: ItemListSort;
+  page?: number;
+  size?: number;
+}
+
 export enum ReservationStatus {
   WAITING = 'WAITING',
   APPROVED = 'APPROVED',
@@ -61,6 +76,10 @@ export interface ItemSummaryResponseDto {
   tradeLocationAddress?: string;
   tradeLatitude?: number;
   tradeLongitude?: number;
+}
+
+export interface MySellingItemSummaryResponseDto extends ItemSummaryResponseDto {
+  viewCount?: number;
 }
 
 export interface SellerShareLinkResponseDto {
@@ -239,6 +258,7 @@ export interface ItemWithUI extends ItemSummaryResponseDto {
   description?: string;
   postedAtLabel?: string;
   isLiked?: boolean;
+  viewCount?: number;
   seller?: User;
   requesters?: User[];
 }

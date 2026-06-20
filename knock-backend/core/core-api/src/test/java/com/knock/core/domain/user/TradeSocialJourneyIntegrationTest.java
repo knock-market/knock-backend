@@ -126,8 +126,10 @@ class TradeSocialJourneyIntegrationTest extends ContextTest {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.data.toggleOn").value(false));
 
-		// 데모 모드에서는 제3자도 삭제 가능
-		mockMvc.perform(delete("/api/v1/items/{itemId}", itemId).cookie(strangerCookie)).andExpect(status().isOk());
+		// 제3자는 판매자 상품을 삭제할 수 없음
+		mockMvc.perform(delete("/api/v1/items/{itemId}", itemId).cookie(strangerCookie))
+			.andExpect(status().isForbidden())
+			.andExpect(jsonPath("$.error.code").value("E403"));
 	}
 
 	private void signUp(String email, String name, String password, String nickname) throws Exception {

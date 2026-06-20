@@ -1,6 +1,7 @@
 package com.knock.core.api.controller.v1;
 
 import com.knock.auth.MemberPrincipal;
+import com.knock.core.api.controller.v1.request.ItemListRequestDto;
 import com.knock.core.api.controller.v1.request.SellerShareLinkCreateRequestDto;
 import com.knock.core.api.controller.v1.response.SellerShareLinkResponseDto;
 import com.knock.core.api.controller.v1.response.SellerShareLinkSummaryResponseDto;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,8 +38,9 @@ public class SellerShareController {
 	}
 
 	@GetMapping("/api/v1/seller-shares/{token}")
-	public ApiResponse<SellerShopResponseDto> getSellerShop(@PathVariable String token) {
-		SellerShopResult result = sellerShareService.getSellerShop(token);
+	public ApiResponse<SellerShopResponseDto> getSellerShop(@PathVariable String token,
+			@ModelAttribute ItemListRequestDto request) {
+		SellerShopResult result = sellerShareService.getSellerShop(token, request.toQuery());
 		return ApiResponse.success(SellerShopResponseDto.from(result));
 	}
 

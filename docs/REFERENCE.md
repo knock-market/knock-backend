@@ -1,6 +1,6 @@
 # Knock Technical Reference
 
-업데이트 기준: 2026-06-18
+업데이트 기준: 2026-06-20
 상태: technical/API/module reference source of truth
 
 이 문서는 Knock의 API 요약, 백엔드 모듈 구조, 레이어/DTO/테스트 기준을 모은 기술 참조다. 제품 요구사항은 `docs/SPEC.md`, 개발 관행은 `docs/PRACTICES.md`, 운영 절차는 `docs/RUNBOOK.md`를 따른다.
@@ -41,11 +41,11 @@ Google OAuth의 `next`는 `/start` 요청에서 받은 값을 세션에 저장�
 | PUT | `/api/v1/members/my` | 내 정보 수정 | ✅ |
 | GET | `/api/v1/members/my/settings/notifications` | 알림 설정 조회 | ✅ |
 | PUT | `/api/v1/members/my/settings/notifications` | 알림 설정 수정 | ✅ |
-| GET | `/api/v1/members/{memberId}/items` | 특정 회원의 공개 판매 상품 목록 | ✅ |
+| GET | `/api/v1/members/{memberId}/items` | 특정 회원의 공개 판매 상품 목록, 탐색 query 지원 | ✅ |
 | POST | `/api/v1/seller-shares` | 내 판매 페이지 공유 링크 생성 | ✅ |
 | GET | `/api/v1/seller-shares/my` | 내 현재 공유 링크와 지표 조회 | ✅ |
 | DELETE | `/api/v1/seller-shares/{token}` | 공유 링크 중단 | ✅ |
-| GET | `/api/v1/seller-shares/{token}` | 공유 링크로 판매 페이지 조회 | ✅ |
+| GET | `/api/v1/seller-shares/{token}` | 공유 링크로 판매 페이지 조회, 탐색 query 지원 | ✅ |
 
 공유 링크 유효시간은 `ONE_HOUR`, `ONE_DAY`, `PERMANENT`만 사용한다. 새 공유 링크를 만들면 기존 링크는 비활성화되고, 조회 API는 최신 링크 0~1개를 반환한다.
 
@@ -53,15 +53,28 @@ Google OAuth의 `next`는 `/start` 요청에서 받은 값을 세션에 저장�
 
 | Method | URI | 설명 | 상태 |
 |---|---|---|---|
-| GET | `/api/v1/items` | 전체 마켓 상품 목록, 비로그인 가능 | ✅ |
+| GET | `/api/v1/items` | 전체 마켓 상품 목록, 비로그인 가능, 탐색 query 지원 | ✅ |
 | POST | `/api/v1/items` | 내 개인 매대에 상품 등록 | ✅ |
 | GET | `/api/v1/items/{itemPublicId}` | UUID 공개 식별자 기반 상품 상세, 비로그인 가능 | ✅ |
 | GET | `/api/v1/items/manage/{itemId}` | 판매자 관리 화면용 상품 상세 | ✅ |
-| GET | `/api/v1/items/my-selling` | 내 판매 상품 목록 | ✅ |
-| DELETE | `/api/v1/items/{itemId}` | 내 상품 삭제, 활성 예약 자동 취소 | ✅ |
+| GET | `/api/v1/items/my-selling` | 내 판매 상품 목록, 관심 수와 조회수 포함 | ✅ |
+| DELETE | `/api/v1/items/{itemId}` | 내 상품 삭제, owner check 후 활성 예약 자동 취소 | ✅ |
 | POST | `/api/v1/item-policy/warnings` | 상품 등록 전 금지 품목 warning preflight | P0 |
 
 상품 등록에는 `title`, `description`, `price`, `itemType`, `imageUrls`, `tradeLocationName`, `tradeLocationAddress`, `tradeLatitude`, `tradeLongitude`가 필요하다. 위도 범위는 `-90..90`, 경도 범위는 `-180..180`이다. 상품 상세 URL은 `/item/{publicId}`를 사용한다. 금지 품목 안내는 item create 응답을 변경하지 않고 `POST /api/v1/item-policy/warnings` preflight로 처리한다.
+
+목록 탐색 query는 `GET /api/v1/items`, `GET /api/v1/members/{memberId}/items`, `GET /api/v1/seller-shares/{token}`에 동일하게 적용한다.
+
+| Query | 정책 |
+|---|---|
+| `keyword` | `title`/`description` case-insensitive 부분 검색. trim 후 빈 값은 미적용, 100자 초과는 400 `VALIDATION_ERROR` |
+| `location` | `tradeLocationName`/`tradeLocationAddress` case-insensitive 부분 검색. trim 후 빈 값은 미적용, 100자 초과는 400 `VALIDATION_ERROR` |
+| `status` | `ON_SALE`, `RESERVED`, `SOLD`. 기본 `ON_SALE`, invalid 값은 400 `VALIDATION_ERROR` |
+| `sort` | `LATEST`, `POPULAR`, `PRICE_ASC`, `PRICE_DESC`. 기본 `LATEST` |
+| `page` | 0-base, 기본 0, 음수는 400 `VALIDATION_ERROR` |
+| `size` | 기본 20, 최대 50, 1 미만/50 초과는 400 `VALIDATION_ERROR` |
+
+정렬은 `LATEST = createdAt DESC, id DESC`, `POPULAR = likesCount DESC, createdAt DESC, id DESC`, `PRICE_ASC = price ASC, createdAt DESC, id DESC`, `PRICE_DESC = price DESC, createdAt DESC, id DESC`이다. v1 응답 envelope는 기존 list 형태를 유지하고 server-side paging만 적용한다. 공개 목록 응답(`items`, `members/{memberId}/items`, `seller-shares/{token}`)은 `viewCount`를 노출하지 않는다. 판매자 관리 목록(`/items/my-selling`)은 public listing 기본값(`status=ON_SALE`, `page=0`, `size=20`)을 상속하지 않고 전체 소유자 인벤토리의 `likesCount`와 `viewCount`를 함께 노출한다.
 
 조회수는 Redis TTL 키로 30분 내 중복 조회를 방지한 뒤 증가한다. 판매자 본인 조회는 집계하지 않고, Redis 오류가 발생해도 상세 조회 응답은 유지한다.
 
@@ -71,7 +84,7 @@ Google OAuth의 `next`는 `/start` 요청에서 받은 값을 세션에 저장�
 
 | 영역 | 주요 URI | 설명 | 상태 |
 |---|---|---|---|
-| Bookmark | `POST /api/v1/items/{itemId}/bookmarks` | 찜 토글 | ✅ |
+| Bookmark | `POST /api/v1/items/{itemId}/bookmarks` | 관심 있어요 토글, 판매자 본인 상품은 400 | ✅ |
 | Bookmark | `GET /api/v1/items/my-bookmarks` | 내 찜 목록 | ✅ |
 | Reservation | `POST /api/v1/reservations` | 예약 신청 | ✅ |
 | Reservation | `PATCH /api/v1/reservations/{id}/approve` | 예약 승인 | ✅ |
@@ -217,13 +230,13 @@ Gradle Kotlin DSL 기준:
 ## 6. 최근 반영된 기술 맥락
 
 - 상품에 거래 위치 필드와 `publicId`가 추가됐다.
-- 전체 마켓, 판매자 상품 목록, 공유 링크 API가 추가됐다.
+- 전체 마켓, 판매자 상품 목록, 공유 링크 API가 추가됐고 동일한 listing query contract와 URL 보존 가능한 paging 계약을 공유한다. 소유자 관리 목록은 별도 인벤토리 계약으로 유지한다.
 - 상품 등록은 인증된 판매자의 개인 매대에 저장되며 `groupId`와 `category`를 받지 않는다.
 - 그룹 장터, 차단, 매너온도/평판 계산 스키마와 서비스는 주요 코드 경로에서 제거됐다.
 - 예약 승인 시 `FOR UPDATE` 조회 대상 누락을 예외 처리한다.
 - Trust & Safety P0는 report duplicate policy, block idempotency/self-block rejection, item-policy warning severity(`NONE`/`WARNING`), block matrix 상호작용 차단을 REST Docs와 테스트로 고정한다.
-- 상품 삭제 시 활성 예약을 자동 취소한 뒤 소프트 삭제한다.
-- 프론트는 `/seller/:memberId`, `/shop/:token`, Naver Map 기반 거래 위치 입력, UUID `publicId` 공개 상세를 지원한다.
+- 상품 삭제 시 요청자 owner check를 예약 취소/삭제 mutation 전에 수행하고, 활성 예약을 자동 취소한 뒤 소프트 삭제한다.
+- 프론트는 `/seller/:memberId`, `/shop/:token`, Naver Map 기반 거래 위치 입력, UUID `publicId` 공개 상세, URL query 기반 홈/판매자/샵 필터와 페이지 이동을 지원한다.
 
 ## 7. 기술 리스크와 후속 확인
 

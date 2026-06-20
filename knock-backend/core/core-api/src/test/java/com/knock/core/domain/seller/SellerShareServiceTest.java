@@ -6,6 +6,7 @@ import com.knock.core.enums.InviteDuration;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
 import com.knock.storage.db.core.item.Item;
+import com.knock.storage.db.core.item.ItemListQuery;
 import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
@@ -31,6 +32,7 @@ import static com.knock.core.support.TestFixtures.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -159,7 +161,7 @@ class SellerShareServiceTest {
 
 			given(sellerShareLinkRepository.findByTokenForUpdate(TEST_SELLER_SHARE_TOKEN))
 				.willReturn(Optional.of(shareLink));
-			given(itemRepository.findByMemberIdWithLikes(TEST_MEMBER_ID))
+			given(itemRepository.findPublicListingsByMemberIdWithLikes(eq(TEST_MEMBER_ID), any(ItemListQuery.class)))
 				.willReturn(List.<Object[]>of(new Object[] { item, TEST_IMAGE_URL, 1L }));
 
 			// when
@@ -182,7 +184,7 @@ class SellerShareServiceTest {
 
 			given(sellerShareLinkRepository.findByTokenForUpdate(TEST_SELLER_SHARE_TOKEN))
 				.willReturn(Optional.of(shareLink));
-			given(itemRepository.findByMemberIdWithLikes(TEST_MEMBER_ID))
+			given(itemRepository.findPublicListingsByMemberIdWithLikes(eq(TEST_MEMBER_ID), any(ItemListQuery.class)))
 				.willReturn(List.<Object[]>of(new Object[] { item, TEST_IMAGE_URL, 1L }));
 
 			// when
