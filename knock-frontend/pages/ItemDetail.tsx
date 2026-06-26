@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, CheckCircle, Clock, Flag, Heart, MapPin, Share } from 'lucide-react';
-import { blocksApi, bookmarksApi, itemsApi, reportsApi, reservationsApi } from '../services';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, CheckCircle, Clock, Flag, Heart, Link2Off, MapPin, Share } from 'lucide-react';
+import { blocksApi, bookmarksApi, itemsApi, reportsApi, reservationsApi, sellerShareApi } from '../services';
 import { ItemDetailSkeleton } from '../components/Skeletons';
 import ImageWithFallback from '../components/ImageWithFallback';
 import NaverMap from '../components/NaverMap';
@@ -46,11 +46,16 @@ const isAuthError = (error: unknown): boolean => {
 
 const ItemDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const itemPublicId = id?.trim() || '';
+  const shareToken = token?.trim() || '';
   const hasValidItemPublicId = itemPublicId.length > 0;
+  const currentNextPath = `${location.pathname}${location.search}`;
 
   const [item, setItem] = useState<ItemResponseDto | null>(null);
+  const [accessMessage, setAccessMessage] = useState('');
   const [hasRequested, setHasRequested] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [showCopyToast, setShowCopyToast] = useState(false);
@@ -72,6 +77,7 @@ const ItemDetail = () => {
       if (!hasValidItemPublicId) {
         if (cancelled) return;
         setItem(null);
+        setAccessMessage('');
         setHasRequested(false);
         setIsLiked(false);
         setIsLoading(false);
@@ -79,11 +85,12 @@ const ItemDetail = () => {
       }
 
       setIsLoading(true);
+      setAccessMessage('');
       setHasRequested(false);
       setIsLiked(false);
       try {
         const [itemResult, bookmarkResult] = await Promise.allSettled([
-          itemsApi.getItem(itemPublicId),
+          shareToken ? sellerShareApi.getShopItem(shareToken, itemPublicId) : itemsApi.getItem(itemPublicId),
           bookmarksApi.getMyBookmarks(),
         ]);
 
@@ -105,6 +112,13 @@ const ItemDetail = () => {
         if (cancelled) return;
         console.error('Failed to fetch item', error);
         setItem(null);
+        setAccessMessage(
+          isAuthError(error)
+            ? 'This item is only visible through a valid invitation or seller access.'
+            : shareToken
+              ? 'This shared item is no longer available from this invitation.'
+              : 'This item could not be found.'
+        );
         setHasRequested(false);
         setIsLiked(false);
       } finally {
@@ -117,13 +131,48 @@ const ItemDetail = () => {
     return () => {
       cancelled = true;
     };
-  }, [itemPublicId, hasValidItemPublicId]);
+  }, [itemPublicId, hasValidItemPublicId, shareToken]);
 
   if (isLoading) {
     return <ItemDetailSkeleton />;
   }
 
-  if (!item) return <div className="p-8 text-center text-gray-500">Item not found</div>;
+  if (!item) {
+    return (
+      <div className="bg-white min-h-screen max-w-md mx-auto">
+        <div className="px-4 py-5 border-b border-gray-100">
+          <button
+            type="button"
+            onClick={() => navigate(shareToken ? `/shop/${shareToken}` : '/home')}
+            className="p-2 -ml-2 rounded-lg text-gray-600 transition-colors hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-emerald-600"
+            aria-label="Go back"
+          >
+            <ArrowLeft size={24} />
+          </button>
+        </div>
+        <div className="flex min-h-[60vh] flex-col items-center justify-center px-6 text-center">
+          <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-lg border border-gray-100 bg-gray-50 text-gray-400">
+            <Link2Off size={36} strokeWidth={1.6} />
+          </div>
+          <h1 className="text-xl font-bold text-gray-900">
+            {shareToken ? 'Shared item unavailable' : 'Invitation required'}
+          </h1>
+          <p className="mt-3 max-w-[280px] text-sm leading-relaxed text-gray-500">
+            {accessMessage || 'Open this item from an invitation link or a seller shelf you can access.'}
+          </p>
+          {!shareToken && (
+            <button
+              type="button"
+              onClick={() => navigate(`/login?next=${encodeURIComponent(currentNextPath)}`)}
+              className="mt-6 rounded-lg bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-700"
+            >
+              Log in to check access
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   const isUnavailable = item.status !== ItemStatus.ON_SALE;
   const reserveButtonLabel = hasRequested
@@ -154,7 +203,7 @@ const ItemDetail = () => {
       alert('Reservation request sent to the seller!');
     } catch (error) {
       if (isAuthError(error)) {
-        navigate(`/login?next=${encodeURIComponent(`/item/${itemPublicId}`)}`);
+        navigate(`/login?next=${encodeURIComponent(currentNextPath)}`);
         return;
       }
       const message = error instanceof Error ? error.message : 'Failed to send reservation request.';
@@ -173,7 +222,7 @@ const ItemDetail = () => {
       setIsLiked(result.toggleOn);
     } catch (error) {
       if (isAuthError(error)) {
-        navigate(`/login?next=${encodeURIComponent(`/item/${itemPublicId}`)}`);
+        navigate(`/login?next=${encodeURIComponent(currentNextPath)}`);
         return;
       }
       const message = error instanceof Error ? error.message : 'Failed to update bookmark.';
@@ -197,7 +246,7 @@ const ItemDetail = () => {
       setReportDescription('');
     } catch (error) {
       if (isAuthError(error)) {
-        navigate(`/login?next=${encodeURIComponent(`/item/${itemPublicId}`)}`);
+        navigate(`/login?next=${encodeURIComponent(currentNextPath)}`);
         return;
       }
       const message = error instanceof Error ? error.message : 'Failed to submit report.';
@@ -217,7 +266,7 @@ const ItemDetail = () => {
       setBlockNotice('Seller blocked. Public pages stay visible, but new reservations, bookmarks, reviews, and notifications are restricted.');
     } catch (error) {
       if (isAuthError(error)) {
-        navigate(`/login?next=${encodeURIComponent(`/item/${itemPublicId}`)}`);
+        navigate(`/login?next=${encodeURIComponent(currentNextPath)}`);
         return;
       }
       const message = error instanceof Error ? error.message : 'Failed to block seller.';
@@ -265,7 +314,7 @@ const ItemDetail = () => {
       navigate(-1);
       return;
     }
-    navigate('/home');
+    navigate(shareToken ? `/shop/${shareToken}` : '/home');
   };
 
   return (
@@ -427,7 +476,15 @@ const ItemDetail = () => {
         <div className="border-t border-gray-100 pt-6">
           <button
             type="button"
-            onClick={() => item.writerId && navigate(`/seller/${item.writerId}`)}
+            onClick={() => {
+              if (shareToken) {
+                navigate(`/shop/${shareToken}`);
+                return;
+              }
+              if (item.writerId) {
+                navigate(`/seller/${item.writerId}`);
+              }
+            }}
             className="w-full flex items-center justify-between p-2 -mx-2 rounded-lg hover:bg-gray-50 transition-colors text-left focus-visible:ring-2 focus-visible:ring-emerald-600"
           >
             <div className="flex items-center space-x-3">

@@ -12,6 +12,7 @@ const Login: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const nextPath = resolveAuthNextPath(new URLSearchParams(location.search).get('next'));
+    const signupUrl = `/signup?next=${encodeURIComponent(nextPath)}`;
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -135,7 +136,7 @@ const Login: React.FC = () => {
 
                 <p className="text-center text-gray-500 mt-auto pb-10">
                     Don't have an account?{' '}
-                    <Link to="/signup" className="text-emerald-600 font-bold hover:underline">Sign Up</Link>
+                    <Link to={signupUrl} className="text-emerald-600 font-bold hover:underline">Sign Up</Link>
                 </p>
             </div>
         </div>

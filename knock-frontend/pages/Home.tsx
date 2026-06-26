@@ -66,10 +66,10 @@ const Home: React.FC = () => {
       </div>
 
       <header className="bg-white px-6 pt-12 pb-6 sticky top-0 z-10 shadow-sm border-b border-gray-100">
-        <p className="text-xs font-bold uppercase tracking-wide text-blue-700">Personal Shelves</p>
-        <h1 className="mt-2 text-2xl font-bold text-gray-900">Browse seller shelves</h1>
+        <p className="text-xs font-bold uppercase tracking-wide text-blue-700">Friend Shelves</p>
+        <h1 className="mt-2 text-2xl font-bold text-gray-900">Your invite dashboard</h1>
         <p className="text-gray-600 text-sm mt-2">
-          Open a seller page from a shared link, then reserve a pickup.
+          Browse items from sellers whose shelves you can access.
         </p>
         {me?.id && (
           <button
@@ -123,9 +123,9 @@ const Home: React.FC = () => {
             <div className="w-20 h-20 bg-white rounded-lg flex items-center justify-center text-gray-400 mb-6 border border-gray-100">
               <Store size={40} strokeWidth={1.5} />
             </div>
-            <h2 className="text-lg font-bold text-gray-900 mb-2">No shelves yet</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-2">No accessible shelves yet</h2>
             <p className="text-sm text-gray-500 max-w-[220px] mx-auto leading-relaxed">
-              {activeFilters ? 'No items match these filters. Try a broader search.' : 'List your first item and share your seller page.'}
+              {activeFilters ? 'No items match these filters. Try a broader search.' : 'Open an invitation link or share your own seller shelf.'}
             </p>
           </div>
         )}
