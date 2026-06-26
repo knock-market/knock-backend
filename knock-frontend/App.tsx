@@ -23,7 +23,6 @@ import { authApi } from './services';
 
 const PUBLIC_PATHS = new Set([
   '/',
-  '/home',
   '/login',
   '/signup',
   '/terms',
@@ -36,9 +35,8 @@ const isPublicPath = (pathname: string): boolean => {
     return true;
   }
   return (
-    /^\/item\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(pathname) ||
-    /^\/seller\/\d+$/.test(pathname) ||
-    /^\/shop\/[A-Za-z0-9_-]+$/.test(pathname)
+    /^\/shop\/[A-Za-z0-9_-]+$/.test(pathname) ||
+    /^\/shop\/[A-Za-z0-9_-]+\/item\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(pathname)
   );
 };
 
@@ -131,6 +129,7 @@ const App: React.FC = () => {
             <Route path="/item/:id" element={<ItemDetail />} />
             <Route path="/seller/:memberId" element={<SellerPage />} />
             <Route path="/shop/:token" element={<SellerPage />} />
+            <Route path="/shop/:token/item/:id" element={<ItemDetail />} />
             <Route path="/create" element={<CreateItem />} />
             <Route path="/create/location" element={<PickupLocationPicker />} />
             <Route path="/profile" element={<Profile />} />

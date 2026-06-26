@@ -70,7 +70,7 @@ const SellerPage = () => {
       } else {
         setItems([]);
         setSellerMeta(null);
-        setLoadError(token ? 'This share link is no longer available.' : 'Seller not found.');
+        setLoadError(token ? 'This share link is no longer available.' : 'This shelf requires an invitation or seller access.');
       }
       setMe(meResult.status === 'fulfilled' ? meResult.value : null);
       setIsLoading(false);
@@ -85,11 +85,17 @@ const SellerPage = () => {
   const sellerName = sellerMeta?.nickname || seller?.writerNickname || (isOwnPage ? me?.nickname : undefined)
     || `Seller #${resolvedSellerId || sellerId}`;
   const subtitle = isOwnPage
-    ? 'Your public shelf, ready to share'
-    : 'A personal shelf shared by this seller';
+    ? 'Your invite-only shelf, ready to share'
+    : token
+      ? 'An invite-only shelf shared with this link'
+      : 'A friend-only shelf you can access';
   const targetPath = useMemo(
-    () => (item: ItemSummaryResponseDto) => isOwnPage ? `/manage-item/${item.id}` : `/item/${item.publicId}`,
-    [isOwnPage]
+    () => (item: ItemSummaryResponseDto) => {
+      if (isOwnPage) return `/manage-item/${item.id}`;
+      if (token) return `/shop/${token}/item/${item.publicId}`;
+      return `/item/${item.publicId}`;
+    },
+    [isOwnPage, token]
   );
 
   const currentShareLink = shareLinks[0];
@@ -195,7 +201,7 @@ const SellerPage = () => {
           <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-lg border border-gray-100 bg-gray-50 text-gray-400">
             <Link2Off size={36} strokeWidth={1.6} />
           </div>
-          <h1 className="text-xl font-bold text-gray-900">Link unavailable</h1>
+          <h1 className="text-xl font-bold text-gray-900">{token ? 'Link unavailable' : 'Invitation required'}</h1>
           <p className="mt-3 max-w-[260px] text-sm leading-relaxed text-gray-500">{loadError}</p>
         </div>
       </div>
@@ -216,7 +222,7 @@ const SellerPage = () => {
         <div className="mt-6 flex items-center justify-between gap-4">
           <div>
             <p className={`text-xs font-semibold uppercase tracking-wide ${isOwnPage ? 'text-emerald-100' : 'text-emerald-700'}`}>
-              {isOwnPage ? 'My shelf' : 'Shared shelf'}
+              {isOwnPage ? 'My shelf' : token ? 'Shared shelf' : 'Friend shelf'}
             </p>
             <h1 className="mt-1 text-2xl font-bold leading-tight">{sellerName}</h1>
             <p className={`mt-2 text-sm ${isOwnPage ? 'text-emerald-50' : 'text-gray-500'}`}>{subtitle}</p>
@@ -284,7 +290,7 @@ const SellerPage = () => {
             <p className="text-sm text-gray-500 max-w-[220px] mx-auto leading-relaxed">
               {activeFilters
                 ? 'No shelf items match these filters.'
-                : isOwnPage ? 'Post your first item before sharing your shelf.' : 'This shared shelf has no public items right now.'}
+                : isOwnPage ? 'Post your first item before sharing your shelf.' : 'This invite-only shelf has no visible items right now.'}
             </p>
           </div>
         )}
