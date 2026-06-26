@@ -92,6 +92,8 @@ export const sellerShareApi = {
     deactivate: (token: string) => del<void>(`/seller-shares/${token}`),
     getShop: (token: string, params?: ItemListQueryParams) =>
         get<SellerShopResponseDto>(`/seller-shares/${token}`, { params }),
+    getShopItem: (token: string, publicId: string) =>
+        get<ItemResponseDto>(`/seller-shares/${token}/items/${publicId}`),
 };
 
 // ============== Bookmark API ==============

@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock, User, AtSign, ArrowRight, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { Mail, Lock, User, AtSign, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { authApi } from '../services';
+import { resolveAuthNextPath } from '../utils/authRedirect';
 
 const Signup: React.FC = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const nextPath = resolveAuthNextPath(new URLSearchParams(location.search).get('next'));
+    const loginUrl = `/login?next=${encodeURIComponent(nextPath)}`;
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -47,13 +51,13 @@ const Signup: React.FC = () => {
             try {
                 // Auto login after signup
                 await authApi.emailLogin({ email, password });
-                navigate('/home');
+                navigate(nextPath, { replace: true });
             } catch (err) {
                 console.error("Auto login failed:", err);
                 // The account was created, but login failed
                 setError('Account created successfully! Auto-login failed, redirecting to login page...');
                 setTimeout(() => {
-                    navigate('/login', { state: { email } });
+                    navigate(loginUrl, { state: { email } });
                 }, 2000);
             } finally {
                 setIsLoading(false);
@@ -183,7 +187,7 @@ const Signup: React.FC = () => {
 
                 <p className="text-center text-gray-500 mt-8">
                     Already have an account?{' '}
-                    <Link to="/login" className="text-emerald-600 font-bold hover:underline">Log In</Link>
+                    <Link to={loginUrl} className="text-emerald-600 font-bold hover:underline">Log In</Link>
                 </p>
             </div>
         </div>
