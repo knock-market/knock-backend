@@ -109,6 +109,13 @@ export interface SellerShopResponseDto {
   items: ItemSummaryResponseDto[];
 }
 
+export interface SellerAccessMembershipResponseDto {
+  sellerId: number;
+  memberId: number;
+  status: string;
+  createdAt?: string;
+}
+
 export interface ItemResponseDto {
   id: number;
   publicId: string;

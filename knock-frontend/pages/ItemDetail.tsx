@@ -193,11 +193,17 @@ const ItemDetail = () => {
     setShowReportModal(true);
   };
 
+  const ensureShareMembership = async () => {
+    if (!shareToken) return;
+    await sellerShareApi.createMembership(shareToken);
+  };
+
   const confirmReservation = async () => {
     if (!item) return;
 
     setIsSubmitting(true);
     try {
+      await ensureShareMembership();
       await reservationsApi.create(item.id);
       setHasRequested(true);
       alert('Reservation request sent to the seller!');
@@ -218,6 +224,7 @@ const ItemDetail = () => {
     if (!item) return;
 
     try {
+      await ensureShareMembership();
       const result = await bookmarksApi.toggle(item.id);
       setIsLiked(result.toggleOn);
     } catch (error) {
@@ -236,6 +243,7 @@ const ItemDetail = () => {
     setIsReportSubmitting(true);
     setReportNotice('');
     try {
+      await ensureShareMembership();
       await reportsApi.create({
         targetType: 'ITEM',
         targetId: item.id,

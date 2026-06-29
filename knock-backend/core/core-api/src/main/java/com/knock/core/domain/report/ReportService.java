@@ -15,6 +15,7 @@ import com.knock.storage.db.core.reservation.Reservation;
 import com.knock.storage.db.core.reservation.ReservationRepository;
 import com.knock.storage.db.core.review.Review;
 import com.knock.storage.db.core.review.ReviewRepository;
+import com.knock.storage.db.core.seller.SellerAccessMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,8 @@ public class ReportService {
 	private final ReservationRepository reservationRepository;
 
 	private final ReviewRepository reviewRepository;
+
+	private final SellerAccessMemberRepository sellerAccessMemberRepository;
 
 	@Transactional
 	public ReportResult createReport(Long reporterId, ReportCreateData data) {
@@ -77,6 +80,13 @@ public class ReportService {
 		Item target = itemRepository.findById(targetId).orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
 		if (target.getMember().getId().equals(reporterId)) {
 			throw new CoreException(ErrorType.SELF_REPORT_NOT_ALLOWED);
+		}
+		validateSellerAccess(reporterId, target.getMember().getId());
+	}
+
+	private void validateSellerAccess(Long memberId, Long sellerId) {
+		if (!sellerAccessMemberRepository.existsActiveBySellerIdAndMemberId(sellerId, memberId)) {
+			throw new CoreException(ErrorType.FORBIDDEN);
 		}
 	}
 

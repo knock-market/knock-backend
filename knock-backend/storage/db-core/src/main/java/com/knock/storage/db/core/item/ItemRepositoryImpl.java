@@ -1,6 +1,7 @@
 package com.knock.storage.db.core.item;
 
 import com.knock.core.enums.ItemListSort;
+import com.knock.storage.db.core.seller.SellerAccessMemberStatus;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
@@ -57,6 +58,18 @@ public class ItemRepositoryImpl implements ItemRepository {
 	}
 
 	@Override
+	public List<Object[]> findAccessibleListingsWithLikes(Long memberId, ItemListQuery query) {
+		String jpql = buildAccessibleListQuery(query);
+		TypedQuery<Object[]> typedQuery = entityManager.createQuery(jpql, Object[].class);
+		bindListParameters(typedQuery, null, query);
+		typedQuery.setParameter("viewerMemberId", memberId);
+		typedQuery.setParameter("activeStatus", SellerAccessMemberStatus.ACTIVE);
+		typedQuery.setFirstResult(query.page() * query.size());
+		typedQuery.setMaxResults(query.size());
+		return typedQuery.getResultList();
+	}
+
+	@Override
 	public void delete(Item item) {
 		itemJpaRepository.delete(item);
 	}
@@ -95,6 +108,35 @@ public class ItemRepositoryImpl implements ItemRepository {
 		if (memberId != null) {
 			jpql.append(" AND i.member.id = :memberId");
 		}
+		if (query.keyword() != null) {
+			jpql.append(" AND (LOWER(i.title) LIKE :keyword OR LOWER(i.description) LIKE :keyword)");
+		}
+		if (query.location() != null) {
+			jpql.append("""
+					 AND (LOWER(i.tradeLocationName) LIKE :location
+					 OR LOWER(i.tradeLocationAddress) LIKE :location)
+					""");
+		}
+		jpql.append(orderBy(query.sort()));
+		return jpql.toString();
+	}
+
+	private String buildAccessibleListQuery(ItemListQuery query) {
+		StringBuilder jpql = new StringBuilder("""
+				SELECT i, (SELECT img.imageUrl FROM ItemImage img WHERE img.item = i ORDER BY img.id ASC LIMIT 1),
+				(SELECT COUNT(b) FROM Bookmark b WHERE b.item = i AND b.member.id <> i.member.id)
+				FROM Item i JOIN FETCH i.member
+				WHERE i.status = :status
+				AND (
+					i.member.id = :viewerMemberId
+					OR EXISTS (
+						SELECT 1 FROM SellerAccessMember sam
+						WHERE sam.seller = i.member
+						AND sam.member.id = :viewerMemberId
+						AND sam.status = :activeStatus
+					)
+				)
+				""");
 		if (query.keyword() != null) {
 			jpql.append(" AND (LOWER(i.title) LIKE :keyword OR LOWER(i.description) LIKE :keyword)");
 		}

@@ -21,6 +21,8 @@ public interface ItemRepository {
 
 	List<Object[]> findPublicListingsWithLikes(ItemListQuery query);
 
+	List<Object[]> findAccessibleListingsWithLikes(Long memberId, ItemListQuery query);
+
 	Optional<Item> findByIdWithImages(Long itemId);
 
 	Optional<Item> findByPublicIdWithImages(String publicId);

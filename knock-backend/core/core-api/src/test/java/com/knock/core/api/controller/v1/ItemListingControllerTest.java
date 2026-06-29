@@ -46,7 +46,7 @@ class ItemListingControllerTest extends RestDocsTest {
 	void getMarketplaceItems_success() {
 		// given
 		ItemListResult result = itemListResult();
-		given(itemService.getMarketplaceItems(any())).willReturn(List.of(result));
+		given(itemService.getMarketplaceItems(eq(1L), any())).willReturn(List.of(result));
 
 		// when & then
 		restDocGiven().queryParam("keyword", "테스트")
@@ -109,7 +109,7 @@ class ItemListingControllerTest extends RestDocsTest {
 	void getSellingItemsByMember_success() {
 		// given
 		ItemListResult result = itemListResult();
-		given(itemService.getSellingItemsByMember(eq(TEST_MEMBER_ID), any())).willReturn(List.of(result));
+		given(itemService.getSellingItemsByMember(eq(1L), eq(TEST_MEMBER_ID), any())).willReturn(List.of(result));
 
 		// when & then
 		restDocGiven().pathParam("memberId", TEST_MEMBER_ID)

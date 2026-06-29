@@ -14,6 +14,7 @@ import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
 import com.knock.storage.db.core.reservation.Reservation;
 import com.knock.storage.db.core.reservation.ReservationRepository;
+import com.knock.storage.db.core.seller.SellerAccessMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -36,6 +37,8 @@ public class ItemService {
 	private final MemberRepository memberRepository;
 
 	private final ReservationRepository reservationRepository;
+
+	private final SellerAccessMemberRepository sellerAccessMemberRepository;
 
 	private final RedisTemplate<String, Object> redisTemplate;
 
@@ -62,10 +65,18 @@ public class ItemService {
 	}
 
 	@Transactional(readOnly = true)
-	public ItemReadResult getItemByPublicId(String publicId) {
+	public ItemReadResult getItemForOwner(Long memberId, Long itemId) {
+		Item item = itemRepository.findByIdWithImages(itemId)
+			.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
+		validateItemOwner(memberId, item);
+		return ItemReadResult.from(item, item.getImages());
+	}
+
+	@Transactional(readOnly = true)
+	public ItemReadResult getItemByPublicId(Long viewerMemberId, String publicId) {
 		Item item = itemRepository.findByPublicIdWithImages(publicId)
 			.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
-
+		validateSellerAccess(viewerMemberId, item.getMember().getId());
 		return ItemReadResult.from(item, item.getImages());
 	}
 
@@ -80,13 +91,9 @@ public class ItemService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ItemListResult> getMarketplaceItems() {
-		return getMarketplaceItems(ItemListQuery.defaultQuery());
-	}
-
-	@Transactional(readOnly = true)
-	public List<ItemListResult> getMarketplaceItems(ItemListQuery query) {
-		return itemRepository.findPublicListingsWithLikes(query).stream().map(row -> {
+	public List<ItemListResult> getMarketplaceItems(Long viewerMemberId, ItemListQuery query) {
+		validateAuthenticated(viewerMemberId);
+		return itemRepository.findAccessibleListingsWithLikes(viewerMemberId, query).stream().map(row -> {
 			Item item = (Item) row[0];
 			String thumbnailUrl = (String) row[1];
 			long likesCount = (Long) row[2];
@@ -95,13 +102,9 @@ public class ItemService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ItemListResult> getSellingItemsByMember(Long memberId) {
-		return getSellingItemsByMember(memberId, ItemListQuery.defaultQuery());
-	}
-
-	@Transactional(readOnly = true)
-	public List<ItemListResult> getSellingItemsByMember(Long memberId, ItemListQuery query) {
+	public List<ItemListResult> getSellingItemsByMember(Long viewerMemberId, Long memberId, ItemListQuery query) {
 		memberRepository.findById(memberId).orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
+		validateSellerAccess(viewerMemberId, memberId);
 		return itemRepository.findPublicListingsByMemberIdWithLikes(memberId, query).stream().map(row -> {
 			Item item = (Item) row[0];
 			String thumbnailUrl = (String) row[1];
@@ -122,6 +125,22 @@ public class ItemService {
 	private void validateItemOwner(Long memberId, Item item) {
 		if (!item.getMember().getId().equals(memberId)) {
 			throw new CoreException(ErrorType.FORBIDDEN);
+		}
+	}
+
+	private void validateSellerAccess(Long viewerMemberId, Long sellerId) {
+		validateAuthenticated(viewerMemberId);
+		if (sellerId.equals(viewerMemberId)) {
+			return;
+		}
+		if (!sellerAccessMemberRepository.existsActiveBySellerIdAndMemberId(sellerId, viewerMemberId)) {
+			throw new CoreException(ErrorType.FORBIDDEN);
+		}
+	}
+
+	private void validateAuthenticated(Long memberId) {
+		if (memberId == null) {
+			throw new CoreException(ErrorType.AUTHENTICATION_FAILED);
 		}
 	}
 

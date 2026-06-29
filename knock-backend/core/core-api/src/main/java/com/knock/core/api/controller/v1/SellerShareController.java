@@ -3,10 +3,14 @@ package com.knock.core.api.controller.v1;
 import com.knock.auth.MemberPrincipal;
 import com.knock.core.api.controller.v1.request.ItemListRequestDto;
 import com.knock.core.api.controller.v1.request.SellerShareLinkCreateRequestDto;
+import com.knock.core.api.controller.v1.response.ItemResponseDto;
+import com.knock.core.api.controller.v1.response.SellerAccessMembershipResponseDto;
 import com.knock.core.api.controller.v1.response.SellerShareLinkResponseDto;
 import com.knock.core.api.controller.v1.response.SellerShareLinkSummaryResponseDto;
 import com.knock.core.api.controller.v1.response.SellerShopResponseDto;
+import com.knock.core.domain.item.dto.ItemReadResult;
 import com.knock.core.domain.seller.SellerShareService;
+import com.knock.core.domain.seller.dto.SellerAccessMembershipResult;
 import com.knock.core.domain.seller.dto.SellerShareLinkCreateResult;
 import com.knock.core.domain.seller.dto.SellerShareLinkStatsResult;
 import com.knock.core.domain.seller.dto.SellerShopResult;
@@ -42,6 +46,19 @@ public class SellerShareController {
 			@ModelAttribute ItemListRequestDto request) {
 		SellerShopResult result = sellerShareService.getSellerShop(token, request.toQuery());
 		return ApiResponse.success(SellerShopResponseDto.from(result));
+	}
+
+	@GetMapping("/api/v1/seller-shares/{token}/items/{publicId}")
+	public ApiResponse<ItemResponseDto> getSharedItem(@PathVariable String token, @PathVariable String publicId) {
+		ItemReadResult result = sellerShareService.getSharedItem(token, publicId);
+		return ApiResponse.success(ItemResponseDto.from(result));
+	}
+
+	@PostMapping("/api/v1/seller-shares/{token}/memberships")
+	public ApiResponse<SellerAccessMembershipResponseDto> createMembership(
+			@AuthenticationPrincipal MemberPrincipal principal, @PathVariable String token) {
+		SellerAccessMembershipResult result = sellerShareService.createMembership(principal.getMemberId(), token);
+		return ApiResponse.success(SellerAccessMembershipResponseDto.from(result));
 	}
 
 	@GetMapping("/api/v1/seller-shares/my")

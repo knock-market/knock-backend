@@ -12,6 +12,7 @@ import com.knock.storage.db.core.item.ItemImage;
 import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
+import com.knock.storage.db.core.seller.SellerAccessMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,8 @@ public class BookmarkService {
 
 	private final BlockService blockService;
 
+	private final SellerAccessMemberRepository sellerAccessMemberRepository;
+
 	@Transactional
 	public boolean toggleBookmark(Long memberId, BookmarkToggleData data) {
 		Member member = memberRepository.findById(memberId)
@@ -38,6 +41,7 @@ public class BookmarkService {
 		Item item = itemRepository.findById(data.itemId())
 			.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
 		validateNotOwnItem(memberId, item);
+		validateSellerAccess(memberId, item.getMember().getId());
 		blockService.validateInteractionAllowed(memberId, item.getMember().getId());
 
 		// 현재 북마크 상태 반환
@@ -59,6 +63,12 @@ public class BookmarkService {
 	private void validateNotOwnItem(Long memberId, Item item) {
 		if (item.getMember().getId().equals(memberId)) {
 			throw new CoreException(ErrorType.VALIDATION_ERROR);
+		}
+	}
+
+	private void validateSellerAccess(Long memberId, Long sellerId) {
+		if (!sellerAccessMemberRepository.existsActiveBySellerIdAndMemberId(sellerId, memberId)) {
+			throw new CoreException(ErrorType.FORBIDDEN);
 		}
 	}
 

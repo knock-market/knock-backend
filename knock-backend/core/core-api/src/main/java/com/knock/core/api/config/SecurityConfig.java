@@ -1,8 +1,12 @@
 package com.knock.core.api.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.knock.core.support.error.ErrorType;
+import com.knock.core.support.response.ApiResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -21,8 +25,8 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http, SecurityContextRepository securityContextRepository)
-			throws Exception {
+	public SecurityFilterChain filterChain(HttpSecurity http, SecurityContextRepository securityContextRepository,
+			ObjectMapper objectMapper) throws Exception {
 		http.csrf(AbstractHttpConfigurer::disable)
 			.formLogin(AbstractHttpConfigurer::disable)
 			.httpBasic(AbstractHttpConfigurer::disable)
@@ -30,15 +34,20 @@ public class SecurityConfig {
 				securityContext.securityContextRepository(securityContextRepository);
 				securityContext.requireExplicitSave(true);
 			})
-			.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.GET, "/api/v1/items")
-				.permitAll()
-				.requestMatchers(RegexRequestMatcher.regexMatcher(HttpMethod.GET, "/api/v1/members/\\d+/items"))
-				.permitAll()
-				.requestMatchers(RegexRequestMatcher.regexMatcher(HttpMethod.GET,
-						"/api/v1/items/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"))
-				.permitAll()
-				.requestMatchers(HttpMethod.GET, "/api/v1/seller-shares/my")
+			.exceptionHandling(exception -> exception.authenticationEntryPoint((request, response, authException) -> {
+				response.setStatus(ErrorType.AUTHENTICATION_FAILED.getStatus().value());
+				response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+				objectMapper.writeValue(response.getWriter(), ApiResponse.error(ErrorType.AUTHENTICATION_FAILED));
+			}).accessDeniedHandler((request, response, accessDeniedException) -> {
+				response.setStatus(ErrorType.FORBIDDEN.getStatus().value());
+				response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+				objectMapper.writeValue(response.getWriter(), ApiResponse.error(ErrorType.FORBIDDEN));
+			}))
+			.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.GET, "/api/v1/seller-shares/my")
 				.authenticated()
+				.requestMatchers(RegexRequestMatcher.regexMatcher(HttpMethod.GET,
+						"/api/v1/seller-shares/[A-Za-z0-9_-]+/items/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"))
+				.permitAll()
 				.requestMatchers(
 						RegexRequestMatcher.regexMatcher(HttpMethod.GET, "/api/v1/seller-shares/[A-Za-z0-9_-]+"))
 				.permitAll()

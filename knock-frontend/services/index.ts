@@ -19,6 +19,7 @@ import {
     ReservationResponseDto,
     ReportCreateRequestDto,
     ReportResponseDto,
+    SellerAccessMembershipResponseDto,
     SellerShareLinkResponseDto,
     SellerShareLinkSummaryResponseDto,
     SellerShopResponseDto,
@@ -94,6 +95,8 @@ export const sellerShareApi = {
         get<SellerShopResponseDto>(`/seller-shares/${token}`, { params }),
     getShopItem: (token: string, publicId: string) =>
         get<ItemResponseDto>(`/seller-shares/${token}/items/${publicId}`),
+    createMembership: (token: string) =>
+        post<SellerAccessMembershipResponseDto>(`/seller-shares/${token}/memberships`),
 };
 
 // ============== Bookmark API ==============

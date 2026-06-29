@@ -10,8 +10,6 @@ import com.knock.core.enums.ItemStatus;
 import com.knock.core.enums.ItemType;
 import com.knock.test.api.RestDocsTest;
 import io.restassured.http.ContentType;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -107,7 +105,7 @@ class ItemControllerTest extends RestDocsTest {
 				TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE, ItemType.SELL, ItemStatus.ON_SALE, List.of(TEST_IMAGE_URL),
 				TEST_MEMBER_ID, TEST_NICKNAME, TEST_IMAGE_URL, TEST_TRADE_LOCATION_NAME, TEST_TRADE_LOCATION_ADDRESS,
 				TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
-		given(itemService.getItemByPublicId(TEST_ITEM_PUBLIC_ID)).willReturn(result);
+		given(itemService.getItemByPublicId(principal.getMemberId(), TEST_ITEM_PUBLIC_ID)).willReturn(result);
 
 		// when & then
 		restDocGiven().pathParam("itemPublicId", TEST_ITEM_PUBLIC_ID)
@@ -138,27 +136,6 @@ class ItemControllerTest extends RestDocsTest {
 	}
 
 	@Test
-	@DisplayName("비로그인 상품 상세 조회 시 회원 ID 없이 조회수를 기록한다")
-	void getItem_guestSuccess() {
-		// given
-		ItemReadResult result = new ItemReadResult(TEST_ITEM_ID, TEST_ITEM_PUBLIC_ID, TEST_ITEM_TITLE,
-				TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE, ItemType.SELL, ItemStatus.ON_SALE, List.of(TEST_IMAGE_URL),
-				TEST_MEMBER_ID, TEST_NICKNAME, TEST_IMAGE_URL, TEST_TRADE_LOCATION_NAME, TEST_TRADE_LOCATION_ADDRESS,
-				TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
-		HttpServletRequest request = mock(HttpServletRequest.class);
-		HttpSession session = mock(HttpSession.class);
-		given(itemService.getItemByPublicId(TEST_ITEM_PUBLIC_ID)).willReturn(result);
-		given(request.getSession(true)).willReturn(session);
-		given(session.getId()).willReturn("guest-session");
-
-		// when
-		itemController.getItem(null, TEST_ITEM_PUBLIC_ID, request);
-
-		// then
-		verify(itemService).increaseViewCount(TEST_ITEM_ID, TEST_MEMBER_ID, null, "guest-session");
-	}
-
-	@Test
 	@DisplayName("로그인 상품 상세 조회 시 회원 ID로 조회수를 기록한다")
 	void getItem_memberSuccess() {
 		// given
@@ -166,14 +143,30 @@ class ItemControllerTest extends RestDocsTest {
 				TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE, ItemType.SELL, ItemStatus.ON_SALE, List.of(TEST_IMAGE_URL),
 				TEST_MEMBER_ID_2, TEST_NICKNAME, TEST_IMAGE_URL, TEST_TRADE_LOCATION_NAME, TEST_TRADE_LOCATION_ADDRESS,
 				TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
-		HttpServletRequest request = mock(HttpServletRequest.class);
-		given(itemService.getItemByPublicId(TEST_ITEM_PUBLIC_ID)).willReturn(result);
+		given(itemService.getItemByPublicId(principal.getMemberId(), TEST_ITEM_PUBLIC_ID)).willReturn(result);
 
 		// when
-		itemController.getItem(principal, TEST_ITEM_PUBLIC_ID, request);
+		itemController.getItem(principal, TEST_ITEM_PUBLIC_ID);
 
 		// then
 		verify(itemService).increaseViewCount(TEST_ITEM_ID, TEST_MEMBER_ID_2, principal.getMemberId(), null);
+	}
+
+	@Test
+	@DisplayName("관리용 상품 상세 조회 시 판매자 본인 권한으로 조회한다")
+	void getItemForManagement_ownerScoped() {
+		// given
+		ItemReadResult result = new ItemReadResult(TEST_ITEM_ID, TEST_ITEM_PUBLIC_ID, TEST_ITEM_TITLE,
+				TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE, ItemType.SELL, ItemStatus.ON_SALE, List.of(TEST_IMAGE_URL),
+				principal.getMemberId(), TEST_NICKNAME, TEST_IMAGE_URL, TEST_TRADE_LOCATION_NAME, TEST_TRADE_LOCATION_ADDRESS,
+				TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
+		given(itemService.getItemForOwner(principal.getMemberId(), TEST_ITEM_ID)).willReturn(result);
+
+		// when
+		itemController.getItemForManagement(principal, TEST_ITEM_ID);
+
+		// then
+		verify(itemService).getItemForOwner(principal.getMemberId(), TEST_ITEM_ID);
 	}
 
 	@Test

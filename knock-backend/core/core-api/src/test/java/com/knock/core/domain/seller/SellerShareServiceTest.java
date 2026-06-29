@@ -1,6 +1,7 @@
 package com.knock.core.domain.seller;
 
 import com.knock.core.domain.seller.dto.SellerShareLinkCreateResult;
+import com.knock.core.domain.seller.dto.SellerAccessMembershipResult;
 import com.knock.core.domain.seller.dto.SellerShopResult;
 import com.knock.core.enums.InviteDuration;
 import com.knock.core.support.error.CoreException;
@@ -10,6 +11,8 @@ import com.knock.storage.db.core.item.ItemListQuery;
 import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
+import com.knock.storage.db.core.seller.SellerAccessMemberRepository;
+import com.knock.storage.db.core.seller.SellerAccessMember;
 import com.knock.storage.db.core.seller.SellerShareLink;
 import com.knock.storage.db.core.seller.SellerShareLinkRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,12 +59,15 @@ class SellerShareServiceTest {
 	@Mock
 	private ItemRepository itemRepository;
 
+	@Mock
+	private SellerAccessMemberRepository sellerAccessMemberRepository;
+
 	@BeforeEach
 	void setUp() {
 		Clock fixedClock = Clock.fixed(FIXED_INSTANT, APPLICATION_ZONE);
 		fixedNow = LocalDateTime.now(fixedClock);
 		sellerShareService = new SellerShareService(sellerShareLinkRepository, memberRepository, itemRepository,
-				fixedClock);
+				sellerAccessMemberRepository, fixedClock);
 	}
 
 	@Nested
@@ -211,6 +217,132 @@ class SellerShareServiceTest {
 				.hasFieldOrPropertyWithValue("errorType", ErrorType.NOT_FOUND);
 			assertThat(shareLink.getClickCount()).isEqualTo(1);
 			assertThat(shareLink.getUseCount()).isZero();
+		}
+
+	}
+
+	@Nested
+	@DisplayName("공유 링크 상품 상세 조회")
+	class GetSharedItem {
+
+		@Test
+		@DisplayName("성공 - 공유 링크 판매자의 상품")
+		void success() {
+			// given
+			Member seller = createMember(TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, seller);
+			SellerShareLink shareLink = SellerShareLink.create(seller, TEST_SELLER_SHARE_TOKEN, fixedNow.plusHours(1));
+			given(sellerShareLinkRepository.findByTokenForUpdate(TEST_SELLER_SHARE_TOKEN))
+				.willReturn(Optional.of(shareLink));
+			given(itemRepository.findByPublicIdWithImages(TEST_ITEM_PUBLIC_ID)).willReturn(Optional.of(item));
+
+			// when
+			var result = sellerShareService.getSharedItem(TEST_SELLER_SHARE_TOKEN, TEST_ITEM_PUBLIC_ID);
+
+			// then
+			assertThat(result.id()).isEqualTo(TEST_ITEM_ID);
+			assertThat(shareLink.getUseCount()).isEqualTo(1);
+		}
+
+		@Test
+		@DisplayName("실패 - 공유 링크 판매자의 상품이 아니면 숨김")
+		void fail_itemFromOtherSeller() {
+			// given
+			Member seller = createMember(TEST_MEMBER_ID);
+			Member otherSeller = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
+			Item item = createItem(TEST_ITEM_ID, otherSeller);
+			SellerShareLink shareLink = SellerShareLink.create(seller, TEST_SELLER_SHARE_TOKEN, fixedNow.plusHours(1));
+			given(sellerShareLinkRepository.findByTokenForUpdate(TEST_SELLER_SHARE_TOKEN))
+				.willReturn(Optional.of(shareLink));
+			given(itemRepository.findByPublicIdWithImages(TEST_ITEM_PUBLIC_ID)).willReturn(Optional.of(item));
+
+			// when & then
+			assertThatThrownBy(() -> sellerShareService.getSharedItem(TEST_SELLER_SHARE_TOKEN, TEST_ITEM_PUBLIC_ID))
+				.isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.NOT_FOUND);
+		}
+
+	}
+
+	@Nested
+	@DisplayName("공유 링크 접근 멤버십 생성")
+	class CreateMembership {
+
+		@Test
+		@DisplayName("성공 - 초대 링크로 접근 권한을 생성한다")
+		void success_create() {
+			// given
+			Member seller = createMember(TEST_MEMBER_ID);
+			Member member = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
+			SellerShareLink shareLink = SellerShareLink.create(seller, TEST_SELLER_SHARE_TOKEN, fixedNow.plusHours(1));
+			SellerAccessMember accessMember = SellerAccessMember.create(seller, member, shareLink);
+			given(sellerShareLinkRepository.findByTokenForUpdate(TEST_SELLER_SHARE_TOKEN))
+				.willReturn(Optional.of(shareLink));
+			given(memberRepository.findById(TEST_MEMBER_ID_2)).willReturn(Optional.of(member));
+			given(sellerAccessMemberRepository.findBySellerIdAndMemberId(TEST_MEMBER_ID, TEST_MEMBER_ID_2))
+				.willReturn(Optional.empty());
+			given(sellerAccessMemberRepository.save(any(SellerAccessMember.class))).willReturn(accessMember);
+
+			// when
+			SellerAccessMembershipResult result = sellerShareService.createMembership(TEST_MEMBER_ID_2,
+					TEST_SELLER_SHARE_TOKEN);
+
+			// then
+			assertThat(result.sellerId()).isEqualTo(TEST_MEMBER_ID);
+			assertThat(result.memberId()).isEqualTo(TEST_MEMBER_ID_2);
+			assertThat(result.status()).isEqualTo("ACTIVE");
+		}
+
+		@Test
+		@DisplayName("성공 - 이미 가입한 멤버십은 멱등 응답")
+		void success_idempotent() {
+			// given
+			Member seller = createMember(TEST_MEMBER_ID);
+			Member member = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
+			SellerShareLink shareLink = SellerShareLink.create(seller, TEST_SELLER_SHARE_TOKEN, fixedNow.plusHours(1));
+			SellerAccessMember accessMember = SellerAccessMember.create(seller, member, shareLink);
+			given(sellerShareLinkRepository.findByTokenForUpdate(TEST_SELLER_SHARE_TOKEN))
+				.willReturn(Optional.of(shareLink));
+			given(memberRepository.findById(TEST_MEMBER_ID_2)).willReturn(Optional.of(member));
+			given(sellerAccessMemberRepository.findBySellerIdAndMemberId(TEST_MEMBER_ID, TEST_MEMBER_ID_2))
+				.willReturn(Optional.of(accessMember));
+
+			// when
+			SellerAccessMembershipResult result = sellerShareService.createMembership(TEST_MEMBER_ID_2,
+					TEST_SELLER_SHARE_TOKEN);
+
+			// then
+			assertThat(result.status()).isEqualTo("ACTIVE");
+		}
+
+		@Test
+		@DisplayName("실패 - 판매자는 자신의 링크로 가입할 수 없다")
+		void fail_ownerSelfJoin() {
+			// given
+			Member seller = createMember(TEST_MEMBER_ID);
+			SellerShareLink shareLink = SellerShareLink.create(seller, TEST_SELLER_SHARE_TOKEN, fixedNow.plusHours(1));
+			given(sellerShareLinkRepository.findByTokenForUpdate(TEST_SELLER_SHARE_TOKEN))
+				.willReturn(Optional.of(shareLink));
+
+			// when & then
+			assertThatThrownBy(() -> sellerShareService.createMembership(TEST_MEMBER_ID, TEST_SELLER_SHARE_TOKEN))
+				.isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.VALIDATION_ERROR);
+		}
+
+		@Test
+		@DisplayName("실패 - 만료 링크는 존재를 숨긴다")
+		void fail_expiredToken() {
+			// given
+			Member seller = createMember(TEST_MEMBER_ID);
+			SellerShareLink shareLink = SellerShareLink.create(seller, TEST_SELLER_SHARE_TOKEN, fixedNow.minusNanos(1));
+			given(sellerShareLinkRepository.findByTokenForUpdate(TEST_SELLER_SHARE_TOKEN))
+				.willReturn(Optional.of(shareLink));
+
+			// when & then
+			assertThatThrownBy(() -> sellerShareService.createMembership(TEST_MEMBER_ID_2, TEST_SELLER_SHARE_TOKEN))
+				.isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.NOT_FOUND);
 		}
 
 	}
