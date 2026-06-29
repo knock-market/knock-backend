@@ -13,7 +13,7 @@ import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
 import com.knock.storage.db.core.reservation.ReservationRepository;
-import com.knock.storage.db.core.seller.SellerAccessMemberRepository;
+import com.knock.core.domain.seller.SellerAccessPolicy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -35,6 +35,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class ItemServiceTest {
@@ -52,7 +54,7 @@ class ItemServiceTest {
 	private ReservationRepository reservationRepository;
 
 	@Mock
-	private SellerAccessMemberRepository sellerAccessMemberRepository;
+	private SellerAccessPolicy sellerAccessPolicy;
 
 	@Mock
 	private RedisTemplate<String, Object> redisTemplate;
@@ -189,6 +191,7 @@ class ItemServiceTest {
 			// then
 			assertThat(result.id()).isEqualTo(TEST_ITEM_ID);
 			assertThat(result.publicId()).isEqualTo(TEST_ITEM_PUBLIC_ID);
+			verify(sellerAccessPolicy).validateOwnerOrAccessMember(TEST_MEMBER_ID, TEST_MEMBER_ID);
 		}
 
 		@Test
@@ -198,8 +201,6 @@ class ItemServiceTest {
 			Member seller = createMember(TEST_MEMBER_ID);
 			Item item = createItem(TEST_ITEM_ID, seller);
 			given(itemRepository.findByPublicIdWithImages(TEST_ITEM_PUBLIC_ID)).willReturn(Optional.of(item));
-			given(sellerAccessMemberRepository.existsActiveBySellerIdAndMemberId(TEST_MEMBER_ID, TEST_MEMBER_ID_2))
-				.willReturn(true);
 
 			// when
 			ItemReadResult result = itemService.getItemByPublicId(TEST_MEMBER_ID_2, TEST_ITEM_PUBLIC_ID);
@@ -215,6 +216,8 @@ class ItemServiceTest {
 			Member seller = createMember(TEST_MEMBER_ID);
 			Item item = createItem(TEST_ITEM_ID, seller);
 			given(itemRepository.findByPublicIdWithImages(TEST_ITEM_PUBLIC_ID)).willReturn(Optional.of(item));
+			willThrow(new CoreException(ErrorType.FORBIDDEN)).given(sellerAccessPolicy)
+				.validateOwnerOrAccessMember(TEST_MEMBER_ID_2, TEST_MEMBER_ID);
 
 			// when & then
 			assertThatThrownBy(() -> itemService.getItemByPublicId(TEST_MEMBER_ID_2, TEST_ITEM_PUBLIC_ID))
@@ -296,6 +299,7 @@ class ItemServiceTest {
 			// then
 			assertThat(results).hasSize(1);
 			assertThat(results.getFirst().writerId()).isEqualTo(TEST_MEMBER_ID);
+			verify(sellerAccessPolicy).validateOwnerOrAccessMember(TEST_MEMBER_ID, TEST_MEMBER_ID);
 		}
 
 		@Test
@@ -307,8 +311,6 @@ class ItemServiceTest {
 			List<Object[]> mockResult = new ArrayList<>();
 			mockResult.add(new Object[] { item, TEST_IMAGE_URL, 3L });
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(seller));
-			given(sellerAccessMemberRepository.existsActiveBySellerIdAndMemberId(TEST_MEMBER_ID, TEST_MEMBER_ID_2))
-				.willReturn(true);
 			given(itemRepository.findPublicListingsByMemberIdWithLikes(eq(TEST_MEMBER_ID), any(ItemListQuery.class)))
 				.willReturn(mockResult);
 
@@ -326,10 +328,13 @@ class ItemServiceTest {
 			// given
 			Member seller = createMember(TEST_MEMBER_ID);
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(seller));
+			willThrow(new CoreException(ErrorType.FORBIDDEN)).given(sellerAccessPolicy)
+				.validateOwnerOrAccessMember(TEST_MEMBER_ID_2, TEST_MEMBER_ID);
 
 			// when & then
 			assertThatThrownBy(() -> itemService.getSellingItemsByMember(TEST_MEMBER_ID_2, TEST_MEMBER_ID,
-					ItemListQuery.defaultQuery())).isInstanceOf(CoreException.class)
+					ItemListQuery.defaultQuery()))
+				.isInstanceOf(CoreException.class)
 				.hasFieldOrPropertyWithValue("errorType", ErrorType.FORBIDDEN);
 		}
 
@@ -341,7 +346,8 @@ class ItemServiceTest {
 
 			// when & then
 			assertThatThrownBy(() -> itemService.getSellingItemsByMember(TEST_MEMBER_ID, TEST_MEMBER_ID,
-					ItemListQuery.defaultQuery())).isInstanceOf(CoreException.class)
+					ItemListQuery.defaultQuery()))
+				.isInstanceOf(CoreException.class)
 				.hasFieldOrPropertyWithValue("errorType", ErrorType.MEMBER_NOT_FOUND);
 		}
 

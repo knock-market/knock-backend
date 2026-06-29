@@ -15,7 +15,7 @@ import com.knock.storage.db.core.report.ReportRepository;
 import com.knock.storage.db.core.reservation.Reservation;
 import com.knock.storage.db.core.reservation.ReservationRepository;
 import com.knock.storage.db.core.review.ReviewRepository;
-import com.knock.storage.db.core.seller.SellerAccessMemberRepository;
+import com.knock.core.domain.seller.SellerAccessPolicy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -58,7 +59,7 @@ class ReportServiceTest {
 	private ReviewRepository reviewRepository;
 
 	@Mock
-	private SellerAccessMemberRepository sellerAccessMemberRepository;
+	private SellerAccessPolicy sellerAccessPolicy;
 
 	@Test
 	@DisplayName("상품 신고 생성 성공")
@@ -71,8 +72,6 @@ class ReportServiceTest {
 
 		given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(reporter));
 		given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
-		given(sellerAccessMemberRepository.existsActiveBySellerIdAndMemberId(TEST_MEMBER_ID_2, TEST_MEMBER_ID))
-			.willReturn(true);
 		given(reportRepository.findDuplicate(TEST_MEMBER_ID, ReportTargetType.ITEM, TEST_ITEM_ID,
 				ReportReason.PROHIBITED_ITEM))
 			.willReturn(Optional.empty());
@@ -100,6 +99,8 @@ class ReportServiceTest {
 
 		given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(reporter));
 		given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
+		willThrow(new CoreException(ErrorType.FORBIDDEN)).given(sellerAccessPolicy)
+			.validateAccessMember(TEST_MEMBER_ID, TEST_MEMBER_ID_2);
 
 		assertThatThrownBy(() -> reportService.createReport(TEST_MEMBER_ID, data)).isInstanceOf(CoreException.class)
 			.hasFieldOrPropertyWithValue("errorType", ErrorType.FORBIDDEN);
@@ -151,8 +152,6 @@ class ReportServiceTest {
 
 		given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(reporter));
 		given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
-		given(sellerAccessMemberRepository.existsActiveBySellerIdAndMemberId(TEST_MEMBER_ID_2, TEST_MEMBER_ID))
-			.willReturn(true);
 		given(reportRepository.findDuplicate(TEST_MEMBER_ID, ReportTargetType.ITEM, TEST_ITEM_ID,
 				ReportReason.PROHIBITED_ITEM))
 			.willReturn(Optional.of(existing));

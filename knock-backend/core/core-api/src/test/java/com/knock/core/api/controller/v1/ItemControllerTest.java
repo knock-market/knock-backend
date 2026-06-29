@@ -158,8 +158,8 @@ class ItemControllerTest extends RestDocsTest {
 		// given
 		ItemReadResult result = new ItemReadResult(TEST_ITEM_ID, TEST_ITEM_PUBLIC_ID, TEST_ITEM_TITLE,
 				TEST_ITEM_DESCRIPTION, TEST_ITEM_PRICE, ItemType.SELL, ItemStatus.ON_SALE, List.of(TEST_IMAGE_URL),
-				principal.getMemberId(), TEST_NICKNAME, TEST_IMAGE_URL, TEST_TRADE_LOCATION_NAME, TEST_TRADE_LOCATION_ADDRESS,
-				TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
+				principal.getMemberId(), TEST_NICKNAME, TEST_IMAGE_URL, TEST_TRADE_LOCATION_NAME,
+				TEST_TRADE_LOCATION_ADDRESS, TEST_TRADE_LATITUDE, TEST_TRADE_LONGITUDE);
 		given(itemService.getItemForOwner(principal.getMemberId(), TEST_ITEM_ID)).willReturn(result);
 
 		// when

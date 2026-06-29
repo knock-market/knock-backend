@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 
 public record MySellingItemSummaryResponseDto(Long id, String publicId, String title, Long price, ItemType type,
 		ItemStatus status, String thumbnailUrl, Long writerId, String writerNickname, String writerProfileImageUrl,
-		Long likesCount, Long viewCount, LocalDateTime postedAt, String tradeLocationName,
-		String tradeLocationAddress, Double tradeLatitude, Double tradeLongitude) {
+		Long likesCount, Long viewCount, LocalDateTime postedAt, String tradeLocationName, String tradeLocationAddress,
+		Double tradeLatitude, Double tradeLongitude) {
 
 	public static MySellingItemSummaryResponseDto from(ItemListResult result) {
 		return new MySellingItemSummaryResponseDto(result.id(), result.publicId(), result.title(), result.price(),

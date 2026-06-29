@@ -13,7 +13,7 @@ import com.knock.storage.db.core.item.Item;
 import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
-import com.knock.storage.db.core.seller.SellerAccessMemberRepository;
+import com.knock.core.domain.seller.SellerAccessPolicy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -56,7 +56,7 @@ class BookmarkServiceTest {
 	private BlockService blockService;
 
 	@Mock
-	private SellerAccessMemberRepository sellerAccessMemberRepository;
+	private SellerAccessPolicy sellerAccessPolicy;
 
 	@Nested
 	@DisplayName("북마크 토글")
@@ -72,8 +72,6 @@ class BookmarkServiceTest {
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
 			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
-			given(sellerAccessMemberRepository.existsActiveBySellerIdAndMemberId(TEST_MEMBER_ID_2, TEST_MEMBER_ID))
-				.willReturn(true);
 			given(bookmarkRepository.findByMemberAndItemWithDeleted(TEST_MEMBER_ID, TEST_ITEM_ID))
 				.willReturn(Optional.empty());
 
@@ -96,8 +94,6 @@ class BookmarkServiceTest {
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
 			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
-			given(sellerAccessMemberRepository.existsActiveBySellerIdAndMemberId(TEST_MEMBER_ID_2, TEST_MEMBER_ID))
-				.willReturn(true);
 			given(bookmarkRepository.findByMemberAndItemWithDeleted(TEST_MEMBER_ID, TEST_ITEM_ID))
 				.willReturn(Optional.of(bookmark));
 
@@ -121,8 +117,6 @@ class BookmarkServiceTest {
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
 			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
-			given(sellerAccessMemberRepository.existsActiveBySellerIdAndMemberId(TEST_MEMBER_ID_2, TEST_MEMBER_ID))
-				.willReturn(true);
 			given(bookmarkRepository.findByMemberAndItemWithDeleted(TEST_MEMBER_ID, TEST_ITEM_ID))
 				.willReturn(Optional.of(bookmark));
 
@@ -163,6 +157,8 @@ class BookmarkServiceTest {
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
 			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
+			willThrow(new CoreException(ErrorType.FORBIDDEN)).given(sellerAccessPolicy)
+				.validateAccessMember(TEST_MEMBER_ID, TEST_MEMBER_ID_2);
 
 			// when & then
 			assertThatThrownBy(() -> bookmarkService.toggleBookmark(TEST_MEMBER_ID, data))
@@ -182,8 +178,6 @@ class BookmarkServiceTest {
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
 			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
-			given(sellerAccessMemberRepository.existsActiveBySellerIdAndMemberId(TEST_MEMBER_ID_2, TEST_MEMBER_ID))
-				.willReturn(true);
 			willThrow(new CoreException(ErrorType.BLOCKED_INTERACTION)).given(blockService)
 				.validateInteractionAllowed(TEST_MEMBER_ID, TEST_MEMBER_ID_2);
 

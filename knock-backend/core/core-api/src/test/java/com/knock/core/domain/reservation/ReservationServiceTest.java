@@ -15,7 +15,7 @@ import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
 import com.knock.storage.db.core.reservation.Reservation;
 import com.knock.storage.db.core.reservation.ReservationRepository;
-import com.knock.storage.db.core.seller.SellerAccessMemberRepository;
+import com.knock.core.domain.seller.SellerAccessPolicy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -60,7 +60,7 @@ class ReservationServiceTest {
 	private BlockService blockService;
 
 	@Mock
-	private SellerAccessMemberRepository sellerAccessMemberRepository;
+	private SellerAccessPolicy sellerAccessPolicy;
 
 	@Nested
 	@DisplayName("예약 생성")
@@ -77,8 +77,6 @@ class ReservationServiceTest {
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
 			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
-			given(sellerAccessMemberRepository.existsActiveBySellerIdAndMemberId(TEST_MEMBER_ID_2, TEST_MEMBER_ID))
-				.willReturn(true);
 			given(reservationRepository.createIfNotApproved(TEST_ITEM_ID, TEST_MEMBER_ID)).willReturn(1);
 			given(reservationRepository.findByItemIdAndMemberIdAndStatus(TEST_ITEM_ID, TEST_MEMBER_ID,
 					ReservationStatus.WAITING))
@@ -109,8 +107,6 @@ class ReservationServiceTest {
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
 			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
-			given(sellerAccessMemberRepository.existsActiveBySellerIdAndMemberId(TEST_MEMBER_ID_2, TEST_MEMBER_ID))
-				.willReturn(true);
 			given(reservationRepository.createIfNotApproved(TEST_ITEM_ID, TEST_MEMBER_ID)).willReturn(0);
 
 			// when & then
@@ -143,8 +139,6 @@ class ReservationServiceTest {
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
 			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
-			given(sellerAccessMemberRepository.existsActiveBySellerIdAndMemberId(TEST_MEMBER_ID_2, TEST_MEMBER_ID))
-				.willReturn(true);
 			willThrow(new CoreException(ErrorType.BLOCKED_INTERACTION)).given(blockService)
 				.validateInteractionAllowed(TEST_MEMBER_ID, TEST_MEMBER_ID_2);
 
@@ -165,6 +159,8 @@ class ReservationServiceTest {
 
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
 			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
+			willThrow(new CoreException(ErrorType.FORBIDDEN)).given(sellerAccessPolicy)
+				.validateAccessMember(TEST_MEMBER_ID, TEST_MEMBER_ID_2);
 
 			// when & then
 			assertThatThrownBy(() -> reservationService.createReservation(data)).isInstanceOf(CoreException.class)

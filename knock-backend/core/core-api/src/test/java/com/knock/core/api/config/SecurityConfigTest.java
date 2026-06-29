@@ -69,16 +69,15 @@ class SecurityConfigTest {
 		given(sellerShareService.getSellerShop(eq("public-token"), any()))
 			.willReturn(new SellerShopResult(1L, "seller", "seller", null, List.of()));
 
-		mockMvc.perform(get("/api/v1/seller-shares/public-token"))
-			.andExpect(status().isOk());
+		mockMvc.perform(get("/api/v1/seller-shares/public-token")).andExpect(status().isOk());
 	}
 
 	@Test
 	@DisplayName("비로그인 사용자는 공개 공유 상품 matcher를 통과한다")
 	void guestCanReachPublicSellerShareItemMatcher() throws Exception {
 		given(sellerShareService.getSharedItem("public-token", "123e4567-e89b-12d3-a456-426614174000"))
-			.willReturn(new ItemReadResult(1L, "123e4567-e89b-12d3-a456-426614174000", "item", "desc",
-					1000L, ItemType.SELL, ItemStatus.ON_SALE, List.of(), 2L, "seller", null));
+			.willReturn(new ItemReadResult(1L, "123e4567-e89b-12d3-a456-426614174000", "item", "desc", 1000L,
+					ItemType.SELL, ItemStatus.ON_SALE, List.of(), 2L, "seller", null));
 
 		mockMvc.perform(get("/api/v1/seller-shares/public-token/items/123e4567-e89b-12d3-a456-426614174000"))
 			.andExpect(status().isOk());

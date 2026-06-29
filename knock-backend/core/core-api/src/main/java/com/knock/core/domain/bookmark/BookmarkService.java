@@ -3,6 +3,7 @@ package com.knock.core.domain.bookmark;
 import com.knock.core.domain.block.BlockService;
 import com.knock.core.domain.bookmark.dto.BookmarkResult;
 import com.knock.core.domain.bookmark.dto.BookmarkToggleData;
+import com.knock.core.domain.seller.SellerAccessPolicy;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
 import com.knock.storage.db.core.bookmark.Bookmark;
@@ -12,7 +13,6 @@ import com.knock.storage.db.core.item.ItemImage;
 import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
-import com.knock.storage.db.core.seller.SellerAccessMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +23,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookmarkService {
 
-	// 리팩토링 필요
 	private final BookmarkRepository bookmarkRepository;
 
 	private final MemberRepository memberRepository;
@@ -32,7 +31,7 @@ public class BookmarkService {
 
 	private final BlockService blockService;
 
-	private final SellerAccessMemberRepository sellerAccessMemberRepository;
+	private final SellerAccessPolicy sellerAccessPolicy;
 
 	@Transactional
 	public boolean toggleBookmark(Long memberId, BookmarkToggleData data) {
@@ -41,7 +40,7 @@ public class BookmarkService {
 		Item item = itemRepository.findById(data.itemId())
 			.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
 		validateNotOwnItem(memberId, item);
-		validateSellerAccess(memberId, item.getMember().getId());
+		sellerAccessPolicy.validateAccessMember(memberId, item.getMember().getId());
 		blockService.validateInteractionAllowed(memberId, item.getMember().getId());
 
 		// 현재 북마크 상태 반환
@@ -63,12 +62,6 @@ public class BookmarkService {
 	private void validateNotOwnItem(Long memberId, Item item) {
 		if (item.getMember().getId().equals(memberId)) {
 			throw new CoreException(ErrorType.VALIDATION_ERROR);
-		}
-	}
-
-	private void validateSellerAccess(Long memberId, Long sellerId) {
-		if (!sellerAccessMemberRepository.existsActiveBySellerIdAndMemberId(sellerId, memberId)) {
-			throw new CoreException(ErrorType.FORBIDDEN);
 		}
 	}
 

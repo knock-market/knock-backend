@@ -66,8 +66,7 @@ class SellerShareRestDocsTest extends RestDocsTest {
 							fieldWithPath("data.sellerName").type(JsonFieldType.STRING).description("판매자 이름"),
 							fieldWithPath("data.sellerNickname").type(JsonFieldType.STRING).description("판매자 닉네임"),
 							fieldWithPath("data.items[].id").type(JsonFieldType.NUMBER).description("상품 ID"),
-							fieldWithPath("data.items[].publicId").type(JsonFieldType.STRING)
-								.description("공개 상품 식별자"),
+							fieldWithPath("data.items[].publicId").type(JsonFieldType.STRING).description("공개 상품 식별자"),
 							fieldWithPath("data.items[].likesCount").type(JsonFieldType.NUMBER).description("관심 수"),
 							fieldWithPath("error").type(JsonFieldType.NULL).description("에러 정보"))));
 	}

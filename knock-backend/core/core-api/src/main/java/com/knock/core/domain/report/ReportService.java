@@ -2,6 +2,7 @@ package com.knock.core.domain.report;
 
 import com.knock.core.domain.report.dto.ReportCreateData;
 import com.knock.core.domain.report.dto.ReportResult;
+import com.knock.core.domain.seller.SellerAccessPolicy;
 import com.knock.core.enums.ReportTargetType;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
@@ -15,7 +16,6 @@ import com.knock.storage.db.core.reservation.Reservation;
 import com.knock.storage.db.core.reservation.ReservationRepository;
 import com.knock.storage.db.core.review.Review;
 import com.knock.storage.db.core.review.ReviewRepository;
-import com.knock.storage.db.core.seller.SellerAccessMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -36,7 +36,7 @@ public class ReportService {
 
 	private final ReviewRepository reviewRepository;
 
-	private final SellerAccessMemberRepository sellerAccessMemberRepository;
+	private final SellerAccessPolicy sellerAccessPolicy;
 
 	@Transactional
 	public ReportResult createReport(Long reporterId, ReportCreateData data) {
@@ -81,13 +81,7 @@ public class ReportService {
 		if (target.getMember().getId().equals(reporterId)) {
 			throw new CoreException(ErrorType.SELF_REPORT_NOT_ALLOWED);
 		}
-		validateSellerAccess(reporterId, target.getMember().getId());
-	}
-
-	private void validateSellerAccess(Long memberId, Long sellerId) {
-		if (!sellerAccessMemberRepository.existsActiveBySellerIdAndMemberId(sellerId, memberId)) {
-			throw new CoreException(ErrorType.FORBIDDEN);
-		}
+		sellerAccessPolicy.validateAccessMember(reporterId, target.getMember().getId());
 	}
 
 	private void validateReservationTarget(Long reporterId, Long targetId) {

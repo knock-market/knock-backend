@@ -52,8 +52,8 @@ public class ItemController {
 	}
 
 	@GetMapping("/api/v1/items")
-	public ApiResponse<List<ItemSummaryResponseDto>> getMarketplaceItems(@AuthenticationPrincipal MemberPrincipal principal,
-			@ModelAttribute ItemListRequestDto request) {
+	public ApiResponse<List<ItemSummaryResponseDto>> getMarketplaceItems(
+			@AuthenticationPrincipal MemberPrincipal principal, @ModelAttribute ItemListRequestDto request) {
 		List<ItemListResult> results = itemService.getMarketplaceItems(principal.getMemberId(), request.toQuery());
 		List<ItemSummaryResponseDto> response = results.stream().map(ItemSummaryResponseDto::from).toList();
 		return ApiResponse.success(response);

@@ -5,6 +5,7 @@ import com.knock.core.domain.notification.NotificationService;
 import com.knock.core.domain.notification.dto.NotificationCreateData;
 import com.knock.core.domain.reservation.dto.ReservationCreateData;
 import com.knock.core.domain.reservation.dto.ReservationResult;
+import com.knock.core.domain.seller.SellerAccessPolicy;
 import com.knock.core.enums.NotificationType;
 import com.knock.core.enums.ReservationStatus;
 import com.knock.core.support.error.CoreException;
@@ -15,7 +16,6 @@ import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
 import com.knock.storage.db.core.reservation.Reservation;
 import com.knock.storage.db.core.reservation.ReservationRepository;
-import com.knock.storage.db.core.seller.SellerAccessMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +38,7 @@ public class ReservationService {
 
 	private final BlockService blockService;
 
-	private final SellerAccessMemberRepository sellerAccessMemberRepository;
+	private final SellerAccessPolicy sellerAccessPolicy;
 
 	@Transactional
 	public Long createReservation(ReservationCreateData data) {
@@ -49,7 +49,7 @@ public class ReservationService {
 		if (item.getMember().getId().equals(requester.getId())) {
 			throw new CoreException(ErrorType.FORBIDDEN);
 		}
-		validateSellerAccess(requester.getId(), item.getMember().getId());
+		sellerAccessPolicy.validateAccessMember(requester.getId(), item.getMember().getId());
 		blockService.validateInteractionAllowed(requester.getId(), item.getMember().getId());
 
 		int created = reservationRepository.createIfNotApproved(data.itemId(), data.memberId());
@@ -136,12 +136,6 @@ public class ReservationService {
 		notifyCounterparty(counterpartyId, memberId, NotificationType.RESERVATION_CANCELED,
 				"'" + reservation.getItem().getTitle() + "' 예약이 취소되었습니다.",
 				"/item/" + reservation.getItem().getPublicId());
-	}
-
-	private void validateSellerAccess(Long memberId, Long sellerId) {
-		if (!sellerAccessMemberRepository.existsActiveBySellerIdAndMemberId(sellerId, memberId)) {
-			throw new CoreException(ErrorType.FORBIDDEN);
-		}
 	}
 
 	public List<ReservationResult> getReservationsByItem(Long memberId, Long itemId) {
