@@ -29,6 +29,7 @@ dependencies {
     implementation(project(":clients:client-example"))
     implementation(project(":infra:s3"))
     testImplementation(project(":tests:api-docs"))
+    testImplementation("org.testcontainers:junit-jupiter")
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
