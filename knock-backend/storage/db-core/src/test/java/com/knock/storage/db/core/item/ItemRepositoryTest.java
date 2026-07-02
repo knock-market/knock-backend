@@ -122,7 +122,8 @@ class ItemRepositoryTest extends CoreDbContextTest {
 		ItemListQuery firstPage = new ItemListQuery(null, null, ItemStatus.ON_SALE, ItemListSort.POPULAR, 0, 2);
 		ItemListQuery secondPage = new ItemListQuery(null, null, ItemStatus.ON_SALE, ItemListSort.POPULAR, 1, 2);
 
-		assertThat(extractItems(itemRepository.findPublicListingsWithLikes(firstPage))).containsExactly(popular, second);
+		assertThat(extractItems(itemRepository.findPublicListingsWithLikes(firstPage))).containsExactly(popular,
+				second);
 		assertThat(extractItems(itemRepository.findPublicListingsWithLikes(secondPage))).containsExactly(first);
 	}
 
