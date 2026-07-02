@@ -165,10 +165,11 @@ public class ItemRepositoryImpl implements ItemRepository {
 
 	private String orderBy(ItemListSort sort) {
 		return switch (sort) {
-			case POPULAR -> """
-					 ORDER BY (SELECT COUNT(b2) FROM Bookmark b2 WHERE b2.item = i AND b2.member.id <> i.member.id) DESC,
-					 i.createdAt DESC, i.id DESC
-					""";
+			case POPULAR ->
+				"""
+						 ORDER BY (SELECT COUNT(b2) FROM Bookmark b2 WHERE b2.item = i AND b2.member.id <> i.member.id) DESC,
+						 i.createdAt DESC, i.id DESC
+						""";
 			case PRICE_ASC -> " ORDER BY i.price ASC, i.createdAt DESC, i.id DESC";
 			case PRICE_DESC -> " ORDER BY i.price DESC, i.createdAt DESC, i.id DESC";
 			case LATEST -> " ORDER BY i.createdAt DESC, i.id DESC";
