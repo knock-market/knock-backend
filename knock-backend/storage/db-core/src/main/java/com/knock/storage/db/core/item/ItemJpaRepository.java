@@ -13,19 +13,12 @@ public interface ItemJpaRepository extends JpaRepository<Item, Long> {
 
 	@Query("""
 			SELECT i, (SELECT img.imageUrl FROM ItemImage img WHERE img.item = i ORDER BY img.id ASC LIMIT 1),
-			(SELECT COUNT(b) FROM Bookmark b WHERE b.item = i)
+			(SELECT COUNT(b) FROM Bookmark b WHERE b.item = i AND b.member.id <> i.member.id)
 			FROM Item i JOIN FETCH i.member
 			WHERE i.member.id = :memberId
+			ORDER BY i.createdAt DESC, i.id DESC
 			""")
-	List<Object[]> findItemsWithLikesByMemberId(Long memberId);
-
-	@Query("""
-			SELECT i, (SELECT img.imageUrl FROM ItemImage img WHERE img.item = i ORDER BY img.id ASC LIMIT 1),
-			(SELECT COUNT(b) FROM Bookmark b WHERE b.item = i)
-			FROM Item i JOIN FETCH i.member
-			ORDER BY i.createdAt DESC
-			""")
-	List<Object[]> findAllItemsWithLikes();
+	List<Object[]> findOwnerInventoryWithLikes(Long memberId);
 
 	@Query("SELECT DISTINCT i FROM Item i JOIN FETCH i.member LEFT JOIN FETCH i.images WHERE i.id = :itemId")
 	Optional<Item> findByIdWithImages(Long itemId);

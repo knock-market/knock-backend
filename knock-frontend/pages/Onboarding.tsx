@@ -8,6 +8,7 @@ const Onboarding: React.FC = () => {
   const location = useLocation();
   const nextPath = resolveAuthNextPath(new URLSearchParams(location.search).get('next'));
   const loginUrl = buildLoginUrl(nextPath);
+  const signupUrl = `/signup?next=${encodeURIComponent(nextPath)}`;
 
   const handleKakaoLogin = () => {
     alert('Kakao login is not available yet. Please use email login.');
@@ -43,7 +44,7 @@ const Onboarding: React.FC = () => {
           </button>
 
           <button
-            onClick={() => navigate('/signup')}
+            onClick={() => navigate(signupUrl)}
             className="w-full bg-white border-2 border-emerald-500 text-emerald-600 font-bold py-4 rounded-full flex items-center justify-center transition-all active:scale-[0.98]"
           >
             <span>Sign Up</span>

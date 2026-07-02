@@ -5,15 +5,15 @@ import com.knock.core.domain.item.dto.ItemCreateResult;
 import com.knock.core.domain.item.dto.ItemListResult;
 import com.knock.core.domain.item.dto.ItemReadResult;
 import com.knock.core.enums.ItemType;
-import com.knock.core.enums.ReservationStatus;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
 import com.knock.storage.db.core.item.Item;
+import com.knock.storage.db.core.item.ItemListQuery;
 import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
-import com.knock.storage.db.core.reservation.Reservation;
 import com.knock.storage.db.core.reservation.ReservationRepository;
+import com.knock.core.domain.seller.SellerAccessPolicy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,6 +52,9 @@ class ItemServiceTest {
 
 	@Mock
 	private ReservationRepository reservationRepository;
+
+	@Mock
+	private SellerAccessPolicy sellerAccessPolicy;
 
 	@Mock
 	private RedisTemplate<String, Object> redisTemplate;
@@ -143,8 +148,37 @@ class ItemServiceTest {
 		}
 
 		@Test
-		@DisplayName("성공 - 공개 식별자로 조회")
-		void success_publicId() {
+		@DisplayName("성공 - 관리용 조회: 판매자 본인")
+		void success_getItemForOwner() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, member);
+			given(itemRepository.findByIdWithImages(TEST_ITEM_ID)).willReturn(Optional.of(item));
+
+			// when
+			ItemReadResult result = itemService.getItemForOwner(TEST_MEMBER_ID, TEST_ITEM_ID);
+
+			// then
+			assertThat(result.id()).isEqualTo(TEST_ITEM_ID);
+		}
+
+		@Test
+		@DisplayName("실패 - 관리용 조회: 판매자 아님")
+		void fail_getItemForOwnerForbidden() {
+			// given
+			Member seller = createMember(TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, seller);
+			given(itemRepository.findByIdWithImages(TEST_ITEM_ID)).willReturn(Optional.of(item));
+
+			// when & then
+			assertThatThrownBy(() -> itemService.getItemForOwner(TEST_MEMBER_ID_2, TEST_ITEM_ID))
+				.isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.FORBIDDEN);
+		}
+
+		@Test
+		@DisplayName("성공 - 공개 식별자로 조회: 판매자 본인")
+		void success_publicId_owner() {
 			// given
 			Member member = createMember(TEST_MEMBER_ID);
 			Item item = createItem(TEST_ITEM_ID, member);
@@ -152,11 +186,43 @@ class ItemServiceTest {
 			given(itemRepository.findByPublicIdWithImages(TEST_ITEM_PUBLIC_ID)).willReturn(Optional.of(item));
 
 			// when
-			ItemReadResult result = itemService.getItemByPublicId(TEST_ITEM_PUBLIC_ID);
+			ItemReadResult result = itemService.getItemByPublicId(TEST_MEMBER_ID, TEST_ITEM_PUBLIC_ID);
 
 			// then
 			assertThat(result.id()).isEqualTo(TEST_ITEM_ID);
 			assertThat(result.publicId()).isEqualTo(TEST_ITEM_PUBLIC_ID);
+			verify(sellerAccessPolicy).validateOwnerOrAccessMember(TEST_MEMBER_ID, TEST_MEMBER_ID);
+		}
+
+		@Test
+		@DisplayName("성공 - 공개 식별자로 조회: 초대된 접근 회원")
+		void success_publicId_accessMember() {
+			// given
+			Member seller = createMember(TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, seller);
+			given(itemRepository.findByPublicIdWithImages(TEST_ITEM_PUBLIC_ID)).willReturn(Optional.of(item));
+
+			// when
+			ItemReadResult result = itemService.getItemByPublicId(TEST_MEMBER_ID_2, TEST_ITEM_PUBLIC_ID);
+
+			// then
+			assertThat(result.id()).isEqualTo(TEST_ITEM_ID);
+		}
+
+		@Test
+		@DisplayName("실패 - 공개 식별자 조회: 초대되지 않은 회원")
+		void fail_publicIdForbidden() {
+			// given
+			Member seller = createMember(TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, seller);
+			given(itemRepository.findByPublicIdWithImages(TEST_ITEM_PUBLIC_ID)).willReturn(Optional.of(item));
+			willThrow(new CoreException(ErrorType.FORBIDDEN)).given(sellerAccessPolicy)
+				.validateOwnerOrAccessMember(TEST_MEMBER_ID_2, TEST_MEMBER_ID);
+
+			// when & then
+			assertThatThrownBy(() -> itemService.getItemByPublicId(TEST_MEMBER_ID_2, TEST_ITEM_PUBLIC_ID))
+				.isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.FORBIDDEN);
 		}
 
 		@Test
@@ -177,7 +243,7 @@ class ItemServiceTest {
 			given(itemRepository.findByPublicIdWithImages(TEST_ITEM_PUBLIC_ID)).willReturn(Optional.empty());
 
 			// when & then
-			assertThatThrownBy(() -> itemService.getItemByPublicId(TEST_ITEM_PUBLIC_ID))
+			assertThatThrownBy(() -> itemService.getItemByPublicId(TEST_MEMBER_ID, TEST_ITEM_PUBLIC_ID))
 				.isInstanceOf(CoreException.class)
 				.hasFieldOrPropertyWithValue("errorType", ErrorType.ITEM_NOT_FOUND);
 		}
@@ -197,7 +263,7 @@ class ItemServiceTest {
 
 			List<Object[]> mockResult = new ArrayList<>();
 			mockResult.add(new Object[] { item, TEST_IMAGE_URL, 3L });
-			given(itemRepository.findByMemberIdWithLikes(TEST_MEMBER_ID)).willReturn(mockResult);
+			given(itemRepository.findOwnerInventoryWithLikes(TEST_MEMBER_ID)).willReturn(mockResult);
 
 			// when
 			List<ItemListResult> results = itemService.getMySellingItems(TEST_MEMBER_ID);
@@ -214,8 +280,8 @@ class ItemServiceTest {
 	class GetSellingItemsByMember {
 
 		@Test
-		@DisplayName("성공")
-		void success() {
+		@DisplayName("성공 - 판매자 본인")
+		void success_owner() {
 			// given
 			Member member = createMember(TEST_MEMBER_ID);
 			Item item = createItem(TEST_ITEM_ID, member);
@@ -223,14 +289,53 @@ class ItemServiceTest {
 			List<Object[]> mockResult = new ArrayList<>();
 			mockResult.add(new Object[] { item, TEST_IMAGE_URL, 3L });
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
-			given(itemRepository.findByMemberIdWithLikes(TEST_MEMBER_ID)).willReturn(mockResult);
+			given(itemRepository.findPublicListingsByMemberIdWithLikes(eq(TEST_MEMBER_ID), any(ItemListQuery.class)))
+				.willReturn(mockResult);
 
 			// when
-			List<ItemListResult> results = itemService.getSellingItemsByMember(TEST_MEMBER_ID);
+			List<ItemListResult> results = itemService.getSellingItemsByMember(TEST_MEMBER_ID, TEST_MEMBER_ID,
+					ItemListQuery.defaultQuery());
 
 			// then
 			assertThat(results).hasSize(1);
 			assertThat(results.getFirst().writerId()).isEqualTo(TEST_MEMBER_ID);
+			verify(sellerAccessPolicy).validateOwnerOrAccessMember(TEST_MEMBER_ID, TEST_MEMBER_ID);
+		}
+
+		@Test
+		@DisplayName("성공 - 초대된 접근 회원")
+		void success_accessMember() {
+			// given
+			Member seller = createMember(TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, seller);
+			List<Object[]> mockResult = new ArrayList<>();
+			mockResult.add(new Object[] { item, TEST_IMAGE_URL, 3L });
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(seller));
+			given(itemRepository.findPublicListingsByMemberIdWithLikes(eq(TEST_MEMBER_ID), any(ItemListQuery.class)))
+				.willReturn(mockResult);
+
+			// when
+			List<ItemListResult> results = itemService.getSellingItemsByMember(TEST_MEMBER_ID_2, TEST_MEMBER_ID,
+					ItemListQuery.defaultQuery());
+
+			// then
+			assertThat(results).hasSize(1);
+		}
+
+		@Test
+		@DisplayName("실패 - 초대되지 않은 회원")
+		void fail_forbidden() {
+			// given
+			Member seller = createMember(TEST_MEMBER_ID);
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(seller));
+			willThrow(new CoreException(ErrorType.FORBIDDEN)).given(sellerAccessPolicy)
+				.validateOwnerOrAccessMember(TEST_MEMBER_ID_2, TEST_MEMBER_ID);
+
+			// when & then
+			assertThatThrownBy(() -> itemService.getSellingItemsByMember(TEST_MEMBER_ID_2, TEST_MEMBER_ID,
+					ItemListQuery.defaultQuery()))
+				.isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.FORBIDDEN);
 		}
 
 		@Test
@@ -240,59 +345,10 @@ class ItemServiceTest {
 			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.empty());
 
 			// when & then
-			assertThatThrownBy(() -> itemService.getSellingItemsByMember(TEST_MEMBER_ID))
+			assertThatThrownBy(() -> itemService.getSellingItemsByMember(TEST_MEMBER_ID, TEST_MEMBER_ID,
+					ItemListQuery.defaultQuery()))
 				.isInstanceOf(CoreException.class)
 				.hasFieldOrPropertyWithValue("errorType", ErrorType.MEMBER_NOT_FOUND);
-		}
-
-	}
-
-	@Nested
-	@DisplayName("상품 삭제")
-	class DeleteItem {
-
-		@Test
-		@DisplayName("성공")
-		void success() {
-			// given
-			Member member = createMember(TEST_MEMBER_ID);
-			Member reserver = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
-			Item item = createItem(TEST_ITEM_ID, member);
-			Reservation waitingReservation = createReservation(TEST_RESERVATION_ID, item, reserver);
-			Reservation approvedReservation = createReservation(TEST_RESERVATION_ID + 1, item, reserver,
-					ReservationStatus.APPROVED);
-			Reservation completedReservation = createReservation(TEST_RESERVATION_ID + 2, item, reserver,
-					ReservationStatus.COMPLETED);
-
-			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
-			given(reservationRepository.findByItemId(TEST_ITEM_ID))
-				.willReturn(List.of(waitingReservation, approvedReservation, completedReservation));
-
-			// when
-			itemService.deleteItem(TEST_MEMBER_ID, TEST_ITEM_ID);
-
-			// then
-			assertThat(waitingReservation.getStatus()).isEqualTo(ReservationStatus.CANCELED);
-			assertThat(approvedReservation.getStatus()).isEqualTo(ReservationStatus.CANCELED);
-			assertThat(completedReservation.getStatus()).isEqualTo(ReservationStatus.COMPLETED);
-			verify(itemRepository).delete(item);
-		}
-
-		@Test
-		@DisplayName("성공 - 작성자가 아니어도 삭제 가능")
-		void success_nonOwnerCanDelete() {
-			// given
-			Member owner = createMember(TEST_MEMBER_ID);
-			Item item = createItem(TEST_ITEM_ID, owner);
-
-			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
-			given(reservationRepository.findByItemId(TEST_ITEM_ID)).willReturn(List.of());
-
-			// when
-			itemService.deleteItem(TEST_MEMBER_ID_2, TEST_ITEM_ID);
-
-			// then
-			verify(itemRepository).delete(item);
 		}
 
 	}

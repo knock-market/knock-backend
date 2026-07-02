@@ -15,6 +15,7 @@ import com.knock.storage.db.core.report.ReportRepository;
 import com.knock.storage.db.core.reservation.Reservation;
 import com.knock.storage.db.core.reservation.ReservationRepository;
 import com.knock.storage.db.core.review.ReviewRepository;
+import com.knock.core.domain.seller.SellerAccessPolicy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,6 +57,9 @@ class ReportServiceTest {
 
 	@Mock
 	private ReviewRepository reviewRepository;
+
+	@Mock
+	private SellerAccessPolicy sellerAccessPolicy;
 
 	@Test
 	@DisplayName("상품 신고 생성 성공")
@@ -81,6 +86,24 @@ class ReportServiceTest {
 		assertThat(result.reportId()).isEqualTo(10L);
 		assertThat(result.status().name()).isEqualTo("RECEIVED");
 		verify(reportRepository).save(any(Report.class));
+	}
+
+	@Test
+	@DisplayName("실패 - 초대되지 않은 판매자 상품 신고 차단")
+	void createReport_failSellerAccessRequired() {
+		Member reporter = createMember(TEST_MEMBER_ID);
+		Member seller = createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2);
+		Item item = createItem(TEST_ITEM_ID, seller);
+		ReportCreateData data = new ReportCreateData(ReportTargetType.ITEM, TEST_ITEM_ID, ReportReason.PROHIBITED_ITEM,
+				null);
+
+		given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(reporter));
+		given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
+		willThrow(new CoreException(ErrorType.FORBIDDEN)).given(sellerAccessPolicy)
+			.validateAccessMember(TEST_MEMBER_ID, TEST_MEMBER_ID_2);
+
+		assertThatThrownBy(() -> reportService.createReport(TEST_MEMBER_ID, data)).isInstanceOf(CoreException.class)
+			.hasFieldOrPropertyWithValue("errorType", ErrorType.FORBIDDEN);
 	}
 
 	@Test

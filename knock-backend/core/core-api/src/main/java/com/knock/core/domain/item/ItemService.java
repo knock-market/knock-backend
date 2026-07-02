@@ -4,10 +4,12 @@ import com.knock.core.domain.item.dto.ItemCreateData;
 import com.knock.core.domain.item.dto.ItemCreateResult;
 import com.knock.core.domain.item.dto.ItemListResult;
 import com.knock.core.domain.item.dto.ItemReadResult;
+import com.knock.core.domain.seller.SellerAccessPolicy;
 import com.knock.core.enums.ReservationStatus;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
 import com.knock.storage.db.core.item.Item;
+import com.knock.storage.db.core.item.ItemListQuery;
 import com.knock.storage.db.core.item.ItemRepository;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
@@ -36,6 +38,8 @@ public class ItemService {
 
 	private final ReservationRepository reservationRepository;
 
+	private final SellerAccessPolicy sellerAccessPolicy;
+
 	private final RedisTemplate<String, Object> redisTemplate;
 
 	@Transactional
@@ -61,16 +65,25 @@ public class ItemService {
 	}
 
 	@Transactional(readOnly = true)
-	public ItemReadResult getItemByPublicId(String publicId) {
+	public ItemReadResult getItemForOwner(Long memberId, Long itemId) {
+		Item item = itemRepository.findByIdWithImages(itemId)
+			.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
+		validateItemOwner(memberId, item);
+		return ItemReadResult.from(item, item.getImages());
+	}
+
+	@Transactional(readOnly = true)
+	public ItemReadResult getItemByPublicId(Long viewerMemberId, String publicId) {
 		Item item = itemRepository.findByPublicIdWithImages(publicId)
 			.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
-
+		validateAuthenticated(viewerMemberId);
+		sellerAccessPolicy.validateOwnerOrAccessMember(viewerMemberId, item.getMember().getId());
 		return ItemReadResult.from(item, item.getImages());
 	}
 
 	@Transactional(readOnly = true)
 	public List<ItemListResult> getMySellingItems(Long memberId) {
-		return itemRepository.findByMemberIdWithLikes(memberId).stream().map(row -> {
+		return itemRepository.findOwnerInventoryWithLikes(memberId).stream().map(row -> {
 			Item item = (Item) row[0];
 			String thumbnailUrl = (String) row[1];
 			long likesCount = (Long) row[2];
@@ -79,8 +92,9 @@ public class ItemService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ItemListResult> getMarketplaceItems() {
-		return itemRepository.findAllWithLikes().stream().map(row -> {
+	public List<ItemListResult> getMarketplaceItems(Long viewerMemberId, ItemListQuery query) {
+		validateAuthenticated(viewerMemberId);
+		return itemRepository.findAccessibleListingsWithLikes(viewerMemberId, query).stream().map(row -> {
 			Item item = (Item) row[0];
 			String thumbnailUrl = (String) row[1];
 			long likesCount = (Long) row[2];
@@ -89,9 +103,11 @@ public class ItemService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ItemListResult> getSellingItemsByMember(Long memberId) {
+	public List<ItemListResult> getSellingItemsByMember(Long viewerMemberId, Long memberId, ItemListQuery query) {
 		memberRepository.findById(memberId).orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
-		return itemRepository.findByMemberIdWithLikes(memberId).stream().map(row -> {
+		validateAuthenticated(viewerMemberId);
+		sellerAccessPolicy.validateOwnerOrAccessMember(viewerMemberId, memberId);
+		return itemRepository.findPublicListingsByMemberIdWithLikes(memberId, query).stream().map(row -> {
 			Item item = (Item) row[0];
 			String thumbnailUrl = (String) row[1];
 			long likesCount = (Long) row[2];
@@ -103,8 +119,21 @@ public class ItemService {
 	public void deleteItem(Long memberId, Long itemId) {
 		Item item = itemRepository.findById(itemId).orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
 
+		validateItemOwner(memberId, item);
 		cancelActiveReservations(itemId);
 		itemRepository.delete(item);
+	}
+
+	private void validateItemOwner(Long memberId, Item item) {
+		if (!item.getMember().getId().equals(memberId)) {
+			throw new CoreException(ErrorType.FORBIDDEN);
+		}
+	}
+
+	private void validateAuthenticated(Long memberId) {
+		if (memberId == null) {
+			throw new CoreException(ErrorType.AUTHENTICATION_FAILED);
+		}
 	}
 
 	private void cancelActiveReservations(Long itemId) {

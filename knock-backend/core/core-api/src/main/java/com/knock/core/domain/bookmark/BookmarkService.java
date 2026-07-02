@@ -3,6 +3,7 @@ package com.knock.core.domain.bookmark;
 import com.knock.core.domain.block.BlockService;
 import com.knock.core.domain.bookmark.dto.BookmarkResult;
 import com.knock.core.domain.bookmark.dto.BookmarkToggleData;
+import com.knock.core.domain.seller.SellerAccessPolicy;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
 import com.knock.storage.db.core.bookmark.Bookmark;
@@ -22,7 +23,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookmarkService {
 
-	// 리팩토링 필요
 	private final BookmarkRepository bookmarkRepository;
 
 	private final MemberRepository memberRepository;
@@ -31,12 +31,16 @@ public class BookmarkService {
 
 	private final BlockService blockService;
 
+	private final SellerAccessPolicy sellerAccessPolicy;
+
 	@Transactional
 	public boolean toggleBookmark(Long memberId, BookmarkToggleData data) {
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new CoreException(ErrorType.MEMBER_NOT_FOUND));
 		Item item = itemRepository.findById(data.itemId())
 			.orElseThrow(() -> new CoreException(ErrorType.ITEM_NOT_FOUND));
+		validateNotOwnItem(memberId, item);
+		sellerAccessPolicy.validateAccessMember(memberId, item.getMember().getId());
 		blockService.validateInteractionAllowed(memberId, item.getMember().getId());
 
 		// 현재 북마크 상태 반환
@@ -53,6 +57,12 @@ public class BookmarkService {
 			bookmarkRepository.save(bookmark);
 			return true;
 		});
+	}
+
+	private void validateNotOwnItem(Long memberId, Item item) {
+		if (item.getMember().getId().equals(memberId)) {
+			throw new CoreException(ErrorType.VALIDATION_ERROR);
+		}
 	}
 
 	@Transactional(readOnly = true)

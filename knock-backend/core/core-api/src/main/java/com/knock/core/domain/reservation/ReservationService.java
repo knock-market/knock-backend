@@ -5,6 +5,7 @@ import com.knock.core.domain.notification.NotificationService;
 import com.knock.core.domain.notification.dto.NotificationCreateData;
 import com.knock.core.domain.reservation.dto.ReservationCreateData;
 import com.knock.core.domain.reservation.dto.ReservationResult;
+import com.knock.core.domain.seller.SellerAccessPolicy;
 import com.knock.core.enums.NotificationType;
 import com.knock.core.enums.ReservationStatus;
 import com.knock.core.support.error.CoreException;
@@ -37,6 +38,8 @@ public class ReservationService {
 
 	private final BlockService blockService;
 
+	private final SellerAccessPolicy sellerAccessPolicy;
+
 	@Transactional
 	public Long createReservation(ReservationCreateData data) {
 		Member requester = memberRepository.findById(data.memberId())
@@ -46,6 +49,7 @@ public class ReservationService {
 		if (item.getMember().getId().equals(requester.getId())) {
 			throw new CoreException(ErrorType.FORBIDDEN);
 		}
+		sellerAccessPolicy.validateAccessMember(requester.getId(), item.getMember().getId());
 		blockService.validateInteractionAllowed(requester.getId(), item.getMember().getId());
 
 		int created = reservationRepository.createIfNotApproved(data.itemId(), data.memberId());

@@ -2,6 +2,7 @@ package com.knock.core.domain.report;
 
 import com.knock.core.domain.report.dto.ReportCreateData;
 import com.knock.core.domain.report.dto.ReportResult;
+import com.knock.core.domain.seller.SellerAccessPolicy;
 import com.knock.core.enums.ReportTargetType;
 import com.knock.core.support.error.CoreException;
 import com.knock.core.support.error.ErrorType;
@@ -34,6 +35,8 @@ public class ReportService {
 	private final ReservationRepository reservationRepository;
 
 	private final ReviewRepository reviewRepository;
+
+	private final SellerAccessPolicy sellerAccessPolicy;
 
 	@Transactional
 	public ReportResult createReport(Long reporterId, ReportCreateData data) {
@@ -78,6 +81,7 @@ public class ReportService {
 		if (target.getMember().getId().equals(reporterId)) {
 			throw new CoreException(ErrorType.SELF_REPORT_NOT_ALLOWED);
 		}
+		sellerAccessPolicy.validateAccessMember(reporterId, target.getMember().getId());
 	}
 
 	private void validateReservationTarget(Long reporterId, Long targetId) {

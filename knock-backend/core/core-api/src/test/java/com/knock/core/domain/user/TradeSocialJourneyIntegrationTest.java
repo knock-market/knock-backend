@@ -63,6 +63,7 @@ class TradeSocialJourneyIntegrationTest extends ContextTest {
 			.andReturn();
 
 		long itemId = readData(createItemResult).path("id").asLong();
+		grantSellerAccess(sellerCookie, buyerCookie);
 
 		MvcResult reserveResult = mockMvc
 			.perform(post("/api/v1/reservations").cookie(buyerCookie)
@@ -126,8 +127,10 @@ class TradeSocialJourneyIntegrationTest extends ContextTest {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.data.toggleOn").value(false));
 
-		// 데모 모드에서는 제3자도 삭제 가능
-		mockMvc.perform(delete("/api/v1/items/{itemId}", itemId).cookie(strangerCookie)).andExpect(status().isOk());
+		// 제3자는 판매자 상품을 삭제할 수 없음
+		mockMvc.perform(delete("/api/v1/items/{itemId}", itemId).cookie(strangerCookie))
+			.andExpect(status().isForbidden())
+			.andExpect(jsonPath("$.error.code").value("E403"));
 	}
 
 	private void signUp(String email, String name, String password, String nickname) throws Exception {
@@ -145,6 +148,19 @@ class TradeSocialJourneyIntegrationTest extends ContextTest {
 			.andExpect(status().isOk())
 			.andReturn();
 		return result.getResponse().getCookie("SESSION_ID");
+	}
+
+	private void grantSellerAccess(Cookie sellerCookie, Cookie memberCookie) throws Exception {
+		MvcResult shareResult = mockMvc
+			.perform(post("/api/v1/seller-shares").cookie(sellerCookie)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(Map.of("duration", "ONE_DAY"))))
+			.andExpect(status().isOk())
+			.andReturn();
+
+		String token = readData(shareResult).path("token").asText();
+		mockMvc.perform(post("/api/v1/seller-shares/{token}/memberships", token).cookie(memberCookie))
+			.andExpect(status().isOk());
 	}
 
 	private JsonNode readData(MvcResult result) throws Exception {

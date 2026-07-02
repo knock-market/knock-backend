@@ -15,6 +15,7 @@ import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
 import com.knock.storage.db.core.reservation.Reservation;
 import com.knock.storage.db.core.reservation.ReservationRepository;
+import com.knock.core.domain.seller.SellerAccessPolicy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -57,6 +58,9 @@ class ReservationServiceTest {
 
 	@Mock
 	private BlockService blockService;
+
+	@Mock
+	private SellerAccessPolicy sellerAccessPolicy;
 
 	@Nested
 	@DisplayName("예약 생성")
@@ -141,6 +145,27 @@ class ReservationServiceTest {
 			// when & then
 			assertThatThrownBy(() -> reservationService.createReservation(data)).isInstanceOf(CoreException.class)
 				.hasFieldOrPropertyWithValue("errorType", ErrorType.BLOCKED_INTERACTION);
+			verify(reservationRepository, never()).createIfNotApproved(any(), any());
+			verify(notificationService, never()).createNotification(any());
+		}
+
+		@Test
+		@DisplayName("실패 - 초대되지 않은 판매자 상품 예약")
+		void fail_sellerAccessRequired() {
+			// given
+			Member member = createMember(TEST_MEMBER_ID);
+			Item item = createItem(TEST_ITEM_ID, createMember(TEST_MEMBER_ID_2, TEST_EMAIL_2));
+			ReservationCreateData data = new ReservationCreateData(TEST_ITEM_ID, TEST_MEMBER_ID);
+
+			given(memberRepository.findById(TEST_MEMBER_ID)).willReturn(Optional.of(member));
+			given(itemRepository.findById(TEST_ITEM_ID)).willReturn(Optional.of(item));
+			willThrow(new CoreException(ErrorType.FORBIDDEN)).given(sellerAccessPolicy)
+				.validateAccessMember(TEST_MEMBER_ID, TEST_MEMBER_ID_2);
+
+			// when & then
+			assertThatThrownBy(() -> reservationService.createReservation(data)).isInstanceOf(CoreException.class)
+				.hasFieldOrPropertyWithValue("errorType", ErrorType.FORBIDDEN);
+			verify(blockService, never()).validateInteractionAllowed(TEST_MEMBER_ID, TEST_MEMBER_ID_2);
 			verify(reservationRepository, never()).createIfNotApproved(any(), any());
 			verify(notificationService, never()).createNotification(any());
 		}

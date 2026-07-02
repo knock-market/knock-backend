@@ -1,6 +1,6 @@
 # Knock Runbook
 
-업데이트 기준: 2026-06-15
+업데이트 기준: 2026-06-29
 상태: operational command and local harness source of truth
 
 이 문서는 루트에서 `knock-backend`, `knock-frontend`, `docs`를 하나의 작업 단위로 다루기 위한 반복 실행 절차를 정리한다. 제품 요구사항은 `docs/SPEC.md`, 기술 참조는 `docs/REFERENCE.md`, 개발 관행은 `docs/PRACTICES.md`를 따른다.
@@ -105,12 +105,29 @@ make backend-context
 ./scripts/harness.sh backend:restdocs
 ```
 
+친구 초대/그룹 전용 access gate를 변경한 경우 운영/검증 전 `docs/db/20260629_seller_access_member.sql`을 non-local DB에 적용해야 한다. `db-core.yml`의 non-local 기본값은 `ddl-auto=validate`이므로 테이블이 없으면 애플리케이션이 기동하지 않는다.
+
+친구 초대/그룹 전용 access gate를 변경한 경우 최소한 다음 targeted test를 먼저 실행한다.
+
+```bash
+cd knock-backend
+./gradlew :core:core-api:test \
+  --tests "com.knock.core.domain.item.ItemServiceTest" \
+  --tests "com.knock.core.domain.seller.SellerShareServiceTest" \
+  --tests "com.knock.core.api.config.SecurityConfigTest" \
+  --tests "com.knock.core.api.controller.v1.ItemControllerTest" \
+  --tests "com.knock.core.api.controller.v1.ItemListingControllerTest" \
+  --tests "com.knock.core.api.controller.v1.SellerShareControllerTest"
+```
+
 ### Frontend regression
 
 ```bash
 make frontend-install
 make frontend-test
 ```
+
+초대 링크 UX 변경 시 `/shop/:token`, `/shop/:token/item/:publicId`, `/login?next=/shop/:token/item/:publicId`, 직접 `/item/:publicId`/`/seller/:memberId` 초대 필요 화면, `?shareToken` 미사용을 함께 확인한다.
 
 ### Documentation preview
 

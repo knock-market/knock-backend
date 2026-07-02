@@ -11,9 +11,17 @@ public interface ItemRepository {
 
 	Optional<Item> findByPublicId(String publicId);
 
-	List<Object[]> findByMemberIdWithLikes(Long memberId);
+	List<Object[]> findOwnerInventoryWithLikes(Long memberId);
 
-	List<Object[]> findAllWithLikes();
+	List<Object[]> findPublicListingsByMemberIdWithLikes(Long memberId, ItemListQuery query);
+
+	default List<Object[]> findPublicListingsWithLikes() {
+		return findPublicListingsWithLikes(ItemListQuery.defaultQuery());
+	}
+
+	List<Object[]> findPublicListingsWithLikes(ItemListQuery query);
+
+	List<Object[]> findAccessibleListingsWithLikes(Long memberId, ItemListQuery query);
 
 	Optional<Item> findByIdWithImages(Long itemId);
 

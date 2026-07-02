@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ChevronRight, Loader2, Package } from 'lucide-react';
 import { itemsApi } from '../services';
-import { ItemStatus, ItemSummaryResponseDto, ItemWithUI } from '../types';
+import { ItemStatus, ItemWithUI, MySellingItemSummaryResponseDto } from '../types';
 import ImageWithFallback from '../components/ImageWithFallback';
 
 const ManageItems: React.FC = () => {
@@ -14,7 +14,7 @@ const ManageItems: React.FC = () => {
     const load = async () => {
       setIsLoading(true);
       try {
-        const items: ItemSummaryResponseDto[] = await itemsApi.getMySelling();
+        const items: MySellingItemSummaryResponseDto[] = await itemsApi.getMySelling();
         const mappedItems: ItemWithUI[] = items.map((item) => ({
           ...item,
           image: item.thumbnailUrl,
@@ -73,7 +73,9 @@ const ManageItems: React.FC = () => {
                   {item.price === 0 ? 'Free' : `₩${item.price.toLocaleString()}`}
                 </p>
                 <div className="flex items-center justify-between mt-2">
-                  <div className="text-xs text-gray-400">{item.likesCount ?? 0} Likes</div>
+                  <div className="text-xs text-gray-400">
+                    {item.likesCount ?? 0} interested · {item.viewCount ?? 0} views
+                  </div>
                   <ChevronRight size={16} className="text-gray-300" />
                 </div>
               </div>

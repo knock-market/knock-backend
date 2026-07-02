@@ -1,11 +1,16 @@
 package com.knock.core.api.controller.v1;
 
 import com.knock.auth.MemberPrincipal;
+import com.knock.core.api.controller.v1.request.ItemListRequestDto;
 import com.knock.core.api.controller.v1.request.SellerShareLinkCreateRequestDto;
+import com.knock.core.api.controller.v1.response.ItemResponseDto;
+import com.knock.core.api.controller.v1.response.SellerAccessMembershipResponseDto;
 import com.knock.core.api.controller.v1.response.SellerShareLinkResponseDto;
 import com.knock.core.api.controller.v1.response.SellerShareLinkSummaryResponseDto;
 import com.knock.core.api.controller.v1.response.SellerShopResponseDto;
+import com.knock.core.domain.item.dto.ItemReadResult;
 import com.knock.core.domain.seller.SellerShareService;
+import com.knock.core.domain.seller.dto.SellerAccessMembershipResult;
 import com.knock.core.domain.seller.dto.SellerShareLinkCreateResult;
 import com.knock.core.domain.seller.dto.SellerShareLinkStatsResult;
 import com.knock.core.domain.seller.dto.SellerShopResult;
@@ -14,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,9 +42,23 @@ public class SellerShareController {
 	}
 
 	@GetMapping("/api/v1/seller-shares/{token}")
-	public ApiResponse<SellerShopResponseDto> getSellerShop(@PathVariable String token) {
-		SellerShopResult result = sellerShareService.getSellerShop(token);
+	public ApiResponse<SellerShopResponseDto> getSellerShop(@PathVariable String token,
+			@ModelAttribute ItemListRequestDto request) {
+		SellerShopResult result = sellerShareService.getSellerShop(token, request.toQuery());
 		return ApiResponse.success(SellerShopResponseDto.from(result));
+	}
+
+	@GetMapping("/api/v1/seller-shares/{token}/items/{publicId}")
+	public ApiResponse<ItemResponseDto> getSharedItem(@PathVariable String token, @PathVariable String publicId) {
+		ItemReadResult result = sellerShareService.getSharedItem(token, publicId);
+		return ApiResponse.success(ItemResponseDto.from(result));
+	}
+
+	@PostMapping("/api/v1/seller-shares/{token}/memberships")
+	public ApiResponse<SellerAccessMembershipResponseDto> createMembership(
+			@AuthenticationPrincipal MemberPrincipal principal, @PathVariable String token) {
+		SellerAccessMembershipResult result = sellerShareService.createMembership(principal.getMemberId(), token);
+		return ApiResponse.success(SellerAccessMembershipResponseDto.from(result));
 	}
 
 	@GetMapping("/api/v1/seller-shares/my")

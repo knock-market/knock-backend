@@ -6,10 +6,12 @@ import {
     InviteDuration,
     ItemPolicyWarningRequestDto,
     ItemPolicyWarningResponseDto,
+    ItemListQueryParams,
     ItemResponseDto,
     ItemSummaryResponseDto,
     LocationSearchResponseDto,
     MemberResponseDto,
+    MySellingItemSummaryResponseDto,
     MyBookmarkResponseDto,
     NotificationResponseDto,
     NotificationSettingsResponseDto,
@@ -17,6 +19,7 @@ import {
     ReservationResponseDto,
     ReportCreateRequestDto,
     ReportResponseDto,
+    SellerAccessMembershipResponseDto,
     SellerShareLinkResponseDto,
     SellerShareLinkSummaryResponseDto,
     SellerShopResponseDto,
@@ -60,12 +63,13 @@ export const authApi = {
 
 // ============== Item API ==============
 export const itemsApi = {
-    getMarketplaceItems: () => get<ItemSummaryResponseDto[]>('/items'),
+    getMarketplaceItems: (params?: ItemListQueryParams) => get<ItemSummaryResponseDto[]>('/items', { params }),
     getItem: (itemId: number | string) => get<ItemResponseDto>(`/items/${itemId}`),
     getItemForManagement: (itemId: number | string) => get<ItemResponseDto>(`/items/manage/${itemId}`),
     createItem: (data: ItemCreatePayload) => post<{ id: number; publicId: string }, ItemCreatePayload>('/items', data),
-    getMySelling: () => get<ItemSummaryResponseDto[]>('/items/my-selling'),
-    getSellerItems: (memberId: number | string) => get<ItemSummaryResponseDto[]>(`/members/${memberId}/items`),
+    getMySelling: () => get<MySellingItemSummaryResponseDto[]>('/items/my-selling'),
+    getSellerItems: (memberId: number | string, params?: ItemListQueryParams) =>
+        get<ItemSummaryResponseDto[]>(`/members/${memberId}/items`, { params }),
     deleteItem: (itemId: number | string) => del<void>(`/items/${itemId}`),
 };
 
@@ -87,7 +91,12 @@ export const sellerShareApi = {
         post<SellerShareLinkResponseDto, { duration: InviteDuration }>('/seller-shares', { duration }),
     getMyLinks: () => get<SellerShareLinkSummaryResponseDto[]>('/seller-shares/my'),
     deactivate: (token: string) => del<void>(`/seller-shares/${token}`),
-    getShop: (token: string) => get<SellerShopResponseDto>(`/seller-shares/${token}`),
+    getShop: (token: string, params?: ItemListQueryParams) =>
+        get<SellerShopResponseDto>(`/seller-shares/${token}`, { params }),
+    getShopItem: (token: string, publicId: string) =>
+        get<ItemResponseDto>(`/seller-shares/${token}/items/${publicId}`),
+    createMembership: (token: string) =>
+        post<SellerAccessMembershipResponseDto>(`/seller-shares/${token}/memberships`),
 };
 
 // ============== Bookmark API ==============

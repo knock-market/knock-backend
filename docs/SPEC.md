@@ -1,6 +1,6 @@
 # Knock Product Specification
 
-업데이트 기준: 2026-06-18
+업데이트 기준: 2026-06-29
 상태: active product requirements source of truth
 
 이 문서는 Knock Market의 제품 정의, 활성 요구사항, 우선순위, 수용 기준을 관리하는 단일 기준 문서다. 이전 요구사항/작업 추적 문서의 유효한 내용은 이 문서로 통합했고, 이미 해결된 작업 추적 항목은 active queue에서 제거했다.
@@ -9,7 +9,7 @@
 
 ### 배경
 
-Knock Market은 그룹형 중고거래 장터에서 개인 판매자가 자신의 물건 매대를 만들고 지인에게 링크로 공유하는 개인형 거래 서비스로 전환했다. 현재 코드와 문서는 이 전환을 대부분 반영한다.
+Knock Market은 개인 판매자가 자신의 물건 매대를 만들고, 친구 초대 링크 또는 초대로 생성된 접근 멤버십을 통해서만 판매 조회가 가능한 지인 전용 중고거래 서비스로 전환했다. 현재 코드와 문서는 공개 카탈로그가 아니라 초대/그룹 접근 모델을 기준으로 정렬한다.
 
 ### 문제
 
@@ -38,12 +38,12 @@ Knock Market은 그룹형 중고거래 장터에서 개인 판매자가 자신�
 
 ## 2. 현재 제품 정의
 
-Knock Market은 개인 판매자가 자신의 판매 매대를 만들고, 지인 또는 제한된 공개 대상에게 링크를 공유해 픽업 거래를 진행하는 개인형 중고마켓이다.
+Knock Market은 개인 판매자가 자신의 판매 매대를 만들고, 친구 초대 링크를 공유하거나 초대 링크로 생성된 접근 멤버십을 가진 지인에게만 판매 상품 조회를 허용하는 지인 전용 중고마켓이다.
 
 ### 핵심 사용자
 
 - 판매자: 상품을 등록하고, 픽업 위치를 지정하고, 개인 매대 링크를 공유한다.
-- 구매자/지인: 공유 링크나 공개 홈에서 상품을 보고 예약 의사를 남긴다.
+- 구매자/지인: 공유 링크로 판매자 매대를 확인하고, 로그인 후 접근 멤버십을 생성해 초대받은 판매자의 상품을 다시 탐색한다.
 - 운영자/개발자: 공개 노출 범위, 입력 검증, QA 상태를 관리한다.
 
 ### 핵심 흐름
@@ -52,25 +52,28 @@ Knock Market은 개인 판매자가 자신의 판매 매대를 만들고, 지인
 2. 판매자가 상품명, 설명, 거래 유형, 가격, 사진, 픽업 위치를 입력한다.
 3. 상품은 판매자 개인 매대에 저장되고 외부 URL용 `publicId`가 발급된다.
 4. 판매자가 만료 가능한 개인 매대 공유 링크를 생성한다.
-5. 지인이 `/shop/{token}`, `/seller/{memberId}`, `/item/{publicId}` 경로로 공개 정보를 확인한다.
-6. 지인이 예약을 요청하면 로그인 경계로 이동한다.
+5. 지인은 `/shop/{token}` 또는 `/shop/{token}/item/{publicId}` 공유 링크로 판매자 매대와 상품을 익명 확인한다.
+6. 지인이 예약/관심 같은 거래 의사 표현을 누르면 로그인 경계로 이동하고, 로그인 후 `POST /api/v1/seller-shares/{token}/memberships`로 접근 멤버십을 생성한다.
 7. 판매자는 예약을 승인/완료/취소하고 알림으로 거래 이벤트를 확인한다.
 
 ### 현재 구현 상태
 
-- 백엔드 공개 경로: `GET /api/v1/items`, `GET /api/v1/members/{memberId}/items`, UUID 형식 `GET /api/v1/items/{itemPublicId}`, `GET /api/v1/seller-shares/{token}`는 비로그인 조회 가능하다.
-- 프론트 공개 경로: `/home`, `/item/{publicId}`, `/seller/{memberId}`, `/shop/{token}`는 public path로 처리한다.
+- 백엔드 공개 경로: `GET /api/v1/seller-shares/{token}`와 `GET /api/v1/seller-shares/{token}/items/{publicId}`만 익명 조회를 허용한다. `GET /api/v1/items`, `GET /api/v1/members/{memberId}/items`, `GET /api/v1/items/{itemPublicId}`는 인증 후 owner 또는 seller access member만 허용한다.
+- 프론트 공개 경로: `/shop/{token}`와 `/shop/{token}/item/{publicId}`가 canonical 공유 경로다. `/home`, `/item/{publicId}`, `/seller/{memberId}`는 초대 필요/로그인 필요 UX로 처리한다.
 - 개인 매대/공유 링크: 공유 링크 생성, 최신 링크 0~1개 조회, 중단, click/use count가 구현되어 있다.
 - 상품: `publicId`, 판매자 공개 프로필, 거래 위치 필드, Naver Map UI/검색 연동이 반영되어 있다.
+- 탐색/전환: 인증 그룹 대시보드, 접근 권한이 있는 판매자 상품 목록, 공유 링크는 `keyword`, `location`, `status`, `sort`, `page`, `size` query를 같은 계약으로 지원하고 프론트 필터/페이지 상태를 URL query에 보존한다. 기본 목록은 `status=ON_SALE`, `sort=LATEST`, `page=0`, `size=20`이다.
+- 관심/조회 지표: bookmark는 “관심 있어요” 신호로 사용하며 판매자 본인 상품 관심은 거부한다. 공개 목록은 `viewCount`를 노출하지 않고, 판매자 관리 목록은 public 탐색 기본값으로 제한하지 않은 전체 소유자 인벤토리의 관심 수와 조회수를 노출한다.
+- 상품 삭제: 판매자 owner check를 예약 취소와 삭제 mutation 전에 수행한다.
 - 예약/알림: 예약 생성/승인/완료/취소와 거래 이벤트 알림 경로가 구현되어 있다.
 - Trust & Safety P0: 신고/차단/금지 품목 preflight warning/안전 거래 안내는 신규 P0 계약으로 정의한다. 기존 상품 등록 성공 응답은 변경하지 않고, 금지 품목 안내는 `POST /api/v1/item-policy/warnings` preflight를 source of truth로 사용한다.
 - 제거 완료: 그룹, 평판/매너온도, 상품 카테고리 중심 모델은 주요 코드 경로에서 제거되어 있다. 과거 차단 모델은 복구하지 않고 P0 사용자 차단 정책으로 새로 정의한다.
-- 품질 보강 완료: 공개 홈 인증 정책, 조회수 중복 방지, 공유 링크 KST Clock 정책, DTO 의존 정리, 예약 생성 입력 검증, 문서 최신화가 반영되어 있다.
+- 품질 보강 완료: 그룹 대시보드 인증 정책, 조회수 중복 방지, 공유 링크 KST Clock 정책, DTO 의존 정리, 예약 생성 입력 검증, 문서 최신화가 반영되어 있다.
 
 ## 3. 제품 원칙
 
 - 개인 매대가 기본 단위다. 상품은 그룹이나 카테고리가 아니라 판매자 개인에 속한다.
-- 공개 링크는 제한된 공개성을 가진다. 비로그인 공개 조회는 허용하되 응답 필드는 공개 정보로 제한한다.
+- 공개 링크는 제한된 공개성을 가진다. 비로그인 조회는 유효한 `/shop/{token}` 계열에서만 허용하고, 일반 카탈로그/직접 상세/판매자 우회 경로는 인증된 접근 멤버십으로 제한한다.
 - 거래 의사 표현은 가볍게 시작하고, 실제 예약/거래 상태 변경은 인증 후 수행한다.
 - 판매자에게는 공유 성과와 다음 행동이 명확해야 한다.
 - 지도/픽업 위치는 거래 신뢰를 높이는 핵심 정보다.
@@ -95,7 +98,7 @@ Knock Market은 개인 판매자가 자신의 판매 매대를 만들고, 지인
 - 신고 API는 `targetType`, `targetId`, `reason`, 선택 `description`을 받고 `reportId`, `status`, `createdAt`을 반환한다. 중복 기준은 `(reporterId, targetType, targetId, reason)`이며 `description`은 unique key에 포함하지 않는다.
 - 신고 사유는 `PROHIBITED_ITEM`, `SUSPECTED_FRAUD`, `OFF_PLATFORM_PAYMENT`, `PERSONAL_INFO_OR_CODE_REQUEST`, `HARASSMENT_OR_THREAT`, `NO_SHOW`, `COUNTERFEIT_OR_STOLEN_SUSPECTED`, `OTHER`를 지원한다.
 - 자기 자신 신고/차단은 실패한다. 신고자 정보와 차단 상태는 상대 공개 프로필, 상품 상세, 알림 응답에 노출하지 않는다.
-- 차단은 멱등적이며 owner만 해제할 수 있다. 차단 관계에서도 공개 home/item/seller/shop 조회는 허용하되 bookmark, reservation create, review create, 상대 알림을 만드는 새 상호작용은 서비스 유스케이스 경계에서 차단한다.
+- 차단은 멱등적이며 owner만 해제할 수 있다. 차단 관계에서도 유효 공유 링크 기반 shop 조회는 허용하되 bookmark, reservation create, review create, 상대 알림을 만드는 새 상호작용은 서비스 유스케이스 경계에서 차단한다.
 - `POST /api/v1/item-policy/warnings` 응답은 `policyVersion`, `warningCategories[]`, `policyUrl`, `severity`, `message`를 포함한다. MVP severity는 `NONE` 또는 `WARNING`만 사용하고 `BLOCKING`은 future ADR 전까지 사용하지 않는다.
 - warning source of truth는 서버 preflight API다. 클라이언트 detector가 있더라도 advisory일 뿐이며 policyVersion drift 시 서버 응답을 우선한다.
 - preflight 네트워크/서버 오류는 상품 등록을 hard block하지 않는다. 일반 안전 안내 fallback을 표시하고 사용자가 계속 진행할 수 있게 한다.
@@ -110,21 +113,36 @@ Knock Market은 개인 판매자가 자신의 판매 매대를 만들고, 지인
 
 지표: 신고 제출 성공률, 중복 신고 비율, 차단 후 예약/후기 차단 오류율, warning 확인 후 등록 전환율, 예약 모달 안전 안내 노출률.
 
-### P1. 관심 있어요 UX
+### P0. 친구 초대 / 그룹 전용 판매조회
 
-목표: 구매자가 예약 전 가벼운 관심 신호를 남기고 판매자가 이를 확인할 수 있게 한다.
-
-결정: 초기에는 기존 bookmark를 구매자 관심 신호로 재해석하고 판매자 알림/집계만 추가한다. 추후 예약 전 메시지/문의가 필요해지면 별도 interest 도메인으로 전환한다.
+목표: 일반 공개 중고마켓처럼 동작하는 catalog/detail/seller 우회 경로를 닫고, 유효한 공유 링크 또는 seller access membership을 가진 사용자만 판매 상품을 조회하게 한다.
 
 수용 기준:
 
-- 상품 상세에서 로그인 사용자가 관심을 남길 수 있다.
-- 판매자 매대 또는 관리 화면에서 상품별 관심 수를 확인할 수 있다.
-- 관심 등록은 판매자 본인 상품에는 집계하지 않거나 명확히 제외 정책을 둔다.
+- `/shop/{token}`와 `/shop/{token}/item/{publicId}`는 익명 접근 가능하며 판매자 매대와 해당 판매자의 상품만 노출한다.
+- `/item/{publicId}?shareToken=...`는 지원하지 않는다.
+- `GET /api/v1/items`는 인증된 그룹 대시보드이며 익명은 `401/A003`이다.
+- `GET /api/v1/members/{memberId}/items`와 `GET /api/v1/items/{publicId}`는 owner 또는 seller access member만 허용하고, authenticated non-member는 `403/E403`이다.
+- `POST /api/v1/seller-shares/{token}/memberships`는 empty body로 접근 멤버십을 멱등 생성하고 `{ sellerId, memberId, status, createdAt }`을 반환한다. 판매자 본인 가입은 `400 VALIDATION_ERROR`, invalid/expired token은 non-leaking `404`이다.
+- 로그인 `next`는 `/shop/{token}/item/{publicId}`를 보존해 예약/관심 흐름으로 복귀한다.
+
+검증: SecurityConfig 익명 `401/A003`, ItemService owner/access/non-member matrix, SellerShareService 공유 상세/멤버십 생성, 프론트 `?shareToken` 미사용 및 `/shop/:token/item/:publicId` route/typecheck/build.
+
+### P1. 관심 있어요 UX 후속
+
+목표: 구현된 bookmark 기반 “관심 있어요” 신호를 예약 전환 UX와 지표로 더 잘 연결한다.
+
+결정: 초기 구현은 기존 bookmark를 구매자 관심 신호로 재해석한다. 판매자 본인 상품 관심은 backend에서 거부하고 count에서 제외한다. 추후 예약 전 메시지/문의가 필요해지면 별도 interest 도메인으로 전환한다.
+
+수용 기준:
+
+- 상품 상세 CTA는 “관심 있어요” 용어를 사용한다.
+- 판매자 관리 화면에서 상품별 관심 수와 조회수를 확인할 수 있다.
+- 후속으로 관심 이후 예약 CTA/알림/분석을 보강한다.
 
 지표: 공유 링크 방문 대비 관심 전환율, 관심 대비 예약 전환율, 상품별 관심 수.
 
-검증: 공개 상세 → 로그인 리다이렉트 → 관심 등록 QA, 관심 중복 토글/판매자 본인 제외 테스트.
+검증: 공유 상품 상세 → 로그인 리다이렉트 → 관심 등록 QA, 관심 중복 토글/판매자 본인 제외 테스트.
 
 ### P1. 공유 링크 분석 확장
 
@@ -142,7 +160,7 @@ Knock Market은 개인 판매자가 자신의 판매 매대를 만들고, 지인
 
 검증: 동일 세션 중복 이벤트, 만료/중단 링크 이벤트 정책, 판매자 권한 없는 분석 조회 차단 테스트.
 
-### P1. 공개 매대 품질 개선
+### P1. 공개 매대 품질 후속
 
 목표: 공유받은 사람이 판매자와 상품을 더 쉽게 신뢰하고 탐색하도록 공개 매대를 개선한다.
 
@@ -150,28 +168,28 @@ Knock Market은 개인 판매자가 자신의 판매 매대를 만들고, 지인
 
 - 판매자 소개 문구
 - 대표 이미지 또는 프로필 이미지 품질
-- 판매 중/예약 중/거래 완료 필터
+- 판매 중/예약 중/거래 완료 필터와 페이지 이동은 구현되어 있으며 URL query에 보존한다.
 - 빈 매대/만료 링크/오류 상태 문구 개선
 
 수용 기준:
 
-- `/seller/{memberId}`와 `/shop/{token}`에서 동일한 공개 매대 품질을 제공한다.
+- 접근 권한이 있는 판매자 상품 목록과 `/shop/{token}`에서 동일한 keyword/location/status/sort 탐색 품질을 제공한다.
 - 소유자 화면과 외부 공유 화면의 CTA가 명확히 다르다.
 - 거래 완료 상품 노출 정책이 문서화된다.
 
 지표: 공유 매대 진입 후 상품 상세 클릭률, 빈 매대 이탈률, 상품 등록 후 공유 링크 생성률.
 
-검증: `/seller/{memberId}`, `/shop/{token}` 성공/만료/빈 상태 브라우저 QA와 모바일 폭 visual QA.
+검증: 접근 권한이 있는 판매자 상품 목록, `/shop/{token}` 성공/만료/빈 상태 브라우저 QA와 모바일 폭 visual QA.
 
-### P2. 위치 기반 탐색과 누락 위치 보정
+### P2. 위치 기반 탐색 후속
 
-목표: 픽업 위치가 있는 상품의 탐색성을 높이고, 위치 누락/품질 낮은 상품을 줄인다.
+목표: 구현된 위치명/주소 텍스트 필터를 바탕으로 좌표 기반 탐색과 위치 품질 보정을 확장한다.
 
 결정: 홈에서 거래 위치명/주소 기반 텍스트 필터부터 제공하고, 데이터와 사용성이 확인되면 좌표 기반 근처 상품 탐색으로 확장한다.
 
 수용 기준:
 
-- 홈에서 거래 위치명/주소 기반 필터를 사용할 수 있다.
+- 홈/판매자 매대/공유 링크에서 거래 위치명/주소 기반 필터를 사용할 수 있다.
 - 위치 없는 legacy row는 명확한 fallback 문구 또는 보정 CTA를 가진다.
 - 새 상품 등록은 위치 all-or-none/range 규칙을 유지한다.
 
@@ -199,24 +217,27 @@ Knock Market은 개인 판매자가 자신의 판매 매대를 만들고, 지인
 
 | 우선순위 | 작업 | 산출물 | 성공 기준 |
 |---|---|---|---|
+| P0 | 친구 초대 / 그룹 전용 판매조회 | access membership/API gate/frontend invite UX | 공유 링크 외 우회 조회 차단 + access matrix 검증 |
 | P0 | Trust & Safety MVP | 신고/차단/API warning/안전 거래 안내 | 공개 조회 비누설 + 인증 상호작용 제한 검증 |
-| P1 | 관심 UX 실험 | 관심/북마크 기반 UI/API 개선 | 관심→예약 전환 측정 가능 |
+| P1 | 관심 UX 후속 | 관심→예약 CTA/알림/분석 | 관심→예약 전환 측정 가능 |
 | P1 | 공유 링크 분석 확장 | 이벤트/집계/판매자 화면 | 링크→상세→관심→예약 퍼널 확인 |
-| P1 | 공개 매대 품질 | 셀러 소개/필터/빈 상태 | 공유 진입 후 상품 상세 클릭률 개선 |
-| P2 | 위치 탐색 | 지역 필터/위치 품질 CTA | 위치 기반 탐색 가능 |
+| P1 | 공개 매대 품질 후속 | 셀러 소개/빈 상태/완료 노출 정책 정교화 | 공유 진입 후 상품 상세 클릭률 개선 |
+| P2 | 위치 탐색 후속 | 좌표 기반 근처 상품/위치 품질 CTA | 위치 기반 탐색 고도화 |
 | P2 | 로그인 next 표준화 | 이메일/OAuth 통합 QA | 로그인 후 원래 행동 복귀 |
 
 ## 6. UserFlow QA 기준
 
-릴리스 후보마다 프론트/백엔드 실행 후 공개 홈(`/#/home`), 공개 상세(`/#/item/{publicId}`), 로그인 리다이렉트(`/#/login?next=...`), 판매자 매대(`/#/seller/{memberId}`), 공유 링크(`/#/shop/{token}`), 상품 등록, 예약 생성/승인/완료/알림 흐름을 확인한다. Trust & Safety 릴리스 후보는 여기에 상품 등록 preflight warning, 신고 제출, 신고 후 차단 CTA, 차단 관계 예약/후기 제한, 예약 안전 거래 안내 확인을 추가한다.
+릴리스 후보마다 프론트/백엔드 실행 후 공유 링크(`/#/shop/{token}?location=...`), 공유 상품 상세(`/#/shop/{token}/item/{publicId}`), 직접 상세/판매자/홈 우회 경로의 초대 필요 UX, 로그인 리다이렉트(`/#/login?next=/shop/{token}/item/{publicId}`), 멤버십 생성 후 그룹 대시보드, 상품 등록, 예약 생성/승인/완료/알림 흐름을 확인한다. Trust & Safety 릴리스 후보는 여기에 상품 등록 preflight warning, 신고 제출, 신고 후 차단 CTA, 차단 관계 예약/후기 제한, 예약 안전 거래 안내 확인을 추가한다.
 
 ## 7. 결정 이력과 보존 맥락
 
 - 2026-05-26: 그룹형 장터에서 개인 판매자 매대와 공유 링크 중심 서비스로 전환했다.
 - 2026-05-27: 상품은 판매자 개인(`member_id`) 매대에 속하고, 상품 상세 URL은 공개 식별자(`publicId`)를 사용하도록 정리했다.
 - 2026-06-02: 기술 실현 가능성은 높다. 주요 리스크는 모듈 부재가 아니라 Naver/S3 런타임 설정, 공개/인증 경계, manual/generated API 문서 drift다.
+- 2026-06-29: 메인 피쳐를 친구 초대/그룹 전용 판매조회로 고정하고 일반 공개 catalog/detail/seller 우회 경로를 닫았다.
 - 2026-06-15: 요구사항 문서를 `SPEC.md`로 통합하고, 이전 문서 통합 작업 자체는 완료된 항목으로 active queue에서 제거했다.
 - 2026-06-18: Trust & Safety P0 계약을 신고/차단/금지 품목 warning preflight/안전 거래 안내로 확정했다. 공개 조회는 유지하고 상호작용만 차단하며, `CANCELED` 외 예약 상태와 판매자→구매자 후기 API는 future scope로 보존한다.
+- 2026-06-20: 거래 전환/탐색 MVP를 반영했다. 상품 삭제 owner guard, shared listing query, 홈/판매자/공유 링크 URL 필터/페이징, 자기 관심 차단, 판매자 관리 전체 인벤토리 관심 수/조회수 표시를 구현했다.
 
 ## 8. Retired / resolved summary
 
@@ -229,5 +250,5 @@ Knock Market은 개인 판매자가 자신의 판매 매대를 만들고, 지인
 - 상품/리뷰 입력 검증 일부 보강
 - 예약 생성 `itemId` 입력 검증 일관화
 - API Reference와 Backend Convention 일부 최신화
-- 공개 홈/상품 상세/로그인 리다이렉트 중심 Fullstack QA 일부 수행
+- 공유 링크/상품 상세/로그인 리다이렉트 중심 Fullstack QA 일부 수행
 - 이전 요구사항/작업 추적 문서 통합
