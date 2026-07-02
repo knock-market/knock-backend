@@ -8,11 +8,16 @@ import com.knock.storage.db.core.bookmark.Bookmark;
 import com.knock.storage.db.core.bookmark.BookmarkRepository;
 import com.knock.storage.db.core.member.Member;
 import com.knock.storage.db.core.member.MemberRepository;
+import com.knock.storage.db.core.seller.SellerAccessMember;
+import com.knock.storage.db.core.seller.SellerAccessMemberRepository;
+import com.knock.storage.db.core.seller.SellerShareLink;
+import com.knock.storage.db.core.seller.SellerShareLinkRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +33,12 @@ class ItemRepositoryTest extends CoreDbContextTest {
 
 	@Autowired
 	private BookmarkRepository bookmarkRepository;
+
+	@Autowired
+	private SellerShareLinkRepository sellerShareLinkRepository;
+
+	@Autowired
+	private SellerAccessMemberRepository sellerAccessMemberRepository;
 
 	@Test
 	@DisplayName("상품 저장 및 조회 성공")
@@ -158,6 +169,54 @@ class ItemRepositoryTest extends CoreDbContextTest {
 
 		assertThat(extractLikes(itemRepository.findPublicListingsWithLikes(query), item)).isEqualTo(1L);
 		assertThat(extractLikes(itemRepository.findOwnerInventoryWithLikes(seller.getId()), item)).isEqualTo(1L);
+	}
+
+	@Test
+	@DisplayName("접근 가능한 목록은 내 상품과 초대받은 판매자 상품만 반환한다")
+	void findAccessibleListingsWithLikes_filtersByAccessMembership() {
+		Member seller = memberRepository
+			.save(Member.create("access-seller@test.com", "Name", "Pass", "Seller", "LOCAL"));
+		Member buyer = memberRepository.save(Member.create("access-buyer@test.com", "Name", "Pass", "Buyer", "LOCAL"));
+		Member stranger = memberRepository
+			.save(Member.create("access-stranger@test.com", "Name", "Pass", "Stranger", "LOCAL"));
+		Item sellerItem = itemRepository
+			.save(createLocatedItem(seller, "Shared Camera", "Desc", 1000L, "Gangnam", "Seoul"), List.of());
+		Item buyerItem = itemRepository.save(createLocatedItem(buyer, "My Camera", "Desc", 1000L, "Gangnam", "Seoul"),
+				List.of());
+		Item strangerItem = itemRepository
+			.save(createLocatedItem(stranger, "Hidden Camera", "Desc", 1000L, "Gangnam", "Seoul"), List.of());
+		SellerShareLink shareLink = sellerShareLinkRepository
+			.save(SellerShareLink.create(seller, "access-token", LocalDateTime.now().plusDays(1)));
+		sellerAccessMemberRepository.save(SellerAccessMember.create(seller, buyer, shareLink));
+		bookmarkRepository.save(Bookmark.create(stranger, sellerItem));
+
+		ItemListQuery query = new ItemListQuery("camera", "gangnam", ItemStatus.ON_SALE, ItemListSort.POPULAR, 0, 20);
+
+		List<Item> items = extractItems(itemRepository.findAccessibleListingsWithLikes(buyer.getId(), query));
+		assertThat(items).containsExactly(sellerItem, buyerItem);
+		assertThat(items).doesNotContain(strangerItem);
+	}
+
+	@Test
+	@DisplayName("판매자 접근 멤버 저장 후 활성 상태로 조회된다")
+	void sellerAccessMember_saveAndFindActive() {
+		Member seller = memberRepository
+			.save(Member.create("member-seller@test.com", "Name", "Pass", "Seller", "LOCAL"));
+		Member member = memberRepository.save(Member.create("member-buyer@test.com", "Name", "Pass", "Buyer", "LOCAL"));
+		SellerShareLink shareLink = sellerShareLinkRepository
+			.save(SellerShareLink.create(seller, "member-token", LocalDateTime.now().plusDays(1)));
+
+		SellerAccessMember saved = sellerAccessMemberRepository
+			.save(SellerAccessMember.create(seller, member, shareLink));
+
+		assertThat(saved.isActive()).isTrue();
+		assertThat(saved.getSeller().getId()).isEqualTo(seller.getId());
+		assertThat(saved.getMember().getId()).isEqualTo(member.getId());
+		assertThat(saved.getSourceShareLink().getToken()).isEqualTo("member-token");
+		assertThat(sellerAccessMemberRepository.findBySellerIdAndMemberId(seller.getId(), member.getId()))
+			.contains(saved);
+		assertThat(sellerAccessMemberRepository.existsActiveBySellerIdAndMemberId(seller.getId(), member.getId()))
+			.isTrue();
 	}
 
 	private Item createLocatedItem(Member member, String title, String description, Long price, String locationName,
